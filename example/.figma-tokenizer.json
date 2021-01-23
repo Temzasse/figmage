@@ -1,0 +1,17 @@
+{
+  "tokens": [
+    { "name": "colors", "type": "color" },
+    { "name": "gradients", "type": "linear-gradient" },
+    { "name": "typography", "type": "text" },
+    { "name": "shadows", "type": "drop-shadow" },
+    { "name": "icons", "nodeId": "1:2", "type": "svg" },
+    { "name": "spacing", "nodeId": "12:1", "type": "height" },
+    { "name": "elevation", "nodeId": "x:x", "type": "width" },
+    { "name": "sizing", "nodeId": "33:0", "type": "dimensions" },
+    { "name": "radii", "nodeId": "36:0", "type": "radius" }
+  ],
+  "output": {
+    "tokens": "tokens.json",
+    "icons": "icons.json"
+  }
+}
