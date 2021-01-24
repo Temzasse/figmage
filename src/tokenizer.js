@@ -271,17 +271,21 @@ export default class Tokenizer {
   }
 
   getTokenNameByNodeId(nodeId) {
-    return this.config.tokens.find((t) => t.nodeId === nodeId).name;
+    return this.config.tokens.find(
+      (t) => decodeURIComponent(t.nodeId) === decodeURIComponent(nodeId)
+    ).name;
   }
 
   getTokenNodeId(type) {
-    return this.config.tokens.find((t) => t.type === type).nodeId;
+    return decodeURIComponent(
+      this.config.tokens.find((t) => t.type === type).nodeId
+    );
   }
 
   getAllTokenNodeIds(type) {
     return this.config.tokens
       .filter((t) => t.type === type)
-      .map((t) => t.nodeId);
+      .map((t) => decodeURIComponent(t.nodeId));
   }
 
   write() {
