@@ -1,7 +1,7 @@
 // @ts-check
 
 // Figma API seems to have some sort of rate limit so execute API requests in batches
-const MAX_PARALLEL_REQUESTS = 40;
+const MAX_PARALLEL_REQUESTS = 20;
 
 export async function promiseAllInBatches(
   task,

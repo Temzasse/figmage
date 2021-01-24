@@ -4,12 +4,14 @@
     { "name": "gradients", "type": "linear-gradient" },
     { "name": "typography", "type": "text" },
     { "name": "shadows", "type": "drop-shadow" },
-    { "name": "icons", "nodeId": "1:2", "type": "svg" },
-    { "name": "spacing", "nodeId": "12:1", "type": "height" },
-    { "name": "elevation", "nodeId": "x:x", "type": "width" },
-    { "name": "sizing", "nodeId": "33:0", "type": "dimensions" },
-    { "name": "radii", "nodeId": "36:0", "type": "radius" }
+    { "name": "icons", "type": "svg", "nodeId": "1:2" },
+    { "name": "spacing", "type": "height", "nodeId": "12:1" },
+    { "name": "sizing", "type": "dimensions", "nodeId": "33:0" },
+    { "name": "radii", "type": "radius", "nodeId": "36:0" }
   ],
+  "formatting": {
+    "tokenCase": "kebab"
+  },
   "output": {
     "tokens": "tokens.json",
     "icons": "icons.json"

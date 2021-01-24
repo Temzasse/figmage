@@ -10,8 +10,6 @@ import FigmaAPI from "./api";
 import Tokenizer from "./tokenizer";
 
 export function cli(args) {
-  log.info("Loading Figma Tokenizer config...");
-
   const options = parseArgumentsIntoOptions(args);
   const config = JSON.parse(fs.readFileSync(options.config, "utf8"));
 
@@ -30,10 +28,27 @@ export function cli(args) {
 }
 
 async function main(figmaAPI, tokenizer, shouldWatch) {
-  // TODO: add error handling
-  await tokenizer.tokenize();
-  await tokenizer.write();
-  if (shouldWatch) await watch(figmaAPI, tokenizer);
+  const spinner = ora("Fetching and tokenizing Figma file").start();
+
+  try {
+    await tokenizer.tokenize();
+  } catch (error) {
+    spinner.fail("Failed to fetch and tokenize Figma file!");
+    throw error;
+  }
+
+  try {
+    spinner.text = "Writing design tokens to disk";
+    await tokenizer.write();
+    spinner.succeed("Design tokens successfully saved!");
+  } catch (error) {
+    spinner.fail("Failed to write tokens to disk!");
+    throw error;
+  }
+
+  if (shouldWatch) {
+    await watch(figmaAPI, tokenizer);
+  }
 }
 
 async function watch(figmaAPI, tokenizer) {
@@ -41,7 +56,7 @@ async function watch(figmaAPI, tokenizer) {
   let currentVersion = await figmaAPI.fetchLatestVersion();
 
   while (true) {
-    await sleep(5000); // TODO: get sleep duration from args
+    await sleep(5000); // TODO: get sleep duration from args?
     const latestVersion = await figmaAPI.fetchLatestVersion();
 
     if (latestVersion !== currentVersion) {
@@ -53,8 +68,10 @@ async function watch(figmaAPI, tokenizer) {
         await tokenizer.write();
         spinner.succeed("Design tokens are up-to-date!");
       } catch (error) {
-        spinner.fail("Failed to load design tokens");
-        log.error(error.toString());
+        spinner.fail("Failed to load design tokens!");
+        throw error;
+      } finally {
+        currentVersion = latestVersion;
       }
     }
   }

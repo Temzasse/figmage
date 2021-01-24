@@ -1,6 +1,8 @@
 // @ts-check
 import fs from "fs";
 import kebabCase from "lodash.kebabcase";
+import snakeCase from "lodash.snakecase";
+import camelCase from "lodash.camelcase";
 import axios from "axios";
 import svgo from "./svgo";
 import { rgbToHex, roundToDecimal, promiseAllInBatches } from "./utils";
@@ -9,13 +11,24 @@ export default class Tokenizer {
   constructor({ config, figmaAPI }) {
     this.figmaAPI = figmaAPI;
     this.config = config;
-    this.tokens = {};
+    this.tokens = config.tokens.reduce((acc, val) => {
+      acc[val.name] = {};
+      return acc;
+    }, {});
   }
 
   async tokenize() {
-    await this.handleStyles();
-    await this.handleBorderRadius();
-    await this.handleDimensions();
+    await Promise.all([
+      this.handleStyles(),
+      this.handleBorderRadius(),
+      this.handleWidth(),
+      this.handleHeight(),
+      this.handleDimensions(),
+    ]);
+
+    // Execute svg handler separately since it makes so many API requests
+    // which can trigger the Figma API rate limiting
+    await this.handleSvg();
   }
 
   async handleStyles() {
@@ -23,19 +36,17 @@ export default class Tokenizer {
 
     const stylesById = styles.reduce((acc, style) => {
       const id = style.node_id;
-
       acc[id] = {
         id,
-        name: kebabCase(style.name),
+        name: this.formatTokenName(style.name),
         type: style.style_type,
       };
-
       return acc;
     }, {});
 
-    const styleNodes = await this.figmaAPI.fetchNodes(Object.keys(stylesById));
+    const nodes = await this.figmaAPI.fetchNodes(Object.keys(stylesById));
 
-    Object.entries(styleNodes).forEach(([id, node]) => {
+    Object.entries(nodes).forEach(([id, node]) => {
       const style = stylesById[id];
       const doc = node.document;
 
@@ -125,7 +136,7 @@ export default class Tokenizer {
     });
   }
 
-  async handleDimensions() {
+  async handleHeight() {
     if (this.hasTokenType("height")) {
       const nodeIds = this.getAllTokenNodeIds("height");
 
@@ -133,13 +144,15 @@ export default class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const name = kebabCase(node.name);
+          const name = this.formatTokenName(node.name);
           this.tokens[this.getTokenNameByNodeId(nodeId)][name] =
             node.absoluteBoundingBox.height;
         });
       }
     }
+  }
 
+  async handleWidth() {
     if (this.hasTokenType("width")) {
       const nodeIds = this.getAllTokenNodeIds("width");
 
@@ -147,13 +160,15 @@ export default class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const name = kebabCase(node.name);
+          const name = this.formatTokenName(node.name);
           this.tokens[this.getTokenNameByNodeId(nodeId)][name] =
             node.absoluteBoundingBox.width;
         });
       }
     }
+  }
 
+  async handleDimensions() {
     if (this.hasTokenType("dimensions")) {
       const nodeIds = this.getAllTokenNodeIds("dimensions");
 
@@ -161,7 +176,7 @@ export default class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const name = kebabCase(node.name);
+          const name = this.formatTokenName(node.name);
           this.tokens[this.getTokenNameByNodeId(nodeId)][name] = {
             height: node.absoluteBoundingBox.height,
             width: node.absoluteBoundingBox.width,
@@ -179,7 +194,7 @@ export default class Tokenizer {
         const radiiNodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         radiiNodes.forEach((node) => {
-          const name = kebabCase(node.name);
+          const name = this.formatTokenName(node.name);
           this.tokens[this.getTokenNameByNodeId(nodeId)][name] =
             node.children[0].cornerRadius;
         });
@@ -210,7 +225,7 @@ export default class Tokenizer {
         }, imageContents);
 
         const svgs = svgOptimized.reduce((acc, svg, index) => {
-          const name = kebabCase(nodes[index].name);
+          const name = this.formatTokenName(nodes[index].name);
           acc[name] = svg;
           return acc;
         }, {});
@@ -221,6 +236,26 @@ export default class Tokenizer {
   }
 
   // Helpers ------------------------------------------------------------------
+
+  formatTokenName(name) {
+    if (this.config.formatting && this.config.formatting.tokenCase) {
+      switch (this.config.formatting.tokenCase) {
+        case "snake":
+          return snakeCase(name);
+        case "kebab":
+          return kebabCase(name);
+        case "camel":
+          return camelCase(name);
+        case "lower":
+          return name.toLowerCase().replace(/\s/g, "");
+        case "upper":
+          return name.toUpperCase().replace(/\s/g, "");
+        default:
+          break;
+      }
+    }
+    return kebabCase(name);
+  }
 
   hasTokenType(type) {
     return !!this.config.tokens.find((t) => t.type === type);
