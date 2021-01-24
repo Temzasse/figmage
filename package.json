@@ -14,9 +14,10 @@
   "bin": {
     "figma-tokenizer": "bin/figma-tokenizer"
   },
+  "main": "src/main.js",
   "files": [
-    "bin",
-    "src"
+    "bin/",
+    "src/"
   ],
   "keywords": [
     "cli",

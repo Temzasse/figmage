@@ -211,18 +211,23 @@ export default class Tokenizer {
 
         const images = await promiseAllInBatches(
           ({ id }) => this.figmaAPI.fetchImages(id),
-          nodes
+          nodes,
+          10 // batch size
         );
 
-        const imageContents = await promiseAllInBatches((urls, index) => {
-          const imageUrl = urls[nodes[index].id];
-          return axios.get(imageUrl);
-        }, images);
+        const imageContents = await Promise.all(
+          images.map((urls, index) => {
+            const imageUrl = urls[nodes[index].id];
+            return axios.get(imageUrl);
+          })
+        );
 
-        const svgOptimized = await promiseAllInBatches(async ({ data }) => {
-          const optimized = await svgo.optimize(data);
-          return optimized.data;
-        }, imageContents);
+        const svgOptimized = await Promise.all(
+          imageContents.map(async ({ data }) => {
+            const optimized = await svgo.optimize(data);
+            return optimized.data;
+          })
+        );
 
         const svgs = svgOptimized.reduce((acc, svg, index) => {
           const name = this.formatTokenName(nodes[index].name);
