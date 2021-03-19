@@ -3,6 +3,7 @@ import log from "./log";
 import { sleep } from "./utils";
 import FigmaAPI from "./api";
 import Tokenizer from "./tokenizer";
+import Codegen from "./codegen";
 
 export async function main({ options, config, env }) {
   const figmaAPI = new FigmaAPI({
@@ -23,12 +24,18 @@ export async function main({ options, config, env }) {
 
   try {
     spinner.text = "Writing design tokens to disk";
-    await tokenizer.write();
+    tokenizer.write();
     spinner.succeed("Design tokens successfully saved!");
   } catch (error) {
     spinner.fail("Failed to write tokens to disk!");
     throw error;
   }
+
+  const tokens = this.tokenizer.getTokens();
+
+  const codegen = new Codegen({ config, tokens });
+
+  codegen.write();
 
   if (options.watch) {
     await watch({ figmaAPI, tokenizer });

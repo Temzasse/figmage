@@ -13,7 +13,13 @@
     "tokenCase": "kebab"
   },
   "output": {
-    "tokens": "tokens.json",
-    "icons": "icons.json"
+    "tokens": {
+      "filename": "tokens.ts",
+      "type": "ts"
+    },
+    "icons": {
+      "filename": "icons.ts",
+      "type": "ts"
+    }
   }
 }

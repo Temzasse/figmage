@@ -1,11 +1,9 @@
 // @ts-check
 import fs from "fs";
 import kebabCase from "lodash.kebabcase";
-import snakeCase from "lodash.snakecase";
-import camelCase from "lodash.camelcase";
 import axios from "axios";
 import svgo from "./svgo";
-import { rgbToHex, roundToDecimal, promiseAllInBatches } from "./utils";
+import { rgbToHex, roundToDecimal } from "./utils";
 
 export default class Tokenizer {
   constructor({ config, figmaAPI }) {
@@ -208,18 +206,10 @@ export default class Tokenizer {
 
       for (const nodeId of nodeIds) {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
-
-        const images = await promiseAllInBatches(
-          ({ id }) => this.figmaAPI.fetchImages(id),
-          nodes,
-          10 // batch size
-        );
+        const images = await this.figmaAPI.fetchImages(nodes.map((n) => n.id));
 
         const imageContents = await Promise.all(
-          images.map((urls, index) => {
-            const imageUrl = urls[nodes[index].id];
-            return axios.get(imageUrl);
-          })
+          Object.values(images).map((imageUrl) => axios.get(imageUrl))
         );
 
         const svgOptimized = await Promise.all(
@@ -243,27 +233,15 @@ export default class Tokenizer {
   // Helpers ------------------------------------------------------------------
 
   formatTokenName(name) {
-    if (this.config.formatting && this.config.formatting.tokenCase) {
-      switch (this.config.formatting.tokenCase) {
-        case "snake":
-          return snakeCase(name);
-        case "kebab":
-          return kebabCase(name);
-        case "camel":
-          return camelCase(name);
-        case "lower":
-          return name.toLowerCase().replace(/\s/g, "");
-        case "upper":
-          return name.toUpperCase().replace(/\s/g, "");
-        default:
-          break;
-      }
-    }
     return kebabCase(name);
   }
 
   hasTokenType(type) {
     return !!this.config.tokens.find((t) => t.type === type);
+  }
+
+  getTokens() {
+    return this.tokens;
   }
 
   getTokenNameByType(type) {
@@ -289,16 +267,6 @@ export default class Tokenizer {
   }
 
   write() {
-    const { tokens: tokensFilename, ...rest } = this.config.output;
-
-    Object.entries(rest).forEach(([tokenName, filename]) => {
-      const data = this.tokens[tokenName];
-      fs.writeFileSync(filename, JSON.stringify(data, null, 2));
-      delete this.tokens[tokenName];
-    });
-
-    if (tokensFilename) {
-      fs.writeFileSync(tokensFilename, JSON.stringify(this.tokens, null, 2));
-    }
+    fs.writeFileSync("tokens.json", JSON.stringify(this.tokens, null, 2));
   }
 }

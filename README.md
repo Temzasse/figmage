@@ -4,8 +4,22 @@
 
 ### Installation
 
+This tool can be used as a global package if you don't want to include it as a dependency in each of your projects:
+
 ```sh
 npm install -g figma-tokenizer
+```
+
+You can also utilize `npx` to run this tool without installing it:
+
+```sh
+npx figma-tokenizer --config ./path/to/.figma-tokenizer.json
+```
+
+Or you can install it locally in your project:
+
+```sh
+npm install figma-tokenizer
 ```
 
 ### Create a config
