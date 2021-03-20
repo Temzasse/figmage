@@ -3,16 +3,19 @@ import fs from "fs";
 import kebabCase from "lodash.kebabcase";
 import axios from "axios";
 import svgo from "./svgo";
+import log from "./log";
 import { rgbToHex, roundToDecimal } from "./utils";
 
 export default class Tokenizer {
-  constructor({ config, figmaAPI }) {
+  constructor({ config, figmaAPI, onlyNew }) {
     this.figmaAPI = figmaAPI;
     this.config = config;
-    this.tokens = config.tokens.reduce((acc, val) => {
-      acc[val.name] = {};
-      return acc;
-    }, {});
+    this.tokens = onlyNew
+      ? this.readTokens()
+      : config.tokens.reduce((acc, val) => {
+          acc[val.name] = { type: val.type, values: {} };
+          return acc;
+        }, {});
   }
 
   async tokenize() {
@@ -22,11 +25,8 @@ export default class Tokenizer {
       this.handleWidth(),
       this.handleHeight(),
       this.handleDimensions(),
+      this.handleSvg(),
     ]);
-
-    // Execute svg handler separately since it makes so many API requests
-    // which can trigger the Figma API rate limiting
-    await this.handleSvg();
   }
 
   async handleStyles() {
@@ -61,7 +61,7 @@ export default class Tokenizer {
           Math.round(b * 255)
         );
 
-        this.tokens[this.getTokenNameByType("color")][style.name] = hex;
+        this.tokens[this.getTokenNameByType("color")].values[style.name] = hex;
       } else if (
         style.type === "FILL" &&
         doc.fills[0].type === "GRADIENT_LINEAR" &&
@@ -87,14 +87,14 @@ export default class Tokenizer {
           };
         });
 
-        this.tokens[this.getTokenNameByType("linear-gradient")][
+        this.tokens[this.getTokenNameByType("linear-gradient")].values[
           style.name
         ] = colors;
       } else if (style.type === "TEXT" && this.hasTokenType("text")) {
         // TYPOGRAPHY -----------------------------------------------------------
         const textStyle = doc.style;
 
-        this.tokens[this.getTokenNameByType("text")][style.name] = {
+        this.tokens[this.getTokenNameByType("text")].values[style.name] = {
           fontFamily: textStyle.fontFamily,
           fontWeight: textStyle.fontWeight,
           fontSize: textStyle.fontSize,
@@ -121,7 +121,9 @@ export default class Tokenizer {
           Math.round(b * 255)
         );
 
-        this.tokens[this.getTokenNameByType("drop-shadow")][style.name] = {
+        this.tokens[this.getTokenNameByType("drop-shadow")].values[
+          style.name
+        ] = {
           offset: shadow.offset,
           radius: shadow.radius,
           opacity,
@@ -143,7 +145,7 @@ export default class Tokenizer {
 
         nodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)][name] =
+          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] =
             node.absoluteBoundingBox.height;
         });
       }
@@ -159,7 +161,7 @@ export default class Tokenizer {
 
         nodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)][name] =
+          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] =
             node.absoluteBoundingBox.width;
         });
       }
@@ -175,7 +177,7 @@ export default class Tokenizer {
 
         nodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)][name] = {
+          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] = {
             height: node.absoluteBoundingBox.height,
             width: node.absoluteBoundingBox.width,
           };
@@ -193,7 +195,7 @@ export default class Tokenizer {
 
         radiiNodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)][name] =
+          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] =
             node.children[0].cornerRadius;
         });
       }
@@ -205,7 +207,12 @@ export default class Tokenizer {
       const nodeIds = this.getAllTokenNodeIds("svg");
 
       for (const nodeId of nodeIds) {
-        const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
+        const current = this.tokens[this.getTokenNameByNodeId(nodeId)].values;
+        const _nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
+        const nodes = _nodes.filter((n) => !current[n.name]);
+
+        if (nodes.length === 0) continue;
+
         const images = await this.figmaAPI.fetchImages(nodes.map((n) => n.id));
 
         const imageContents = await Promise.all(
@@ -225,7 +232,7 @@ export default class Tokenizer {
           return acc;
         }, {});
 
-        this.tokens[this.getTokenNameByNodeId(nodeId)] = svgs;
+        this.tokens[this.getTokenNameByNodeId(nodeId)].values = svgs;
       }
     }
   }
@@ -240,8 +247,15 @@ export default class Tokenizer {
     return !!this.config.tokens.find((t) => t.type === type);
   }
 
-  getTokens() {
-    return this.tokens;
+  readTokens() {
+    try {
+      return JSON.parse(fs.readFileSync("tokens/base.json", "utf8"));
+    } catch (error) {
+      log.error(
+        "No tokens found! Make sure to run `figma-tokenizer tokenize` without any flags first."
+      );
+      throw error;
+    }
   }
 
   getTokenNameByType(type) {
@@ -267,6 +281,10 @@ export default class Tokenizer {
   }
 
   write() {
-    fs.writeFileSync("tokens.json", JSON.stringify(this.tokens, null, 2));
+    if (!fs.existsSync("tokens")) {
+      fs.mkdirSync("tokens");
+    }
+
+    fs.writeFileSync("tokens/base.json", JSON.stringify(this.tokens, null, 2));
   }
 }

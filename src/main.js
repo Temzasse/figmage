@@ -1,5 +1,4 @@
 import ora from "ora";
-import log from "./log";
 import { sleep } from "./utils";
 import FigmaAPI from "./api";
 import Tokenizer from "./tokenizer";
@@ -11,59 +10,72 @@ export async function main({ options, config, env }) {
     fileId: env.FIGMA_FILE_ID,
   });
 
-  const tokenizer = new Tokenizer({ config, figmaAPI });
+  const spinner = ora().start();
 
-  const spinner = ora("Generating desing tokens from Figma file").start();
+  if (options.commands[0] === "tokenize") {
+    const tokenizer = new Tokenizer({
+      config,
+      figmaAPI,
+      onlyNew: options.onlyNew,
+    });
 
-  try {
-    await tokenizer.tokenize();
-  } catch (error) {
-    spinner.fail("Failed to tokenize Figma file!");
-    throw error;
-  }
+    try {
+      spinner.text = "Generating design tokens from Figma file...";
+      await tokenizer.tokenize();
+    } catch (error) {
+      spinner.fail("Failed to tokenize Figma file!");
+      throw error;
+    }
 
-  try {
-    spinner.text = "Writing design tokens to disk";
-    tokenizer.write();
-    spinner.succeed("Design tokens successfully saved!");
-  } catch (error) {
-    spinner.fail("Failed to write tokens to disk!");
-    throw error;
-  }
-
-  const tokens = this.tokenizer.getTokens();
-
-  const codegen = new Codegen({ config, tokens });
-
-  codegen.write();
-
-  if (options.watch) {
-    await watch({ figmaAPI, tokenizer });
-  }
-}
-
-async function watch({ figmaAPI, tokenizer }) {
-  log.info("Watching for changes in Figma file...");
-  let currentVersion = await figmaAPI.fetchLatestVersion();
-
-  while (true) {
-    await sleep(5000); // TODO: get sleep duration from options?
-    const latestVersion = await figmaAPI.fetchLatestVersion();
-
-    if (latestVersion !== currentVersion) {
-      log.info("Detected changes in Figma file!");
-      const spinner = ora("Loading new design tokens").start();
-
-      try {
-        await tokenizer.tokenize();
-        await tokenizer.write();
-        spinner.succeed("Design tokens are up-to-date!");
-      } catch (error) {
-        spinner.fail("Failed to load design tokens!");
-        throw error;
-      } finally {
-        currentVersion = latestVersion;
-      }
+    try {
+      tokenizer.write();
+      spinner.succeed("Design tokens successfully saved!");
+    } catch (error) {
+      spinner.fail("Failed to write design tokens to disk!");
+      throw error;
+    }
+  } else if (options.commands[0] === "codegen") {
+    try {
+      spinner.text = "Generating code from design tokens...";
+      const codegen = new Codegen({ config });
+      codegen.write();
+      await sleep(2000);
+      spinner.succeed("Codegen complete!");
+    } catch (error) {
+      spinner.fail("Codegen failed!");
+      throw error;
+    }
+  } else {
+    if (!options.commands || options.commands.length === 0) {
+      spinner.fail("No command given");
+    } else {
+      spinner.fail(`Unknow command: ${options.commands[0]}`);
     }
   }
 }
+
+// async function watch({ figmaAPI, tokenizer }) {
+//   log.info("Watching for changes in Figma file...");
+//   let currentVersion = await figmaAPI.fetchLatestVersion();
+
+//   while (true) {
+//     await sleep(5000); // TODO: get sleep duration from options?
+//     const latestVersion = await figmaAPI.fetchLatestVersion();
+
+//     if (latestVersion !== currentVersion) {
+//       log.info("Detected changes in Figma file!");
+//       const spinner = ora("Loading new design tokens").start();
+
+//       try {
+//         await tokenizer.tokenize();
+//         await tokenizer.write();
+//         spinner.succeed("Design tokens are up-to-date!");
+//       } catch (error) {
+//         spinner.fail("Failed to load design tokens!");
+//         throw error;
+//       } finally {
+//         currentVersion = latestVersion;
+//       }
+//     }
+//   }
+// }

@@ -1,20 +1,49 @@
+import fs from "fs";
 import template from "lodash.template";
 import snakeCase from "lodash.snakecase";
 import camelCase from "lodash.camelcase";
+import log from "./log";
 
 const TEMPLATE = `
 <% tokens.forEach(function(token) { %>
-export const <%- token[0] %> = '<%- JSON.stringify(token[1]) %>';
+export const <%- token[0] %> = '<%= JSON.stringify(token[1]) %>';
 <% }); %>`;
 
 export default class Codegen {
-  constructor({ config, tokens }) {
+  constructor({ config }) {
     this.config = config;
-    this.tokens = tokens;
+    this.tokens = this.readTokens();
+  }
+
+  readTokens() {
+    try {
+      return JSON.parse(fs.readFileSync("tokens/base.json", "utf8"));
+    } catch (error) {
+      log.error(
+        "No tokens found! Make sure to run `figma-tokenizer tokenize before generating code from the design tokens.`"
+      );
+      throw error;
+    }
   }
 
   write() {
-    // TODO: implement
+    Object.entries(this.tokens).map(([key, { type, values }]) => {
+      if (type === "color") {
+        console.log("Handle colors");
+      } else if (type === "text") {
+        console.log("Handle text");
+      } else if (type === "linear-gradient") {
+        console.log("Handle gradients");
+      } else if (type === "drop-shadow") {
+        console.log("Handle shadows");
+      } else if (type === "height" || type === "width" || type === "radius") {
+        console.log("Handle simple values");
+      } else if (type === "dimensions") {
+        console.log("Handle dimensions");
+      } else if (type === "svg") {
+        console.log("Handle svgs");
+      }
+    });
   }
 }
 

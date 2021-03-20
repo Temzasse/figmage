@@ -29,11 +29,14 @@ function parseArgumentsIntoOptions(rawArgs) {
       "-c": "--config",
       "--watch": Boolean,
       "-w": "--watch",
+      "--only-new": Boolean,
     },
     { argv: rawArgs.slice(2) }
   );
   return {
+    commands: args["_"],
     config: args["--config"] || ".figma-tokenizer.json",
     watch: args["--watch"] || false,
+    onlyNew: args["--only-new"] || false,
   };
 }
