@@ -1,0 +1,17 @@
+export const darkNight = '#161a28';
+export const gray = '#93939a';
+export const grayDark = '#525252';
+export const grayLight = '#dbdbde';
+export const grayLighter = '#f7f6f7';
+export const primary = '#2f97c1';
+export const primaryDark = '#25789a';
+export const primaryLight = '#e9f3ff';
+export const secondary = '#e84721';
+export const secondaryDark = '#bc341e';
+export const secondaryDarker = '#670e00';
+export const secondaryLight = '#fbd9d1';
+export const tertiary = '#ed8900';
+export const tertiaryDark = '#d87d00';
+export const tertiaryLight = '#fce8cd';
+export const text = '#283138';
+export const white = '#ffffff';

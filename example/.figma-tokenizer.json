@@ -9,10 +9,10 @@
     { "name": "sizing", "type": "dimensions", "nodeId": "33:0" },
     { "name": "radii", "type": "radius", "nodeId": "36:0" }
   ],
-  "formatting": {
-    "tokenCase": "kebab"
-  },
   "output": {
+    "formatting": {
+      "tokenCase": "kebab"
+    },
     "tokens": {
       "filename": "tokens.ts",
       "type": "ts"

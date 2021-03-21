@@ -1,13 +1,7 @@
 import fs from "fs";
 import template from "lodash.template";
-import snakeCase from "lodash.snakecase";
 import camelCase from "lodash.camelcase";
 import log from "./log";
-
-const TEMPLATE = `
-<% tokens.forEach(function(token) { %>
-export const <%- token[0] %> = '<%= JSON.stringify(token[1]) %>';
-<% }); %>`;
 
 export default class Codegen {
   constructor({ config }) {
@@ -26,48 +20,100 @@ export default class Codegen {
     }
   }
 
+  filterTokens(token) {
+    if (RESERVED_KEYWORDS.includes(token[0])) {
+      log.error(
+        `Invalid token name! The following token name is a reserved JavaScript keyword: ${token[0]}.`
+      );
+      return false;
+    }
+    return true;
+  }
+
+  sortTokens(a, b) {
+    if (a[0] < b[0]) return -1;
+    if (a[0] > b[0]) return 1;
+    return 0;
+  }
+
+  handleTokens(filename, values, temp) {
+    const compiled = template(temp);
+    const tokens = Object.entries(values)
+      .map(([k, v]) => [camelCase(k), v])
+      .filter(this.filterTokens)
+      .sort(this.sortTokens);
+
+    fs.writeFileSync(`tokens/${filename}.ts`, compiled({ tokens }));
+  }
+
   write() {
     Object.entries(this.tokens).map(([key, { type, values }]) => {
-      if (type === "color") {
-        console.log("Handle colors");
-      } else if (type === "text") {
-        console.log("Handle text");
-      } else if (type === "linear-gradient") {
-        console.log("Handle gradients");
-      } else if (type === "drop-shadow") {
-        console.log("Handle shadows");
+      if (type === "color" || type === "svg") {
+        this.handleTokens(key, values, STRING_TEMPLATE);
       } else if (type === "height" || type === "width" || type === "radius") {
-        console.log("Handle simple values");
-      } else if (type === "dimensions") {
-        console.log("Handle dimensions");
-      } else if (type === "svg") {
-        console.log("Handle svgs");
+        this.handleTokens(key, values, NUMBER_TEMPLATE);
+      } else {
+        this.handleTokens(key, values, OBJECT_TEMPLATE);
       }
     });
   }
 }
 
-// const { tokens: tokensConfig, ...rest } = this.config.output;
+const STRING_TEMPLATE =
+  "<% tokens.forEach(function(token) { %>" +
+  "export const <%= token[0] %> = '<%= token[1] %>';\n" +
+  "<% }); %>";
 
-// Object.entries(rest).forEach(([tokenName, config]) => {
-//   const data = this.tokens[tokenName];
-//   fs.writeFileSync(config.filename, JSON.stringify(data, null, 2));
-//   delete this.tokens[tokenName];
-// });
+const NUMBER_TEMPLATE =
+  "<% tokens.forEach(function(token) { %>" +
+  "export const <%= token[0] %> = <%= token[1] %>;\n" +
+  "<% }); %>";
 
-// if (this.config.formatting && this.config.formatting.tokenCase) {
-//   switch (this.config.formatting.tokenCase) {
-//     case "snake":
-//       return snakeCase(name);
-//     case "kebab":
-//       return kebabCase(name);
-//     case "camel":
-//       return camelCase(name);
-//     case "lower":
-//       return name.toLowerCase().replace(/\s/g, "");
-//     case "upper":
-//       return name.toUpperCase().replace(/\s/g, "");
-//     default:
-//       break;
-//   }
-// }
+const OBJECT_TEMPLATE =
+  "<% tokens.forEach(function(token) { %>" +
+  "export const <%= token[0] %> = <%= JSON.stringify(token[1], null, 2) %>;\n" +
+  "<% }); %>";
+
+const RESERVED_KEYWORDS = [
+  "break",
+  "case",
+  "catch",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "export",
+  "extends",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "implements",
+  "import",
+  "in",
+  "instanceof",
+  "interface",
+  "let",
+  "new",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "static",
+  "super",
+  "switch",
+  "this",
+  "throw",
+  "try",
+  "type",
+  "typeof",
+  "var",
+  "void",
+  "while",
+  "with",
+  "yield",
+];
