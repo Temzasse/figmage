@@ -9,17 +9,20 @@
     { "name": "sizing", "type": "dimensions", "nodeId": "33:0" },
     { "name": "radii", "type": "radius", "nodeId": "36:0" }
   ],
-  "output": {
-    "formatting": {
+  "codegen": {
+    "defaults": {
+      "type": "ts",
+      "tokenCase": "camel"
+    },
+    "typography": {
+      "type": "json",
+      "filename": "typography.json",
       "tokenCase": "kebab"
     },
-    "tokens": {
-      "filename": "tokens.ts",
-      "type": "ts"
-    },
     "icons": {
-      "filename": "icons.ts",
-      "type": "ts"
+      "type": "svg",
+      "dirname": "icons",
+      "tokenCase": "kebab"
     }
   }
 }

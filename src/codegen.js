@@ -1,8 +1,9 @@
+// @ts-check
 import fs from "fs";
 import template from "lodash.template";
 import camelCase from "lodash.camelcase";
+import kebabCase from "lodash.kebabcase";
 import log from "./log";
-
 export default class Codegen {
   constructor({ config }) {
     this.config = config;
@@ -36,28 +37,70 @@ export default class Codegen {
     return 0;
   }
 
-  handleTokens(filename, values, temp) {
-    const compiled = template(temp);
+  formatTokenName(name, tokenCase) {
+    if (tokenCase === "kebab") return kebabCase(name);
+    return camelCase(name);
+  }
+
+  handleTokens(name, values, temp) {
+    const config = {
+      ...this.config.codegen.defaults,
+      ...(this.config.codegen[name] || {}),
+    };
+
+    const filename = config.filename || name;
+    const tokenCase = config.tokenCase || "camel";
+
     const tokens = Object.entries(values)
-      .map(([k, v]) => [camelCase(k), v])
+      .map(([k, v]) => [this.formatTokenName(k, tokenCase), v])
       .filter(this.filterTokens)
       .sort(this.sortTokens);
 
-    fs.writeFileSync(`tokens/${filename}.ts`, compiled({ tokens }));
+    if (config.type === "ts" || config.type === "js") {
+      const compiled = template(temp);
+      const filetype = config.type;
+
+      fs.writeFileSync(`tokens/${filename}.${filetype}`, compiled({ tokens }));
+    }
+
+    if (config.type === "json") {
+      const json = tokens.reduce((acc, val) => {
+        acc[val[0]] = val[1];
+        return acc;
+      }, {});
+
+      fs.writeFileSync(`tokens/${filename}`, JSON.stringify(json, null, 2));
+    }
+
+    if (config.type === "svg") {
+      const dirname = `tokens/${config.dirname || name}`;
+
+      if (!fs.existsSync(dirname)) {
+        fs.mkdirSync(dirname);
+      }
+
+      tokens.forEach((token) => {
+        fs.writeFileSync(`${dirname}/${token[0]}.svg`, token[1]);
+      });
+    }
   }
 
   write() {
-    Object.entries(this.tokens).map(([key, { type, values }]) => {
+    Object.entries(this.tokens).map(([name, { type, values }]) => {
       if (type === "color" || type === "svg") {
-        this.handleTokens(key, values, STRING_TEMPLATE);
+        this.handleTokens(name, values, STRING_TEMPLATE);
       } else if (type === "height" || type === "width" || type === "radius") {
-        this.handleTokens(key, values, NUMBER_TEMPLATE);
+        this.handleTokens(name, values, NUMBER_TEMPLATE);
       } else {
-        this.handleTokens(key, values, OBJECT_TEMPLATE);
+        this.handleTokens(name, values, OBJECT_TEMPLATE);
       }
     });
   }
 }
+
+const DEFAULT_CONFIG = {
+  type: "ts",
+};
 
 const STRING_TEMPLATE =
   "<% tokens.forEach(function(token) { %>" +
