@@ -7,7 +7,27 @@ import { main } from "./main";
 
 export function cli(args) {
   const options = parseArgumentsIntoOptions(args);
-  const config = JSON.parse(fs.readFileSync(options.config, "utf8"));
+
+  let config;
+
+  if (options.config) {
+    config = JSON.parse(fs.readFileSync(options.config, "utf8"));
+  } else {
+    // Read from default locations
+    if (fs.existsSync(".figma-tokenizer.json")) {
+      config = JSON.parse(fs.readFileSync(".figma-tokenizer.json", "utf8"));
+    } else if (fs.existsSync(".figma-tokenizerrc")) {
+      config = JSON.parse(fs.readFileSync(".figma-tokenizerrc", "utf8"));
+    } else if (fs.existsSync("package.json")) {
+      const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+      config = pkg["figma-tokenizer"];
+    }
+  }
+
+  if (!config) {
+    throw Error("No config found!");
+  }
+
   const env = {
     FIGMA_ACCESS_TOKEN: process.env.FIGMA_ACCESS_TOKEN,
     FIGMA_FILE_ID: process.env.FIGMA_FILE_ID,
@@ -35,7 +55,7 @@ function parseArgumentsIntoOptions(rawArgs) {
   );
   return {
     commands: args["_"],
-    config: args["--config"] || ".figma-tokenizer.json",
+    config: args["--config"],
     watch: args["--watch"] || false,
     onlyNew: args["--only-new"] || false,
   };
