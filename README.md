@@ -1,8 +1,6 @@
 # Figma Tokenizer
 
-## Quick start
-
-### Installation
+## Installation
 
 This tool can be used as a global package if you don't want to include it as a dependency in each of your projects:
 
@@ -22,15 +20,27 @@ Or you can install it locally in your project:
 npm install figma-tokenizer
 ```
 
-### Create a config
+### Environment variables
 
-Create a file called `.figma-tokenizer.json` at the root of your project.
+1. Get an [access token](https://www.figma.com/developers/api#access-tokens) for Figma API
+2. Retrieve the file id of the Figma file
+3. Create `.env` file (or any env file that is supported by [dotenv](https://github.com/motdotla/dotenv))
+4. Paste the access token and the file id in the env file
 
-The config file should include two properties: `tokens` and `output`.
+```sh
+FIGMA_ACCESS_TOKEN="xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
+FIGMA_FILE_ID="xxxxxxxxxxxxxxxxxxxxxx"
+```
+
+## Configuration
+
+Create a file called `.figma-tokenizer.json` or `.figma-tokenizerrc` in your project or add the config in your `package.json` under `"figma-tokenizer"` key.
+
+The config has two concepts: `tokens` and `codegen`.
+
+### Tokens
 
 The `tokens` property is a list of all the design tokens that should be handled by Figma Tokenizer.
-
-The `output` property tells Figma Tokenizer where to output the final tokens as JSON files.
 
 ```js
 {
@@ -44,43 +54,27 @@ The `output` property tells Figma Tokenizer where to output the final tokens as 
     { "name": "elevation", "nodeId": "x:x", "type": "width" },
     { "name": "sizing", "nodeId": "x:x", "type": "dimensions" },
     { "name": "radii", "nodeId": "x:x", "type": "radius" }
-  ],
-  "output": {
-    "tokens": "./design-system/tokens.json",
-    "icons": "./design-system/icons.json"
-  }
+  ]
 }
 ```
 
-### Setup environment variables
+#### Supported tokens
 
-1. Get an [access token](https://www.figma.com/developers/api#access-tokens) for Figma API
-2. Retrieve the file id of the Figma file
-3. Create `.env` file (or any env file that is supported by [dotenv](https://github.com/motdotla/dotenv))
-4. Paste the access token and the file id in the env file
+| Property          | Description                                                                                                                                                |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `color`           | [Fill color styles](https://help.figma.com/hc/en-us/articles/360038746534-Create-styles-for-colors-text-effects-and-layout-grids#Colors_paints)            |
+| `linear-gradient` | [Linear gradient color styles](https://help.figma.com/hc/en-us/articles/360038746534-Create-styles-for-colors-text-effects-and-layout-grids#Colors_paints) |
+| `text`            | [Text styles](https://help.figma.com/hc/en-us/articles/360038746534-Create-styles-for-colors-text-effects-and-layout-grids#Text)                           |
+| `drop-shadow`     | [Drop shadow effect](https://help.figma.com/hc/en-us/articles/360038746534-Create-styles-for-colors-text-effects-and-layout-grids#Effects)                 |
+| `width`           | Width of the component                                                                                                                                     |
+| `heigth`          | Height of the component                                                                                                                                    |
+| `dimensions`      | Both width and height of the component                                                                                                                     |
+| `radius`          | Corner radius of the component                                                                                                                             |
+| `svg`             | Vector graphics component (eg. an icon)                                                                                                                    |
 
-```sh
-FIGMA_ACCESS_TOKEN="xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
-FIGMA_FILE_ID="xxxxxxxxxxxxxxxxxxxxxx"
-```
+##### Colors
 
-## Supported tokens
-
-| Property          | Description                       |
-| ----------------- | --------------------------------- |
-| `color`           | Color fill styles                 |
-| `linear-gradient` | Color linear gradient styles      |
-| `text`            | Text styles                       |
-| `drop-shadow`     | Drop/box shadow effect            |
-| `width`           | Width of the node                 |
-| `heigth`          | Height of the node                |
-| `dimensions`      | Both width and height of the node |
-| `radius`          | Border/corner radius of the node  |
-| `svg`             | SVG asset (eg. an icon)           |
-
-### Colors
-
-Color tokens don't need a node id.
+Color tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
 
 ```js
 {
@@ -91,9 +85,9 @@ Color tokens don't need a node id.
 }
 ```
 
-### Typography
+##### Typography
 
-Typography tokens don't need a node id.
+Typography tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
 
 ```js
 {
@@ -104,11 +98,11 @@ Typography tokens don't need a node id.
 }
 ```
 
-### Effects
+##### Effects
 
-Effects in Figma include thigns like drop/inner shadows and blurs.
+Effects tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
 
-Only drop shadows are currently supported.
+Effects in Figma include thigns like drop/inner shadows and blurs. Only drop shadows are currently supported.
 
 ```js
 {
@@ -119,7 +113,7 @@ Only drop shadows are currently supported.
 }
 ```
 
-### Dimensions
+##### Dimensions
 
 Properties: `width` | `height` | `dimensions` (both width and height).
 
@@ -134,7 +128,9 @@ Properties: `width` | `height` | `dimensions` (both width and height).
 }
 ```
 
-### Border/corner radius
+##### Corner radius
+
+Measures the corner radius of the node as a design token.
 
 ```js
 {
@@ -145,7 +141,7 @@ Properties: `width` | `height` | `dimensions` (both width and height).
 }
 ```
 
-### SVG assets
+##### SVG assets
 
 ```js
 {
@@ -156,9 +152,30 @@ Properties: `width` | `height` | `dimensions` (both width and height).
 }
 ```
 
-## Name ideas
+### Codegen
 
-- figmaker
-- figmain
-- figmaster
-- figmania
+The `codegen` property allows you to modify the code generation behaviour.
+
+```js
+{
+  "tokens": [
+    /* ... */
+  ],
+  "codegen": {
+    "defaults": {
+      "type": "ts",
+      "tokenCase": "camel"
+    },
+    "typography": {
+      "type": "json",
+      "filename": "typography.json",
+      "tokenCase": "kebab"
+    },
+    "icons": {
+      "type": "svg",
+      "dirname": "icons",
+      "tokenCase": "kebab"
+    }
+  }
+}
+```
