@@ -1,18 +1,18 @@
 {
-  "name": "figma-tokenizer",
+  "name": "figmage",
   "version": "0.0.1",
   "description": "Flexibly generate design tokens from your Figma files",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Temzasse/figma-tokenizer.git"
+    "url": "git://github.com/Temzasse/figmage.git"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "release": "np"
   },
   "bin": {
-    "figma-tokenizer": "bin/figma-tokenizer"
+    "figmage": "bin/figmage"
   },
   "main": "src/main.js",
   "files": [

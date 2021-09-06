@@ -252,7 +252,7 @@ export default class Tokenizer {
       return JSON.parse(fs.readFileSync("tokens/base.json", "utf8"));
     } catch (error) {
       log.error(
-        "No tokens found! Make sure to run `figma-tokenizer tokenize` without any flags first."
+        "No tokens found! Make sure to run `figmage tokenize` without any flags first."
       );
       throw error;
     }

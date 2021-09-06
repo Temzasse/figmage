@@ -14,13 +14,13 @@ export function cli(args) {
     config = JSON.parse(fs.readFileSync(options.config, "utf8"));
   } else {
     // Read from default locations
-    if (fs.existsSync(".figma-tokenizer.json")) {
-      config = JSON.parse(fs.readFileSync(".figma-tokenizer.json", "utf8"));
-    } else if (fs.existsSync(".figma-tokenizerrc")) {
-      config = JSON.parse(fs.readFileSync(".figma-tokenizerrc", "utf8"));
+    if (fs.existsSync(".figmage.json")) {
+      config = JSON.parse(fs.readFileSync(".figmage.json", "utf8"));
+    } else if (fs.existsSync(".figmagerc")) {
+      config = JSON.parse(fs.readFileSync(".figmagerc", "utf8"));
     } else if (fs.existsSync("package.json")) {
       const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
-      config = pkg["figma-tokenizer"];
+      config = pkg["figmage"];
     }
   }
 

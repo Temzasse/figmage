@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "Teemu Taskula",
   "license": "ISC",
-  "figma-tokenizer": {
+  "figmage": {
     "tokens": [
       {
         "name": "colors",

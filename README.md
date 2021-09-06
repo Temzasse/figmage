@@ -1,23 +1,23 @@
-# Figma Tokenizer
+# 🧙‍♂️ Figmage
 
 ## Installation
 
 This tool can be used as a global package if you don't want to include it as a dependency in each of your projects:
 
 ```sh
-npm install -g figma-tokenizer
+npm install -g figmage
 ```
 
 You can also utilize `npx` to run this tool without installing it:
 
 ```sh
-npx figma-tokenizer --config ./path/to/.figma-tokenizer.json
+npx figmage --config ./path/to/.figmage.json
 ```
 
 Or you can install it locally in your project:
 
 ```sh
-npm install figma-tokenizer
+npm install figmage
 ```
 
 ### Environment variables
@@ -34,7 +34,7 @@ FIGMA_FILE_ID="xxxxxxxxxxxxxxxxxxxxxx"
 
 ## Configuration
 
-Create a file called `.figma-tokenizer.json` or `.figma-tokenizerrc` in your project or add the config in your `package.json` under `"figma-tokenizer"` key.
+Create a file called `.figmage.json` or `.figmagerc` in your project or add the config in your `package.json` under `"figmage"` key.
 
 The config has two concepts: `tokens` and `codegen`.
 

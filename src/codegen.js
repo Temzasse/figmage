@@ -16,7 +16,7 @@ export default class Codegen {
       return JSON.parse(fs.readFileSync("tokens/base.json", "utf8"));
     } catch (error) {
       log.error(
-        "No tokens found! Make sure to run `figma-tokenizer tokenize` before generating code from the design tokens."
+        "No tokens found! Make sure to run `figmage tokenize` before generating code from the design tokens."
       );
       throw error;
     }
