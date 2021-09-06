@@ -4,6 +4,7 @@ import template from "lodash.template";
 import camelCase from "lodash.camelcase";
 import kebabCase from "lodash.kebabcase";
 import log from "./log";
+
 export default class Codegen {
   constructor({ config }) {
     this.config = config;
@@ -15,7 +16,7 @@ export default class Codegen {
       return JSON.parse(fs.readFileSync("tokens/base.json", "utf8"));
     } catch (error) {
       log.error(
-        "No tokens found! Make sure to run `figma-tokenizer tokenize before generating code from the design tokens.`"
+        "No tokens found! Make sure to run `figma-tokenizer tokenize` before generating code from the design tokens."
       );
       throw error;
     }
@@ -44,6 +45,7 @@ export default class Codegen {
 
   handleTokens(name, values, temp) {
     const config = {
+      ...DEFAULT_CONFIG,
       ...this.config.codegen.defaults,
       ...(this.config.codegen[name] || {}),
     };
@@ -88,9 +90,9 @@ export default class Codegen {
   write() {
     Object.entries(this.tokens).map(([name, { type, values }]) => {
       if (type === "color" || type === "svg") {
-        this.handleTokens(name, values, STRING_TEMPLATE);
+        this.handleTokens(name, values, SIMPLE_VALUE_TEMPLATE);
       } else if (type === "height" || type === "width" || type === "radius") {
-        this.handleTokens(name, values, NUMBER_TEMPLATE);
+        this.handleTokens(name, values, SIMPLE_VALUE_TEMPLATE);
       } else {
         this.handleTokens(name, values, OBJECT_TEMPLATE);
       }
@@ -102,14 +104,9 @@ const DEFAULT_CONFIG = {
   type: "ts",
 };
 
-const STRING_TEMPLATE =
+const SIMPLE_VALUE_TEMPLATE =
   "<% tokens.forEach(function(token) { %>" +
   "export const <%= token[0] %> = '<%= token[1] %>';\n" +
-  "<% }); %>";
-
-const NUMBER_TEMPLATE =
-  "<% tokens.forEach(function(token) { %>" +
-  "export const <%= token[0] %> = <%= token[1] %>;\n" +
   "<% }); %>";
 
 const OBJECT_TEMPLATE =
