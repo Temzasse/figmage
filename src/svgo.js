@@ -1,29 +1,33 @@
 // @ts-check
-import SVGO from "svgo";
+import * as SVGO from "svgo";
 
-const svgo = new SVGO({
-  plugins: [
-    { cleanupAttrs: true },
-    { removeDoctype: true },
-    { removeXMLProcInst: true },
-    { removeComments: true },
-    { removeMetadata: true },
-    { removeTitle: true },
-    { removeDesc: true },
-    { removeUselessDefs: true },
-    { removeEditorsNSData: true },
-    { removeEmptyAttrs: true },
-    { removeHiddenElems: true },
-    { removeEmptyText: true },
-    { removeEmptyContainers: true },
-    { removeViewBox: false },
-    { convertColors: { currentColor: true } },
-    { convertTransform: true },
-    { removeUselessStrokeAndFill: true },
-    { cleanupIDs: true },
-    { mergePaths: true },
-    { convertShapeToPath: true },
-  ],
-});
-
-export default svgo;
+/**
+ * Optimize SVG
+ * @param {string} svg
+ */
+export function optimizeSvg(svg) {
+  return SVGO.optimize(svg, {
+    plugins: [
+      { name: "cleanupAttrs", active: true },
+      { name: "removeDoctype", active: true },
+      { name: "removeXMLProcInst", active: true },
+      { name: "removeComments", active: true },
+      { name: "removeMetadata", active: true },
+      { name: "removeTitle", active: true },
+      { name: "removeDesc", active: true },
+      { name: "removeUselessDefs", active: true },
+      { name: "removeEditorsNSData", active: true },
+      { name: "removeEmptyAttrs", active: true },
+      { name: "removeHiddenElems", active: true },
+      { name: "removeEmptyText", active: true },
+      { name: "removeEmptyContainers", active: true },
+      { name: "removeViewBox", active: false },
+      { name: "convertColors", active: true, params: { currentColor: true } },
+      { name: "convertTransform", active: true },
+      { name: "removeUselessStrokeAndFill", active: true },
+      { name: "cleanupIDs", active: true },
+      { name: "mergePaths", active: true },
+      { name: "convertShapeToPath", active: true },
+    ],
+  });
+}
