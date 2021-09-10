@@ -60,7 +60,7 @@ export default class Codegen {
         .sort(this.sortTokens);
 
       if (config.type === "ts" || config.type === "js") {
-        const compiled = template(TEMPLATE);
+        const compiled = template(TEMPLATE, {});
         const filetype = config.type;
 
         fs.writeFileSync(

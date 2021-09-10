@@ -1,6 +1,6 @@
 // @ts-check
 import fs from "fs";
-import kebabCase from "lodash.kebabcase";
+import camelCase from "lodash.camelcase";
 import axios from "axios";
 import log from "./log";
 import { optimizeSvg } from "./svgo";
@@ -261,7 +261,7 @@ export default class Tokenizer {
   // Helpers ------------------------------------------------------------------
 
   formatTokenName(name) {
-    return kebabCase(name);
+    return camelCase(name);
   }
 
   hasTokenType(type) {

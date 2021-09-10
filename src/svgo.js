@@ -1,12 +1,12 @@
 // @ts-check
-import * as SVGO from "svgo";
+import { optimize } from "svgo";
 
 /**
  * Optimize SVG
  * @param {string} svg
  */
 export function optimizeSvg(svg) {
-  return SVGO.optimize(svg, {
+  return optimize(svg, {
     plugins: [
       { name: "cleanupAttrs", active: true },
       { name: "removeDoctype", active: true },
