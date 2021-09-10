@@ -67,7 +67,7 @@ The `tokens` property is a list of all the design tokens that should be handled 
 | `text`            | [Text styles](https://help.figma.com/hc/en-us/articles/360038746534-Create-styles-for-colors-text-effects-and-layout-grids#Text)                           |
 | `drop-shadow`     | [Drop shadow effect](https://help.figma.com/hc/en-us/articles/360038746534-Create-styles-for-colors-text-effects-and-layout-grids#Effects)                 |
 | `width`           | Width of the component                                                                                                                                     |
-| `heigth`          | Height of the component                                                                                                                                    |
+| `height`          | Height of the component                                                                                                                                    |
 | `dimensions`      | Both width and height of the component                                                                                                                     |
 | `radius`          | Corner radius of the component                                                                                                                             |
 | `svg`             | Vector graphics component (eg. an icon)                                                                                                                    |
