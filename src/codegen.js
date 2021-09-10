@@ -44,6 +44,8 @@ export default class Codegen {
   }
 
   write() {
+    const outputDir = this.config.outputDir || "tokens";
+
     Object.entries(this.tokens).map(([name, { values }]) => {
       const config = {
         ...DEFAULT_CONFIG,
@@ -52,34 +54,35 @@ export default class Codegen {
       };
 
       const filename = config.filename || name;
-      const tokenCase = config.tokenCase || "camel";
 
       const tokens = Object.entries(values)
-        .map(([k, v]) => [this.formatTokenName(k, tokenCase), v])
+        .map(([k, v]) => [this.formatTokenName(k, config.tokenCase), v])
         .filter(this.filterTokens)
         .sort(this.sortTokens);
 
-      if (config.type === "ts" || config.type === "js") {
+      if (config.filetype === "ts" || config.filetype === "js") {
         const compiled = template(TEMPLATE, {});
-        const filetype = config.type;
 
         fs.writeFileSync(
-          `tokens/${filename}.${filetype}`,
+          `${outputDir}/${filename}.${config.filetype}`,
           compiled({ tokens })
         );
       }
 
-      if (config.type === "json") {
+      if (config.filetype === "json") {
         const json = tokens.reduce((acc, val) => {
           acc[val[0]] = val[1];
           return acc;
         }, {});
 
-        fs.writeFileSync(`tokens/${filename}`, JSON.stringify(json, null, 2));
+        fs.writeFileSync(
+          `${outputDir}/${filename}.json`,
+          JSON.stringify(json, null, 2)
+        );
       }
 
-      if (config.type === "svg") {
-        const dirname = `tokens/${config.dirname || name}`;
+      if (config.filetype === "svg") {
+        const dirname = `${outputDir}/${config.dirname || name}`;
 
         if (!fs.existsSync(dirname)) {
           fs.mkdirSync(dirname);
@@ -94,7 +97,8 @@ export default class Codegen {
 }
 
 const DEFAULT_CONFIG = {
-  type: "ts",
+  filetype: "ts",
+  tokenCase: "camel",
 };
 
 const TEMPLATE =

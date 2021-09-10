@@ -48,23 +48,21 @@
       ]
     },
     "codegen": {
+      "outputDir": "tokens",
       "defaults": {
-        "type": "ts",
+        "filetype": "ts",
         "tokenCase": "camel"
       },
       "typography": {
-        "type": "json",
+        "filetype": "json",
         "filename": "typography.json",
         "tokenCase": "kebab"
       },
       "icons": {
-        "type": "svg",
+        "filetype": "svg",
         "dirname": "icons",
         "tokenCase": "kebab"
       }
     }
-  },
-  "dependencies": {
-    "svgo": "2.5.0"
   }
 }
