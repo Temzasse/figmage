@@ -1,4 +1,10 @@
-# 🧙‍♂️ Figmage
+<p align='center'>
+  <img src="media/figmage.png" alt="Figmage logo"/>
+<p/>
+
+# 🧙‍♂️ Figmage 🧙
+
+A simple CLI tool that helps you generate design tokens as code from your Figma project.
 
 ## Installation
 
@@ -40,7 +46,7 @@ The config has two concepts: `tokens` and `codegen`.
 
 ### Tokens
 
-The `tokens` property is a list of all the design tokens that should be handled by Figma Tokenizer.
+The `tokens` property is a list of all the design tokens that should be handled by Figmage.
 
 ```js
 {
@@ -162,20 +168,39 @@ The `codegen` property allows you to modify the code generation behaviour.
     /* ... */
   ],
   "codegen": {
+    "outDir": "tokens",
     "defaults": {
-      "type": "ts",
+      "filetype": "ts",
       "tokenCase": "camel"
     },
     "typography": {
-      "type": "json",
-      "filename": "typography.json",
+      "filetype": "json",
       "tokenCase": "kebab"
     },
     "icons": {
-      "type": "svg",
       "dirname": "icons",
+      "filetype": "svg",
       "tokenCase": "kebab"
     }
   }
 }
 ```
+
+### Available options
+
+| Field                | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| `outDir`             | Output directory where the generated code for tokens is put. |
+| `defaults.filetype`  | File type for the token: `ts`, `js`, `json`, `svg`           |
+| `defaults.tokenCase` | How should the token value be named: `camel`, `kebab`        |
+| `[token].filename`   | Filename for the token (defaults to token's name)            |
+| `[token].filetype`   | `ts`, `js`, `json`, `svg`                                    |
+| `[token].tokenCase`  | `camel`, `kebab`                                             |
+
+## Figma template
+
+In the screenshot below you can see how the example Figma template looks like that is used in the `/example` folder of this repo.
+
+<p align='center'>
+  <img src="media/figma_template.png" alt="Example Figma template"/>
+<p/>
