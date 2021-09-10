@@ -44,9 +44,22 @@ export default class FigmaAPI {
       params: { ids: id },
     });
 
-    return res.data.nodes[id].document.children.filter(
-      (node) => node.type === "COMPONENT"
+    function flattenChildren(node) {
+      const children = node.children || [];
+      const flattened = [node];
+
+      for (const child of children) {
+        flattened.push(...flattenChildren(child));
+      }
+
+      return flattened;
+    }
+
+    const nodes = flattenChildren(res.data.nodes[id].document).filter(
+      (n) => n.type === "COMPONENT"
     );
+
+    return nodes;
   }
 
   /**
@@ -54,7 +67,7 @@ export default class FigmaAPI {
    */
   async fetchImages(ids) {
     const res = await this.api.get(`/images/${this.fileId}`, {
-      params: { ids: ids.join(','), format: "svg" },
+      params: { ids: ids.join(","), format: "svg" },
     });
 
     return res.data.images;
