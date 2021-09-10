@@ -12,8 +12,10 @@ export default class Codegen {
   }
 
   readTokens() {
+    const outputDir = this.config.outputDir || "tokens";
+
     try {
-      return JSON.parse(fs.readFileSync("tokens/base.json", "utf8"));
+      return JSON.parse(fs.readFileSync(`${outputDir}/tokens.json`, "utf8"));
     } catch (error) {
       log.error(
         "No tokens found! Make sure to run `figmage tokenize` before generating code from the design tokens."

@@ -269,8 +269,10 @@ export default class Tokenizer {
   }
 
   readTokens() {
+    const outputDir = this.config.outputDir || "tokens";
+
     try {
-      return JSON.parse(fs.readFileSync("tokens/base.json", "utf8"));
+      return JSON.parse(fs.readFileSync(`${outputDir}/tokens.json`, "utf8"));
     } catch (error) {
       log.error(
         "No tokens found! Make sure to run `figmage tokenize` without any flags first."
@@ -302,10 +304,15 @@ export default class Tokenizer {
   }
 
   write() {
-    if (!fs.existsSync("tokens")) {
-      fs.mkdirSync("tokens");
+    const outputDir = this.config.outputDir || "tokens";
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir);
     }
 
-    fs.writeFileSync("tokens/base.json", JSON.stringify(this.tokens, null, 2));
+    fs.writeFileSync(
+      `${outputDir}/tokens.json`,
+      JSON.stringify(this.tokens, null, 2)
+    );
   }
 }

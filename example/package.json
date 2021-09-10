@@ -10,6 +10,7 @@
   "author": "Teemu Taskula",
   "license": "ISC",
   "figmage": {
+    "outputDir": "tokens",
     "tokenize": {
       "groupSeparator": "|",
       "tokens": [
@@ -48,14 +49,13 @@
       ]
     },
     "codegen": {
-      "outputDir": "tokens",
       "defaults": {
         "filetype": "ts",
         "tokenCase": "camel"
       },
       "typography": {
         "filetype": "json",
-        "filename": "typography.json",
+        "filename": "typography",
         "tokenCase": "kebab"
       },
       "icons": {
