@@ -1,24 +1,49 @@
+/* eslint-disable */
 export const shadowLarge = {
   "offset": {
     "x": 0,
-    "y": 4
+    "y": 16
   },
-  "radius": 16,
-  "opacity": 0.1,
+  "radius": 32,
+  "opacity": 0.12,
   "color": {
     "hex": "#000000",
-    "rgba": "rgba(0, 0, 0, 0.1)"
+    "rgba": "rgba(0, 0, 0, 0.12)"
+  }
+};
+export const shadowMedium = {
+  "offset": {
+    "x": 0,
+    "y": 8
+  },
+  "radius": 24,
+  "opacity": 0.12,
+  "color": {
+    "hex": "#000000",
+    "rgba": "rgba(0, 0, 0, 0.12)"
   }
 };
 export const shadowNormal = {
   "offset": {
     "x": 0,
-    "y": 3
+    "y": 4
   },
-  "radius": 6,
-  "opacity": 0.05,
+  "radius": 16,
+  "opacity": 0.12,
   "color": {
     "hex": "#000000",
-    "rgba": "rgba(0, 0, 0, 0.05)"
+    "rgba": "rgba(0, 0, 0, 0.12)"
+  }
+};
+export const shadowSmall = {
+  "offset": {
+    "x": 0,
+    "y": 2
+  },
+  "radius": 6,
+  "opacity": 0.12,
+  "color": {
+    "hex": "#000000",
+    "rgba": "rgba(0, 0, 0, 0.12)"
   }
 };

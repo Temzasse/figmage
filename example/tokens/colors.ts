@@ -1,17 +1,67 @@
-export const darkNight = '#161a28';
-export const gray = '#93939a';
-export const grayDark = '#525252';
-export const grayLight = '#dbdbde';
-export const grayLighter = '#f7f6f7';
-export const primary = '#2f97c1';
-export const primaryDark = '#25789a';
-export const primaryLight = '#e9f3ff';
-export const secondary = '#e84721';
-export const secondaryDark = '#bc341e';
-export const secondaryDarker = '#670e00';
-export const secondaryLight = '#fbd9d1';
-export const tertiary = '#ed8900';
-export const tertiaryDark = '#d87d00';
-export const tertiaryLight = '#fce8cd';
-export const text = '#283138';
-export const white = '#ffffff';
+/* eslint-disable */
+export const dark = {
+  "focusRing": "#009a48",
+  "border": "#969696",
+  "hoverHighlight": "#969696",
+  "backdrop": "#000000",
+  "pressHighlight": "#969696",
+  "errorMuted": "#3e1c1d",
+  "successMuted": "#193328",
+  "successText": "#1ee8a5",
+  "infoMuted": "#1b2940",
+  "info": "#3b82f6",
+  "background": "#111111",
+  "surface": "#222222",
+  "text": "#ffffff",
+  "muted6": "#1d1d1f",
+  "muted5": "#2c2c2e",
+  "muted1": "#8e8e93",
+  "primaryMuted": "#24392a",
+  "infoText": "#81aef7",
+  "textMuted": "#999999",
+  "primary": "#009a48",
+  "muted2": "#636366",
+  "errorText": "#ff7070",
+  "warnMuted": "#40351a",
+  "warn": "#fbbf24",
+  "primaryText": "#1cff87",
+  "warnText": "#ffc93d",
+  "success": "#10b981",
+  "error": "#ef4444",
+  "muted3": "#48484a",
+  "elevated": "#333333",
+  "muted4": "#48484a"
+};
+export const light = {
+  "hoverHighlight": "#969696",
+  "focusRing": "#009a48",
+  "backdrop": "#000000",
+  "border": "#969696",
+  "pressHighlight": "#969696",
+  "primaryText": "#015227",
+  "warnMuted": "#f3ead1",
+  "primary": "#009a48",
+  "warn": "#fbbf24",
+  "background": "#f3f4f6",
+  "errorMuted": "#f3d2d3",
+  "errorText": "#8c0606",
+  "successMuted": "#cee8df",
+  "infoMuted": "#cfdef7",
+  "infoText": "#0a45a6",
+  "muted2": "#aeaeb2",
+  "successText": "#06734e",
+  "muted5": "#e5e5ea",
+  "success": "#10b981",
+  "elevated": "#ffffff",
+  "info": "#3b82f6",
+  "surface": "#ffffff",
+  "muted3": "#c7c7cc",
+  "muted6": "#f2f2f7",
+  "muted1": "#8e8e93",
+  "muted4": "#d1d1d6",
+  "error": "#ef4444",
+  "primaryMuted": "#d6ebdb",
+  "warnText": "#8a6200",
+  "text": "#222222",
+  "textMuted": "#666666"
+};

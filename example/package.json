@@ -10,44 +10,43 @@
   "author": "Teemu Taskula",
   "license": "ISC",
   "figmage": {
-    "tokens": [
-      {
-        "name": "colors",
-        "type": "color"
-      },
-      {
-        "name": "gradients",
-        "type": "linear-gradient"
-      },
-      {
-        "name": "typography",
-        "type": "text"
-      },
-      {
-        "name": "shadows",
-        "type": "drop-shadow"
-      },
-      {
-        "name": "icons",
-        "type": "svg",
-        "nodeId": "1:2"
-      },
-      {
-        "name": "spacing",
-        "type": "height",
-        "nodeId": "12:1"
-      },
-      {
-        "name": "sizing",
-        "type": "dimensions",
-        "nodeId": "33:0"
-      },
-      {
-        "name": "radii",
-        "type": "radius",
-        "nodeId": "36:0"
-      }
-    ],
+    "tokenize": {
+      "groupSeparator": "|",
+      "tokens": [
+        {
+          "name": "colors",
+          "type": "color"
+        },
+        {
+          "name": "typography",
+          "type": "text"
+        },
+        {
+          "name": "shadows",
+          "type": "drop-shadow"
+        },
+        {
+          "name": "icons",
+          "type": "svg",
+          "nodeId": "102:2"
+        },
+        {
+          "name": "spacing",
+          "type": "width",
+          "nodeId": "110:694"
+        },
+        {
+          "name": "sizing",
+          "type": "height",
+          "nodeId": "102:7"
+        },
+        {
+          "name": "radii",
+          "type": "radius",
+          "nodeId": "102:8"
+        }
+      ]
+    },
     "codegen": {
       "defaults": {
         "type": "ts",
@@ -64,5 +63,8 @@
         "tokenCase": "kebab"
       }
     }
+  },
+  "dependencies": {
+    "svgo": "2.5.0"
   }
 }
