@@ -17,7 +17,7 @@ npm install -g figmage
 You can also utilize `npx` to run this tool without installing it:
 
 ```sh
-npx figmage --config ./path/to/.figmage.json
+npx figmage tokenize --config ./path/to/.figmage.json
 ```
 
 Or you can install it locally in your project:
@@ -42,11 +42,19 @@ FIGMA_FILE_ID="xxxxxxxxxxxxxxxxxxxxxx"
 
 Create a file called `.figmage.json` or `.figmagerc` in your project or add the config in your `package.json` under `"figmage"` key.
 
-The config has two concepts: `tokens` and `codegen`.
+The config has two concepts that map directly to the available commands: `tokenize` and `codegen`.
 
-### Tokens
+### Tokenize
 
-The `tokens` property is a list of all the design tokens that should be handled by Figmage.
+Fetch meta data about your Figma project and turn them into a generic design token specification.
+
+Command:
+
+```sh
+figmage tokenize
+```
+
+Under `tokenize` you have the `tokens` property which is a list of all the design tokens that should be handled by Figmage.
 
 ```js
 {
@@ -64,7 +72,11 @@ The `tokens` property is a list of all the design tokens that should be handled 
 }
 ```
 
+In addition to the `tokens` field you can provide an optional `groupSeparator` that tells Figmage which character in the Figma layer name acts as a split point for grouping logic. This can be very useful for example when you want to have two sets of colors: one for light mode and one dark mode. For this scenario you could name your colors like this: `Primary | Light` + `Primary | Dark` and set the `groupdSeparator` to be `|` character. Combined with the other config options this would yield to two sets of code generated colors in the output file.
+
 #### Supported tokens
+
+> ⚠️ NOTE: for all tokens that are not valid variables (colors, text styles, or effects) inside Figma you need to turn the layer you want to target into a component! You can turn a layer into a component via ⌥⌘K (option+command+K). Figmage will ignore all layers inside a frame that are not components.
 
 | Property          | Description                                                                                                                                                |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -159,6 +171,14 @@ Measures the corner radius of the node as a design token.
 ```
 
 ### Codegen
+
+Generate code from the design token specification produced by `figmage tokenize`.
+
+Command:
+
+```sh
+figmage codegen
+```
 
 The `codegen` property allows you to modify the code generation behaviour.
 
