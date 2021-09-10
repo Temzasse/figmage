@@ -2,8 +2,8 @@
 import fs from "fs";
 import kebabCase from "lodash.kebabcase";
 import axios from "axios";
-import svgo from "./svgo";
 import log from "./log";
+import { optimizeSvg } from "./svgo";
 import { rgbToHex, roundToDecimal } from "./utils";
 
 export default class Tokenizer {
@@ -12,7 +12,7 @@ export default class Tokenizer {
     this.config = config;
     this.tokens = onlyNew
       ? this.readTokens()
-      : config.tokens.reduce((acc, val) => {
+      : config.tokenize.tokens.reduce((acc, val) => {
           acc[val.name] = { type: val.type, values: {} };
           return acc;
         }, {});
@@ -33,12 +33,19 @@ export default class Tokenizer {
     const styles = await this.figmaAPI.fetchStyles();
 
     const stylesById = styles.reduce((acc, style) => {
+      const [name, group] = style.name.split(
+        this.config.tokenize.groupSeparator
+      );
+
       const id = style.node_id;
+
       acc[id] = {
         id,
-        name: this.formatTokenName(style.name),
+        group: (group || "").trim().toLowerCase(),
+        name: this.formatTokenName(name),
         type: style.style_type,
       };
+
       return acc;
     }, {});
 
@@ -54,6 +61,7 @@ export default class Tokenizer {
         this.hasTokenType("color")
       ) {
         // COLORS --------------------------------------------------------------
+        const tokenName = this.getTokenNameByType("color");
         const { r, g, b } = doc.fills[0].color;
         const hex = rgbToHex(
           Math.round(r * 255),
@@ -61,13 +69,22 @@ export default class Tokenizer {
           Math.round(b * 255)
         );
 
-        this.tokens[this.getTokenNameByType("color")].values[style.name] = hex;
+        if (style.group) {
+          if (!this.tokens[tokenName].values[style.group]) {
+            this.tokens[tokenName].values[style.group] = {};
+          }
+
+          this.tokens[tokenName].values[style.group][style.name] = hex;
+        } else {
+          this.tokens[tokenName].values[style.name] = hex;
+        }
       } else if (
         style.type === "FILL" &&
         doc.fills[0].type === "GRADIENT_LINEAR" &&
         this.hasTokenType("linear-gradient")
       ) {
-        // GRADIENTS ------------------------------------------------------------
+        // GRADIENTS -----------------------------------------------------------
+        const tokenName = this.getTokenNameByType("linear-gradient");
         const { gradientStops, gradientHandlePositions } = doc.fills[0];
         const colors = gradientStops.map((stop) => {
           const { x, y } = gradientHandlePositions[stop.position];
@@ -87,14 +104,13 @@ export default class Tokenizer {
           };
         });
 
-        this.tokens[this.getTokenNameByType("linear-gradient")].values[
-          style.name
-        ] = colors;
+        this.tokens[tokenName].values[style.name] = colors;
       } else if (style.type === "TEXT" && this.hasTokenType("text")) {
-        // TYPOGRAPHY -----------------------------------------------------------
+        // TYPOGRAPHY ----------------------------------------------------------
+        const tokenName = this.getTokenNameByType("text");
         const textStyle = doc.style;
 
-        this.tokens[this.getTokenNameByType("text")].values[style.name] = {
+        this.tokens[tokenName].values[style.name] = {
           fontFamily: textStyle.fontFamily,
           fontWeight: textStyle.fontWeight,
           fontSize: textStyle.fontSize,
@@ -110,6 +126,7 @@ export default class Tokenizer {
         this.hasTokenType("drop-shadow")
       ) {
         // SHADOWS -------------------------------------------------------------
+        const tokenName = this.getTokenNameByType("drop-shadow");
         const shadow = doc.effects[0];
         const { r, g, b, a } = shadow.color;
         // TODO: should we manipulate names?
@@ -121,9 +138,7 @@ export default class Tokenizer {
           Math.round(b * 255)
         );
 
-        this.tokens[this.getTokenNameByType("drop-shadow")].values[
-          style.name
-        ] = {
+        this.tokens[tokenName].values[style.name] = {
           offset: shadow.offset,
           radius: shadow.radius,
           opacity,
@@ -145,8 +160,9 @@ export default class Tokenizer {
 
         nodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] =
-            node.absoluteBoundingBox.height;
+          const tokenName = this.getTokenNameByNodeId(nodeId);
+
+          this.tokens[tokenName].values[name] = node.absoluteBoundingBox.height;
         });
       }
     }
@@ -161,8 +177,9 @@ export default class Tokenizer {
 
         nodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] =
-            node.absoluteBoundingBox.width;
+          const tokenName = this.getTokenNameByNodeId(nodeId);
+
+          this.tokens[tokenName].values[name] = node.absoluteBoundingBox.width;
         });
       }
     }
@@ -177,7 +194,9 @@ export default class Tokenizer {
 
         nodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] = {
+          const tokenName = this.getTokenNameByNodeId(nodeId);
+
+          this.tokens[tokenName].values[name] = {
             height: node.absoluteBoundingBox.height,
             width: node.absoluteBoundingBox.width,
           };
@@ -195,8 +214,9 @@ export default class Tokenizer {
 
         radiiNodes.forEach((node) => {
           const name = this.formatTokenName(node.name);
-          this.tokens[this.getTokenNameByNodeId(nodeId)].values[name] =
-            node.children[0].cornerRadius;
+          const tokenName = this.getTokenNameByNodeId(nodeId);
+
+          this.tokens[tokenName].values[name] = node.children[0].cornerRadius;
         });
       }
     }
@@ -207,7 +227,8 @@ export default class Tokenizer {
       const nodeIds = this.getAllTokenNodeIds("svg");
 
       for (const nodeId of nodeIds) {
-        const current = this.tokens[this.getTokenNameByNodeId(nodeId)].values;
+        const tokenName = this.getTokenNameByNodeId(nodeId);
+        const current = this.tokens[tokenName].values;
         const _nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
         const nodes = _nodes.filter((n) => !current[n.name]);
 
@@ -221,7 +242,7 @@ export default class Tokenizer {
 
         const svgOptimized = await Promise.all(
           imageContents.map(async ({ data }) => {
-            const optimized = await svgo.optimize(data);
+            const optimized = await optimizeSvg(data);
             return optimized.data;
           })
         );
@@ -232,7 +253,7 @@ export default class Tokenizer {
           return acc;
         }, {});
 
-        this.tokens[this.getTokenNameByNodeId(nodeId)].values = svgs;
+        this.tokens[tokenName].values = svgs;
       }
     }
   }
@@ -244,7 +265,7 @@ export default class Tokenizer {
   }
 
   hasTokenType(type) {
-    return !!this.config.tokens.find((t) => t.type === type);
+    return !!this.config.tokenize.tokens.find((t) => t.type === type);
   }
 
   readTokens() {
@@ -259,23 +280,23 @@ export default class Tokenizer {
   }
 
   getTokenNameByType(type) {
-    return this.config.tokens.find((t) => t.type === type).name;
+    return this.config.tokenize.tokens.find((t) => t.type === type).name;
   }
 
   getTokenNameByNodeId(nodeId) {
-    return this.config.tokens.find(
+    return this.config.tokenize.tokens.find(
       (t) => decodeURIComponent(t.nodeId) === decodeURIComponent(nodeId)
     ).name;
   }
 
   getTokenNodeId(type) {
     return decodeURIComponent(
-      this.config.tokens.find((t) => t.type === type).nodeId
+      this.config.tokenize.tokens.find((t) => t.type === type).nodeId
     );
   }
 
   getAllTokenNodeIds(type) {
-    return this.config.tokens
+    return this.config.tokenize.tokens
       .filter((t) => t.type === type)
       .map((t) => decodeURIComponent(t.nodeId));
   }
