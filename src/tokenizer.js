@@ -13,7 +13,7 @@ export default class Tokenizer {
     this.tokens = onlyNew
       ? this.readTokens()
       : config.tokenize.tokens.reduce((acc, val) => {
-          acc[val.name] = { type: val.type, values: {} };
+          acc[val.name] = {};
           return acc;
         }, {});
   }
@@ -70,13 +70,13 @@ export default class Tokenizer {
         );
 
         if (style.group) {
-          if (!this.tokens[tokenName].values[style.group]) {
-            this.tokens[tokenName].values[style.group] = {};
+          if (!this.tokens[tokenName][style.group]) {
+            this.tokens[tokenName][style.group] = {};
           }
 
-          this.tokens[tokenName].values[style.group][style.name] = hex;
+          this.tokens[tokenName][style.group][style.name] = hex;
         } else {
-          this.tokens[tokenName].values[style.name] = hex;
+          this.tokens[tokenName][style.name] = hex;
         }
       } else if (
         style.type === "FILL" &&
@@ -104,13 +104,13 @@ export default class Tokenizer {
           };
         });
 
-        this.tokens[tokenName].values[style.name] = colors;
+        this.tokens[tokenName][style.name] = colors;
       } else if (style.type === "TEXT" && this.hasTokenType("text")) {
         // TYPOGRAPHY ----------------------------------------------------------
         const tokenName = this.getTokenNameByType("text");
         const textStyle = doc.style;
 
-        this.tokens[tokenName].values[style.name] = {
+        this.tokens[tokenName][style.name] = {
           fontFamily: textStyle.fontFamily,
           fontWeight: textStyle.fontWeight,
           fontSize: textStyle.fontSize,
@@ -127,10 +127,8 @@ export default class Tokenizer {
       ) {
         // SHADOWS -------------------------------------------------------------
         const tokenName = this.getTokenNameByType("drop-shadow");
-        const shadow = doc.effects[0];
+        const shadow = doc.effects[0]; // TODO: handle multiple shadows
         const { r, g, b, a } = shadow.color;
-        // TODO: should we manipulate names?
-        // const name = style.name.replace("shadow-", "");
         const opacity = parseFloat(a.toFixed(2));
         const hex = rgbToHex(
           Math.round(r * 255),
@@ -138,7 +136,7 @@ export default class Tokenizer {
           Math.round(b * 255)
         );
 
-        this.tokens[tokenName].values[style.name] = {
+        this.tokens[tokenName][style.name] = {
           offset: shadow.offset,
           radius: shadow.radius,
           opacity,
@@ -162,7 +160,9 @@ export default class Tokenizer {
           const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName].values[name] = node.absoluteBoundingBox.height;
+          this.tokens[tokenName][name] = roundToDecimal(
+            node.absoluteBoundingBox.height
+          );
         });
       }
     }
@@ -179,7 +179,9 @@ export default class Tokenizer {
           const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName].values[name] = node.absoluteBoundingBox.width;
+          this.tokens[tokenName][name] = roundToDecimal(
+            node.absoluteBoundingBox.width
+          );
         });
       }
     }
@@ -196,9 +198,9 @@ export default class Tokenizer {
           const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName].values[name] = {
-            height: node.absoluteBoundingBox.height,
-            width: node.absoluteBoundingBox.width,
+          this.tokens[tokenName][name] = {
+            height: roundToDecimal(node.absoluteBoundingBox.height),
+            width: roundToDecimal(node.absoluteBoundingBox.width),
           };
         });
       }
@@ -216,7 +218,9 @@ export default class Tokenizer {
           const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName].values[name] = node.children[0].cornerRadius;
+          this.tokens[tokenName][name] = roundToDecimal(
+            node.children[0].cornerRadius
+          );
         });
       }
     }
@@ -228,7 +232,7 @@ export default class Tokenizer {
 
       for (const nodeId of nodeIds) {
         const tokenName = this.getTokenNameByNodeId(nodeId);
-        const current = this.tokens[tokenName].values;
+        const current = this.tokens[tokenName];
         const _nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
         const nodes = _nodes.filter((n) => !current[n.name]);
 
@@ -253,7 +257,7 @@ export default class Tokenizer {
           return acc;
         }, {});
 
-        this.tokens[tokenName].values = svgs;
+        this.tokens[tokenName] = svgs;
       }
     }
   }

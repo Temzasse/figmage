@@ -48,7 +48,7 @@ export default class Codegen {
   write() {
     const outDir = this.config.outDir || "tokens";
 
-    Object.entries(this.tokens).map(([name, { values }]) => {
+    Object.entries(this.tokens).map(([name, values]) => {
       const config = {
         ...DEFAULT_CONFIG,
         ...this.config.codegen.defaults,

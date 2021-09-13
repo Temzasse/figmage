@@ -42,6 +42,11 @@
           "nodeId": "102:7"
         },
         {
+          "name": "sizing",
+          "type": "width",
+          "nodeId": "136:188"
+        },
+        {
           "name": "radii",
           "type": "radius",
           "nodeId": "102:8"
