@@ -10,7 +10,7 @@
   "author": "Teemu Taskula",
   "license": "ISC",
   "figmage": {
-    "outputDir": "tokens",
+    "outDir": "tokens",
     "tokenize": {
       "groupSeparator": "|",
       "tokens": [

@@ -12,10 +12,10 @@ export default class Codegen {
   }
 
   readTokens() {
-    const outputDir = this.config.outputDir || "tokens";
+    const outDir = this.config.outDir || "tokens";
 
     try {
-      return JSON.parse(fs.readFileSync(`${outputDir}/tokens.json`, "utf8"));
+      return JSON.parse(fs.readFileSync(`${outDir}/tokens.json`, "utf8"));
     } catch (error) {
       log.error(
         "No tokens found! Make sure to run `figmage tokenize` before generating code from the design tokens."
@@ -46,7 +46,7 @@ export default class Codegen {
   }
 
   write() {
-    const outputDir = this.config.outputDir || "tokens";
+    const outDir = this.config.outDir || "tokens";
 
     Object.entries(this.tokens).map(([name, { values }]) => {
       const config = {
@@ -66,7 +66,7 @@ export default class Codegen {
         const compiled = template(TEMPLATE, {});
 
         fs.writeFileSync(
-          `${outputDir}/${filename}.${config.filetype}`,
+          `${outDir}/${filename}.${config.filetype}`,
           compiled({ tokens })
         );
       }
@@ -78,13 +78,13 @@ export default class Codegen {
         }, {});
 
         fs.writeFileSync(
-          `${outputDir}/${filename}.json`,
+          `${outDir}/${filename}.json`,
           JSON.stringify(json, null, 2)
         );
       }
 
       if (config.filetype === "svg") {
-        const dirname = `${outputDir}/${config.dirname || name}`;
+        const dirname = `${outDir}/${config.dirname || name}`;
 
         if (!fs.existsSync(dirname)) {
           fs.mkdirSync(dirname);
