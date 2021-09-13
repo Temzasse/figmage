@@ -44,7 +44,7 @@ Create a file called `.figmage.json` or `.figmagerc` in your project or add the 
 
 In addition to generic options the config has two concepts that map directly to the available commands: `tokenize` and `codegen`.
 
-```json
+```js
 {
   "outDir": "tokens",
   "tokenize": {},
@@ -64,7 +64,7 @@ figmage tokenize
 
 Under `tokenize` you have the `tokens` property which is a list of all the design tokens that should be handled by Figmage.
 
-```json
+```js
 {
   "tokenize": {
     "tokens": [
@@ -84,7 +84,7 @@ Under `tokenize` you have the `tokens` property which is a list of all the desig
 
 In addition to the `tokens` field you can provide an optional `groupSeparator` that tells Figmage which character in the Figma layer name acts as a split point for grouping logic. This can be very useful for example when you want to have two sets of colors: one for light mode and one dark mode. For this scenario you could name your colors like this: `Primary | Light` + `Primary | Dark` and set the `groupdSeparator` to be `|` character. Combined with the other config options this would yield to two sets of code generated colors in the output file.
 
-```json
+```js
 {
   "tokenize": {
     "groupdSeparator": "|",
@@ -113,7 +113,7 @@ In addition to the `tokens` field you can provide an optional `groupSeparator` t
 
 Color tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
 
-```json
+```js
 {
   "tokenize": {
     "tokens": [
@@ -128,7 +128,7 @@ Color tokens are parsed from the global color variables that you have created in
 
 Typography tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
 
-```json
+```js
 {
   "tokenize": {
     "tokens": [
@@ -145,7 +145,7 @@ Effects tokens are parsed from the global color variables that you have created 
 
 Effects in Figma include thigns like drop/inner shadows and blurs. Only drop shadows are currently supported.
 
-```json
+```js
 {
   "tokenize": {
     "tokens": [
@@ -160,7 +160,7 @@ Effects in Figma include thigns like drop/inner shadows and blurs. Only drop sha
 
 Properties: `width` | `height` | `dimensions` (both width and height).
 
-```json
+```js
 {
   "tokenize": {
     "tokens": [
@@ -177,7 +177,7 @@ Properties: `width` | `height` | `dimensions` (both width and height).
 
 Measures the corner radius of the node as a design token.
 
-```json
+```js
 {
   "tokenize": {
     "tokens": [
@@ -190,7 +190,7 @@ Measures the corner radius of the node as a design token.
 
 ##### SVG assets
 
-```json
+```js
 {
   "tokenize": {
     "tokens": [
@@ -205,7 +205,7 @@ Measures the corner radius of the node as a design token.
 
 Below you can see how the output of `figma tokenize` looks like based on the example configuration.
 
-```json
+```js
 {
   "colors": {
     "type": "color",
@@ -476,7 +476,7 @@ figmage codegen
 
 The `codegen` property allows you to modify the code generation behaviour.
 
-```json
+```js
 {
   "codegen": {
     "defaults": {
