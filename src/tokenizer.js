@@ -62,21 +62,30 @@ export default class Tokenizer {
       ) {
         // COLORS --------------------------------------------------------------
         const tokenName = this.getTokenNameByType("color");
-        const { r, g, b } = doc.fills[0].color;
-        const hex = rgbToHex(
-          Math.round(r * 255),
-          Math.round(g * 255),
-          Math.round(b * 255)
-        );
+        const fill = doc.fills[0];
+        const { r, g, b } = fill.color;
+
+        let color = "";
+
+        if (typeof fill.opacity === "number") {
+          const alpha = parseFloat(fill.opacity.toFixed(2));
+          color = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
+        } else {
+          color = rgbToHex(
+            Math.round(r * 255),
+            Math.round(g * 255),
+            Math.round(b * 255)
+          );
+        }
 
         if (style.group) {
           if (!this.tokens[tokenName][style.group]) {
             this.tokens[tokenName][style.group] = {};
           }
 
-          this.tokens[tokenName][style.group][style.name] = hex;
+          this.tokens[tokenName][style.group][style.name] = color;
         } else {
-          this.tokens[tokenName][style.name] = hex;
+          this.tokens[tokenName][style.name] = color;
         }
       } else if (
         style.type === "FILL" &&
@@ -129,7 +138,7 @@ export default class Tokenizer {
         const tokenName = this.getTokenNameByType("drop-shadow");
         const shadow = doc.effects[0]; // TODO: handle multiple shadows
         const { r, g, b, a } = shadow.color;
-        const opacity = parseFloat(a.toFixed(2));
+        const alpha = parseFloat(a.toFixed(2));
         const hex = rgbToHex(
           Math.round(r * 255),
           Math.round(g * 255),
@@ -139,10 +148,10 @@ export default class Tokenizer {
         this.tokens[tokenName][style.name] = {
           offset: shadow.offset,
           radius: shadow.radius,
-          opacity,
+          opacity: alpha,
           color: {
             hex,
-            rgba: `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${opacity})`, // prettier-ignore
+            rgba: `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`, // prettier-ignore
           },
         };
       }
