@@ -30,13 +30,15 @@ npm install figmage
 
 1. Get an [access token](https://www.figma.com/developers/api#access-tokens) for Figma API
 2. Retrieve the file id of the Figma file
-3. Create `.env` file (or any env file that is supported by [dotenv](https://github.com/motdotla/dotenv))
+3. Create an `.env` file for [dotenv](https://github.com/motdotla/dotenv)
 4. Paste the access token and the file id in the env file
 
 ```sh
 FIGMA_ACCESS_TOKEN="xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 FIGMA_FILE_ID="xxxxxxxxxxxxxxxxxxxxxx"
 ```
+
+> ℹ️ You can change the env file path with the CLI `--env` or `-e` option.
 
 ## Configuration
 
@@ -51,6 +53,8 @@ In addition to generic options the config has two concepts that map directly to 
   "codegen": {}
 }
 ```
+
+> ℹ️ You can change the config file path with the CLI `--config` or `-c` option.
 
 ### Tokenize
 

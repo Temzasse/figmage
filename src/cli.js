@@ -1,5 +1,5 @@
 // @ts-check
-require("dotenv").config();
+const dotenv = require("dotenv");
 
 import fs from "fs";
 import arg from "arg";
@@ -28,6 +28,12 @@ export function cli(args) {
     throw Error("No config found!");
   }
 
+  if (options.env) {
+    dotenv.config({ path: options.env });
+  } else {
+    dotenv.config();
+  }
+
   const env = {
     FIGMA_ACCESS_TOKEN: process.env.FIGMA_ACCESS_TOKEN,
     FIGMA_FILE_ID: process.env.FIGMA_FILE_ID,
@@ -47,6 +53,8 @@ function parseArgumentsIntoOptions(rawArgs) {
     {
       "--config": String,
       "-c": "--config",
+      "--env": String,
+      "-e": "--env",
       "--watch": Boolean,
       "-w": "--watch",
       "--only-new": Boolean,
@@ -56,6 +64,7 @@ function parseArgumentsIntoOptions(rawArgs) {
   return {
     commands: args["_"],
     config: args["--config"],
+    env: args["--env"],
     watch: args["--watch"] || false,
     onlyNew: args["--only-new"] || false,
   };
