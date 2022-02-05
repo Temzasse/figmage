@@ -65,8 +65,9 @@
       },
       "icons": {
         "filetype": "svg",
-        "dirname": "icons",
-        "tokenCase": "kebab"
+        "sprite": {
+          "writeIds": true
+        }
       }
     }
   }

@@ -256,6 +256,7 @@ export default class Tokenizer {
         const svgOptimized = await Promise.all(
           imageContents.map(async ({ data }) => {
             const optimized = await optimizeSvg(data);
+            // @ts-ignore
             return optimized.data;
           })
         );

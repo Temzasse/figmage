@@ -63,7 +63,7 @@ export default class Codegen {
         .sort(this.sortTokens);
 
       if (config.filetype === "ts" || config.filetype === "js") {
-        const compiled = template(TEMPLATE, {});
+        const compiled = template(TOKEN_TEMPLATE, {});
 
         fs.writeFileSync(
           `${outDir}/${filename}.${config.filetype}`,
@@ -84,15 +84,40 @@ export default class Codegen {
       }
 
       if (config.filetype === "svg") {
-        const dirname = `${outDir}/${config.dirname || name}`;
+        if (config.sprite) {
+          const spriteCompiled = template(SVG_SPRITE_TEMPLATE, {});
+          const rgx = /<svg.*?>([\s\S]*)<\/svg>/i; // remove wrapping svg tag
+          const svgs = tokens.map(([k, v]) => [k, v.match(rgx)[1]]);
 
-        if (!fs.existsSync(dirname)) {
-          fs.mkdirSync(dirname);
+          fs.writeFileSync(
+            `${outDir}/${filename}.svg`,
+            spriteCompiled({ svgs })
+          );
+
+          const writeIds =
+            typeof config.sprite === "object" ? config.sprite.writeIds : false;
+
+          // Write ids so that we can more easily reference them in TS
+          if (writeIds) {
+            const idsCompiled = template(SVG_SPRITE_IDS_TEMPLATE, {});
+            const idsFilename = config.sprite.idsFilename || `${filename}-ids`;
+
+            fs.writeFileSync(
+              `${outDir}/${idsFilename}.ts`,
+              idsCompiled({ ids: svgs.map(([name]) => name) })
+            );
+          }
+        } else {
+          const dirname = `${outDir}/${config.dirname || name}`;
+
+          if (!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname);
+          }
+
+          tokens.forEach((token) => {
+            fs.writeFileSync(`${dirname}/${token[0]}.svg`, token[1]);
+          });
         }
-
-        tokens.forEach((token) => {
-          fs.writeFileSync(`${dirname}/${token[0]}.svg`, token[1]);
-        });
       }
     });
   }
@@ -103,11 +128,29 @@ const DEFAULT_CONFIG = {
   tokenCase: "camel",
 };
 
-const TEMPLATE =
+const TOKEN_TEMPLATE =
   "/* eslint-disable */\n" +
-  "<% tokens.forEach(function(token) { %>" +
-  "export const <%= token[0] %> = <%= JSON.stringify(token[1], null, 2) %>;\n" +
+  "<% tokens.forEach(function(x) { %>" +
+  "export const <%= x[0] %> = <%= JSON.stringify(x[1], null, 2) %>;\n" +
   "<% }); %>";
+
+const SVG_SPRITE_TEMPLATE = `/* eslint-disable */
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs><% svgs.forEach(function(x) { %>
+    <symbol viewBox="0 0 24 24" id="<%= x[0] %>">
+      <%= x[1] %>
+    </symbol><% }); %>
+  </defs>
+</svg>
+`;
+
+const SVG_SPRITE_IDS_TEMPLATE =
+  "/* eslint-disable */\n" +
+  "export const ids = [" +
+  "<% ids.forEach(function(x) { %>" +
+  "<%= JSON.stringify(x) %>," +
+  "<% }); %>" +
+  "];\n";
 
 const RESERVED_KEYWORDS = [
   "break",
