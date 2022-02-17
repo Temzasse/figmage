@@ -139,20 +139,19 @@ export default class Tokenizer {
         const shadow = doc.effects[0]; // TODO: handle multiple shadows
         const { r, g, b, a } = shadow.color;
         const alpha = parseFloat(a.toFixed(2));
+        const rgba = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
         const hex = rgbToHex(
           Math.round(r * 255),
           Math.round(g * 255),
           Math.round(b * 255)
         );
-
+        
         this.tokens[tokenName][style.name] = {
+          boxShadow: `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${rgba}`,
           offset: shadow.offset,
           radius: shadow.radius,
           opacity: alpha,
-          color: {
-            hex,
-            rgba: `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`, // prettier-ignore
-          },
+          color: { hex, rgba },
         };
       }
     });
