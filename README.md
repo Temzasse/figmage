@@ -489,6 +489,28 @@ The `codegen` property allows you to modify the code generation behaviour.
 | `[token].filetype`   | `ts`, `js`, `json`, `svg`                             |
 | `[token].tokenCase`  | `camel`, `kebab`                                      |
 
+#### SVG sprites
+
+For SVGs it is possible to bundle all generated SVG tokens into one SVG sprite. You can achieve this by setting the `sprite` key to `true`. It is also possible to set the value to `{ writeIds: true }` if you want to write the token names which are used as ids of the SVG sprite parts into a separate file (for usage in TypeScript etc.).
+
+By setting the `sprite` key only one SVG file will be generated instead of multiple separate SVG files.
+
+```js
+{
+  "codegen": {
+    "icons": {
+      "filetype": "svg",
+      "filename": "icon-sprite",
+      "sprite": {
+        "writeIds": true
+      }
+    }
+  }
+}
+```
+
+With the config above Figmage would generate two files: `icon-sprite.svg` and `icon-sprite-ids.ts`.
+
 ## Figma template
 
 In the screenshot below you can see how the example Figma template looks like that is used in the `/example` folder of this repo.
