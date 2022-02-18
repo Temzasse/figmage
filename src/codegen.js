@@ -150,7 +150,7 @@ const SVG_SPRITE_IDS_TEMPLATE =
   "<% ids.forEach(function(x) { %>" +
   "<%= JSON.stringify(x) %>," +
   "<% }); %>" +
-  "];\n";
+  "] as const;\n";
 
 const RESERVED_KEYWORDS = [
   "break",
