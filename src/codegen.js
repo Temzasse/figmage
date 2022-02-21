@@ -89,13 +89,21 @@ export default class Codegen {
           const rgx = /<svg.*?>([\s\S]*)<\/svg>/i; // remove wrapping svg tag
           const svgs = tokens.map(([k, v]) => [k, v.match(rgx)[1]]);
 
+          let spriteDir = outDir;
+          let writeIds = false;
+
+          if (typeof config.sprite === "object") {
+            writeIds = Boolean(config.sprite.writeIds);
+
+            if (typeof config.sprite.spriteDir === "string") {
+              spriteDir = config.sprite.spriteDir;
+            }
+          }
+
           fs.writeFileSync(
-            `${outDir}/${filename}.svg`,
+            `${spriteDir}/${filename}.svg`,
             spriteCompiled({ svgs })
           );
-
-          const writeIds =
-            typeof config.sprite === "object" ? config.sprite.writeIds : false;
 
           // Write ids so that we can more easily reference them in TS
           if (writeIds) {
@@ -134,15 +142,14 @@ const TOKEN_TEMPLATE =
   "export const <%= x[0] %> = <%= JSON.stringify(x[1], null, 2) %>;\n" +
   "<% }); %>";
 
-const SVG_SPRITE_TEMPLATE = `/* eslint-disable */
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs><% svgs.forEach(function(x) { %>
-    <symbol viewBox="0 0 24 24" id="<%= x[0] %>">
-      <%= x[1] %>
-    </symbol><% }); %>
-  </defs>
-</svg>
-`;
+const SVG_SPRITE_TEMPLATE =
+  '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+  "<defs><% svgs.forEach(function(x) { %>" +
+  '<symbol viewBox="0 0 24 24" id="<%= x[0] %>">' +
+  "<%= x[1] %>" +
+  "</symbol><% }); %>" +
+  "</defs>" +
+  "</svg>";
 
 const SVG_SPRITE_IDS_TEMPLATE =
   "/* eslint-disable */\n" +
