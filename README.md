@@ -6,6 +6,8 @@
 
 A simple CLI tool that helps you generate design tokens as code from your Figma project.
 
+> ⚠️ NOTE: this tool is not production ready yet and is being worked on. The API might change so use at your own risk!
+
 ## Installation
 
 This tool can be used as a global package if you don't want to include it as a dependency in each of your projects:
