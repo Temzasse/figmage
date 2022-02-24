@@ -33,9 +33,14 @@ export default class Tokenizer {
     const styles = await this.figmaAPI.fetchStyles();
 
     const stylesById = styles.reduce((acc, style) => {
-      const [name, group] = style.name.split(
-        this.config.tokenize.groupSeparator
-      );
+      let name = style.name;
+      let group = "";
+
+      if (style.name.includes("/")) {
+        const parts = style.name.split("/");
+        group = parts.shift();
+        name = parts.join(" ");
+      }
 
       const id = style.node_id;
 
@@ -118,8 +123,7 @@ export default class Tokenizer {
         // TYPOGRAPHY ----------------------------------------------------------
         const tokenName = this.getTokenNameByType("text");
         const textStyle = doc.style;
-
-        this.tokens[tokenName][style.name] = {
+        const textToken = {
           fontFamily: textStyle.fontFamily,
           fontWeight: textStyle.fontWeight,
           fontSize: textStyle.fontSize,
@@ -129,6 +133,16 @@ export default class Tokenizer {
             (textStyle.lineHeightPx / textStyle.fontSize).toFixed(3)
           ),
         };
+
+        if (style.group) {
+          if (!this.tokens[tokenName][style.group]) {
+            this.tokens[tokenName][style.group] = {};
+          }
+
+          this.tokens[tokenName][style.group][style.name] = textToken;
+        } else {
+          this.tokens[tokenName][style.name] = textToken;
+        }
       } else if (
         style.type === "EFFECT" &&
         doc.effects[0].type === "DROP_SHADOW" &&
@@ -145,7 +159,7 @@ export default class Tokenizer {
           Math.round(g * 255),
           Math.round(b * 255)
         );
-        
+
         this.tokens[tokenName][style.name] = {
           boxShadow: `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${rgba}`,
           offset: shadow.offset,

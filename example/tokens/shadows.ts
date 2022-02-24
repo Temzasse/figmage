@@ -1,5 +1,6 @@
 /* eslint-disable */
 export const shadowLarge = {
+  "boxShadow": "0px 16px 32px rgba(0, 0, 0, 0.12)",
   "offset": {
     "x": 0,
     "y": 16
@@ -12,6 +13,7 @@ export const shadowLarge = {
   }
 };
 export const shadowMedium = {
+  "boxShadow": "0px 8px 24px rgba(0, 0, 0, 0.12)",
   "offset": {
     "x": 0,
     "y": 8
@@ -24,6 +26,7 @@ export const shadowMedium = {
   }
 };
 export const shadowNormal = {
+  "boxShadow": "0px 4px 16px rgba(0, 0, 0, 0.12)",
   "offset": {
     "x": 0,
     "y": 4
@@ -36,6 +39,7 @@ export const shadowNormal = {
   }
 };
 export const shadowSmall = {
+  "boxShadow": "0px 2px 6px rgba(0, 0, 0, 0.12)",
   "offset": {
     "x": 0,
     "y": 2

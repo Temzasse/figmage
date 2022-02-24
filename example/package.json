@@ -12,7 +12,6 @@
   "figmage": {
     "outDir": "tokens",
     "tokenize": {
-      "groupSeparator": "|",
       "tokens": [
         {
           "name": "colors",
@@ -57,11 +56,6 @@
       "defaults": {
         "filetype": "ts",
         "tokenCase": "camel"
-      },
-      "typography": {
-        "filetype": "json",
-        "filename": "typography",
-        "tokenCase": "kebab"
       },
       "icons": {
         "filetype": "svg",

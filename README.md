@@ -86,16 +86,9 @@ Under `tokenize` you have the `tokens` property which is a list of all the desig
 }
 ```
 
-In addition to the `tokens` field you can provide an optional `groupSeparator` that tells Figmage which character in the Figma layer name acts as a split point for grouping logic. This can be very useful for example when you want to have two sets of colors: one for light mode and one dark mode. For this scenario you could name your colors like this: `Primary | Light` + `Primary | Dark` and set the `groupdSeparator` to be `|` character. Combined with the other config options this would yield to two sets of code generated colors in the output file.
+#### Grouping
 
-```js
-{
-  "tokenize": {
-    "groupdSeparator": "|",
-    "tokens": []
-  }
-}
-```
+Figmage will automatically group tokens based on top-level folders in Figma. For example if you have grouped all your colors inside `Light` and `Dark` folders or text styles inside `Web` and `Native` folders they will be also separated into respective groups during tokenization and code generation. This grouping logic applies to any type of token so you can also group things like spacing, sizing, radii, etc. scales by adding the group name to the layer name: `<Group name>/<Token name>`.
 
 #### Supported tokens
 
