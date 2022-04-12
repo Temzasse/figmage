@@ -1,2 +1,2 @@
 /* eslint-disable */
-export const ids = ["featherAperture","featherArrowDownLeft","featherArrowLeftCircle","featherCamera","featherCheckCircle","featherCloudLightning","featherEye","featherHeart",] as const;
+export const ids = ["aperture","arrowDownLeft","arrowLeftCircle","camera","checkCircle","cloudLightning","eye","heart",] as const;

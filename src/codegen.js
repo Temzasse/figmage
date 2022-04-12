@@ -3,6 +3,7 @@ import fs from "fs";
 import template from "lodash.template";
 import camelCase from "lodash.camelcase";
 import kebabCase from "lodash.kebabcase";
+import snakeCase from "lodash.snakecase";
 import log from "./log";
 
 export default class Codegen {
@@ -42,6 +43,7 @@ export default class Codegen {
 
   formatTokenName(name, tokenCase) {
     if (tokenCase === "kebab") return kebabCase(name);
+    if (tokenCase === "snake") return snakeCase(name);
     return camelCase(name);
   }
 
@@ -58,7 +60,27 @@ export default class Codegen {
       const filename = config.filename || name;
 
       const tokens = Object.entries(values)
-        .map(([k, v]) => [this.formatTokenName(k, config.tokenCase), v])
+        .map(([k, v]) => {
+          const tokenName = this.formatTokenName(k, config.tokenCase);
+          let tokenValue = v;
+
+          if (
+            typeof v === "object" &&
+            (name === "colors" || name === "typography")
+          ) {
+            // Format token value object keys for Figma variable groups
+            // Eg. `typography.native/web` or `colors.light/dark`
+            tokenValue = Object.entries(v).reduce(
+              (acc, entry) => ({
+                ...acc,
+                [this.formatTokenName(entry[0], config.tokenCase)]: entry[1],
+              }),
+              {}
+            );
+          }
+
+          return [tokenName, tokenValue];
+        })
         .filter(this.filterTokens)
         .sort(this.sortTokens);
 

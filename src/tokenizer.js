@@ -1,6 +1,5 @@
 // @ts-check
 import fs from "fs";
-import camelCase from "lodash.camelcase";
 import axios from "axios";
 import log from "./log";
 import { optimizeSvg } from "./svgo";
@@ -46,8 +45,8 @@ export default class Tokenizer {
 
       acc[id] = {
         id,
+        name,
         group: (group || "").trim().toLowerCase(),
-        name: this.formatTokenName(name),
         type: style.style_type,
       };
 
@@ -179,10 +178,9 @@ export default class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName][name] = roundToDecimal(
+          this.tokens[tokenName][node.name] = roundToDecimal(
             node.absoluteBoundingBox.height
           );
         });
@@ -198,10 +196,9 @@ export default class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName][name] = roundToDecimal(
+          this.tokens[tokenName][node.name] = roundToDecimal(
             node.absoluteBoundingBox.width
           );
         });
@@ -217,10 +214,9 @@ export default class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName][name] = {
+          this.tokens[tokenName][node.name] = {
             height: roundToDecimal(node.absoluteBoundingBox.height),
             width: roundToDecimal(node.absoluteBoundingBox.width),
           };
@@ -237,10 +233,9 @@ export default class Tokenizer {
         const radiiNodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         radiiNodes.forEach((node) => {
-          const name = this.formatTokenName(node.name);
           const tokenName = this.getTokenNameByNodeId(nodeId);
 
-          this.tokens[tokenName][name] = roundToDecimal(
+          this.tokens[tokenName][node.name] = roundToDecimal(
             node.children[0].cornerRadius
           );
         });
@@ -275,8 +270,7 @@ export default class Tokenizer {
         );
 
         const svgs = svgOptimized.reduce((acc, svg, index) => {
-          const name = this.formatTokenName(nodes[index].name);
-          acc[name] = svg;
+          acc[nodes[index].name] = svg;
           return acc;
         }, {});
 
@@ -286,10 +280,6 @@ export default class Tokenizer {
   }
 
   // Helpers ------------------------------------------------------------------
-
-  formatTokenName(name) {
-    return camelCase(name);
-  }
 
   hasTokenType(type) {
     return !!this.config.tokenize.tokens.find((t) => t.type === type);

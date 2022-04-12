@@ -1,8 +1,11 @@
 /* eslint-disable */
 export const dark = {
+  "muted4": "#3a3a3c",
+  "pressHighlight": "rgba(150, 150, 150, 0.2)",
+  "focusRing": "#009a48",
+  "errorMuted": "#3e1c1d",
   "error": "#ef4444",
   "muted3": "#48484a",
-  "muted4": "#48484a",
   "elevated": "#333333",
   "success": "#10b981",
   "warnText": "#ffc93d",
@@ -18,9 +21,7 @@ export const dark = {
   "surface": "#222222",
   "backdrop": "rgba(0, 0, 0, 0.5)",
   "background": "#111111",
-  "focusRing": "#009a48",
   "info": "#3b82f6",
-  "pressHighlight": "rgba(150, 150, 150, 0.2)",
   "infoMuted": "#1b2940",
   "successText": "#1ee8a5",
   "muted5": "#2c2c2e",
@@ -29,8 +30,7 @@ export const dark = {
   "hoverHighlight": "rgba(150, 150, 150, 0.08)",
   "successMuted": "#193328",
   "warn": "#fbbf24",
-  "border": "rgba(150, 150, 150, 0.3)",
-  "errorMuted": "#3e1c1d"
+  "border": "rgba(150, 150, 150, 0.3)"
 };
 export const light = {
   "muted1": "#8e8e93",
