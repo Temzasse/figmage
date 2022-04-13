@@ -148,24 +148,30 @@ export default class Tokenizer {
         this.hasTokenType("drop-shadow")
       ) {
         // SHADOWS -------------------------------------------------------------
-        const tokenName = this.getTokenNameByType("drop-shadow");
-        const shadow = doc.effects[0]; // TODO: handle multiple shadows
-        const { r, g, b, a } = shadow.color;
-        const alpha = parseFloat(a.toFixed(2));
-        const rgba = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
-        const hex = rgbToHex(
-          Math.round(r * 255),
-          Math.round(g * 255),
-          Math.round(b * 255)
-        );
+        function getShadow(shadow) {
+          const { r, g, b, a } = shadow.color;
+          const alpha = parseFloat(a.toFixed(2));
+          const rgba = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
+          const hex = rgbToHex(
+            Math.round(r * 255),
+            Math.round(g * 255),
+            Math.round(b * 255)
+          );
 
-        this.tokens[tokenName][style.name] = {
-          boxShadow: `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${rgba}`,
-          offset: shadow.offset,
-          radius: shadow.radius,
-          opacity: alpha,
-          color: { hex, rgba },
-        };
+          return {
+            boxShadow: `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${rgba}`,
+            offset: shadow.offset,
+            radius: shadow.radius,
+            opacity: alpha,
+            color: { hex, rgba },
+          };
+        }
+
+        const tokenName = this.getTokenNameByType("drop-shadow");
+        const shadows = doc.effects.map(getShadow);
+
+        this.tokens[tokenName][style.name] =
+          shadows.length === 1 ? shadows[0] : shadows;
       }
     });
   }
