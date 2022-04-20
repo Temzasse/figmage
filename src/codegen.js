@@ -59,6 +59,7 @@ export default class Codegen {
 
       const filename = config.filename || name;
 
+      const tokenNames = new Set();
       const tokens = Object.entries(values)
         .map(([k, v]) => {
           const tokenName = this.formatTokenName(k, config.tokenCase);
@@ -70,13 +71,18 @@ export default class Codegen {
           ) {
             // Format token value object keys for Figma variable groups
             // Eg. `typography.native/web` or `colors.light/dark`
-            tokenValue = Object.entries(v).reduce(
-              (acc, entry) => ({
-                ...acc,
-                [this.formatTokenName(entry[0], config.tokenCase)]: entry[1],
-              }),
-              {}
-            );
+            tokenValue = Object.entries(v).reduce((acc, entry) => {
+              const _tokenName = this.formatTokenName(
+                entry[0],
+                config.tokenCase
+              );
+
+              tokenNames.add(_tokenName);
+
+              return { ...acc, [_tokenName]: entry[1] };
+            }, {});
+          } else {
+            tokenNames.add(tokenName);
           }
 
           return [tokenName, tokenValue];
@@ -89,7 +95,7 @@ export default class Codegen {
 
         fs.writeFileSync(
           `${outDir}/${filename}.${config.filetype}`,
-          compiled({ tokens })
+          compiled({ tokens, tokenNames: Array.from(tokenNames).sort() })
         );
       }
 
@@ -162,7 +168,9 @@ const TOKEN_TEMPLATE =
   "/* eslint-disable */\n" +
   "<% tokens.forEach(function(x) { %>" +
   "export const <%= x[0] %> = <%= JSON.stringify(x[1], null, 2) %>;\n" +
-  "<% }); %>";
+  "<% }); %>\n" +
+  "export type Token = " +
+  "<%= tokenNames.map(t => JSON.stringify(t)).join(' | ') %>;\n";
 
 const SVG_SPRITE_TEMPLATE =
   '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +

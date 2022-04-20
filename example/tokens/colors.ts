@@ -65,3 +65,5 @@ export const light = {
   "hoverHighlight": "rgba(150, 150, 150, 0.1)",
   "muted5": "#e5e5ea"
 };
+
+export type Token = "backdrop" | "background" | "border" | "elevated" | "error" | "errorMuted" | "errorText" | "focusRing" | "hoverHighlight" | "info" | "infoMuted" | "infoText" | "muted1" | "muted2" | "muted3" | "muted4" | "muted5" | "muted6" | "pressHighlight" | "primary" | "primaryMuted" | "primaryText" | "success" | "successMuted" | "successText" | "surface" | "text" | "textMuted" | "warn" | "warnMuted" | "warnText";

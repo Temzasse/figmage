@@ -147,3 +147,5 @@ export const web = {
     "lineHeight": 1.172
   }
 };
+
+export type Token = "body" | "bodyLarge" | "bodySmall" | "caption" | "overline" | "subtitle" | "title1" | "title2" | "title3";

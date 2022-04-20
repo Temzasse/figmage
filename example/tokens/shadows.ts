@@ -51,3 +51,5 @@ export const shadowSmall = {
     "rgba": "rgba(0, 0, 0, 0.12)"
   }
 };
+
+export type Token = "shadowLarge" | "shadowMedium" | "shadowNormal" | "shadowSmall";
