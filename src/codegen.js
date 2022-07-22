@@ -65,12 +65,12 @@ export default class Codegen {
           const tokenName = this.formatTokenName(k, config.tokenCase);
           let tokenValue = v;
 
+          // Format token value object keys for Figma variable groups
+          // Eg. `typography.native/web` or `colors.light/dark`
           if (
             typeof v === "object" &&
-            (name === "colors" || name === "typography")
+            (name === "colors" || (name === "typography" && !("fontSize" in v)))
           ) {
-            // Format token value object keys for Figma variable groups
-            // Eg. `typography.native/web` or `colors.light/dark`
             tokenValue = Object.entries(v).reduce((acc, entry) => {
               const _tokenName = this.formatTokenName(
                 entry[0],

@@ -3,7 +3,7 @@ import fs from "fs";
 import axios from "axios";
 import log from "./log";
 import { optimizeSvg } from "./svgo";
-import { rgbToHex, roundToDecimal } from "./utils";
+import { rgbToHex, roundToDecimal, toFixed } from "./utils";
 
 export default class Tokenizer {
   constructor({ config, figmaAPI, onlyNew }) {
@@ -72,7 +72,7 @@ export default class Tokenizer {
         let color = "";
 
         if (typeof fill.opacity === "number") {
-          const alpha = parseFloat(fill.opacity.toFixed(2));
+          const alpha = toFixed(fill.opacity, 2);
           color = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
         } else {
           color = rgbToHex(
@@ -127,10 +127,8 @@ export default class Tokenizer {
           fontWeight: textStyle.fontWeight,
           fontSize: textStyle.fontSize,
           textTransform: textStyle.textCase === "UPPER" ? "uppercase" : "none",
-          letterSpacing: textStyle.letterSpacing,
-          lineHeight: parseFloat(
-            (textStyle.lineHeightPx / textStyle.fontSize).toFixed(3)
-          ),
+          letterSpacing: toFixed(textStyle.letterSpacing, 2),
+          lineHeight: toFixed(textStyle.lineHeightPx / textStyle.fontSize, 3),
         };
 
         if (style.group) {
@@ -150,7 +148,7 @@ export default class Tokenizer {
         // SHADOWS -------------------------------------------------------------
         function getShadow(shadow) {
           const { r, g, b, a } = shadow.color;
-          const alpha = parseFloat(a.toFixed(2));
+          const alpha = toFixed(a, 2);
           const rgba = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
           const hex = rgbToHex(
             Math.round(r * 255),
