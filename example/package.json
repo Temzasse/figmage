@@ -22,6 +22,42 @@
           "type": "text"
         },
         {
+          "name": "spacing",
+          "type": "width",
+          "nodeId": "22:582"
+        },
+        {
+          "name": "radii",
+          "type": "radius",
+          "nodeId": "22:641"
+        },
+        {
+          "name": "icons",
+          "type": "svg",
+          "nodeId": "1:1887"
+        }
+      ]
+    },
+    "codegen": {
+      "defaults": {
+        "filetype": "ts",
+        "tokenCase": "camel"
+      }
+    }
+  },
+  "figmage2": {
+    "outDir": "tokens",
+    "tokenize": {
+      "tokens": [
+        {
+          "name": "colors",
+          "type": "color"
+        },
+        {
+          "name": "typography",
+          "type": "text"
+        },
+        {
           "name": "shadows",
           "type": "drop-shadow"
         },
