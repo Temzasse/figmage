@@ -6,8 +6,6 @@
 
 A simple CLI tool that helps you generate design tokens as code from your Figma project.
 
-> ⚠️ NOTE: this tool is not production ready yet and is being worked on. The API might change so use at your own risk!
-
 ## Installation
 
 This tool can be used as a global package if you don't want to include it as a dependency in each of your projects:
@@ -79,6 +77,7 @@ Under `tokenize` you have the `tokens` property which is a list of all the desig
       { "name": "typography", "type": "text" },
       { "name": "shadows", "type": "drop-shadow" },
       { "name": "icons", "nodeId": "x:x", "type": "svg" },
+      { "name": "assets", "nodeId": "x:x", "type": "png" },
       { "name": "spacing", "nodeId": "x:x", "type": "height" },
       { "name": "elevation", "nodeId": "x:x", "type": "width" },
       { "name": "sizing", "nodeId": "x:x", "type": "dimensions" },
@@ -187,13 +186,14 @@ Measures the corner radius of the node as a design token.
 }
 ```
 
-##### SVG assets
+##### Image assets
 
 ```js
 {
   "tokenize": {
     "tokens": [
       { "name": "icons", "nodeId": "x:x", "type": "svg" }
+      { "name": "assets", "nodeId": "x:x", "type": "png" }
       // Other tokens...
     ]
   }
@@ -550,6 +550,10 @@ The `codegen` property allows you to modify the code generation behaviour.
       "filetype": "svg",
       "tokenCase": "kebab"
     }
+    "assets": {
+      "filetype": "png",
+      "tokenCase": "kebab"
+    }
   }
 }
 ```
@@ -557,11 +561,11 @@ The `codegen` property allows you to modify the code generation behaviour.
 ### Available options
 
 | Field                | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
+| -------------------- | -------------------------------------------------------------- | ----- |
 | `defaults.filetype`  | File type for the token: `ts`, `js`, `json`, `svg`             |
 | `defaults.tokenCase` | How should the token value be named: `camel`, `kebab`, `snake` |
 | `[token].filename`   | Filename for the token (defaults to token's name)              |
-| `[token].filetype`   | `ts`, `js`, `json`, `svg`                                      |
+| `[token].filetype`   | `ts`, `js`, `json`, `svg`                                      | `png` |
 | `[token].tokenCase`  | `camel`, `kebab`, `snake`                                      |
 
 #### SVG sprites
