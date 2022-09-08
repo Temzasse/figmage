@@ -64,10 +64,11 @@ export default class FigmaAPI {
 
   /**
    * @param {string[]} ids
+   * @param {string} format
    */
-  async fetchImages(ids) {
+  async fetchImages(ids, format = "svg") {
     const res = await this.api.get(`/images/${this.fileId}`, {
-      params: { ids: ids.join(","), format: "svg" },
+      params: { ids: ids.join(","), format },
     });
 
     return res.data.images;

@@ -5,6 +5,7 @@ import camelCase from "lodash.camelcase";
 import kebabCase from "lodash.kebabcase";
 import snakeCase from "lodash.snakecase";
 import log from "./log";
+import { downloadFile } from "./download";
 
 export default class Codegen {
   constructor({ config }) {
@@ -47,10 +48,10 @@ export default class Codegen {
     return camelCase(name);
   }
 
-  write() {
+  async write() {
     const outDir = this.config.outDir || "tokens";
 
-    Object.entries(this.tokens).map(([name, values]) => {
+    for (const [name, values] of Object.entries(this.tokens)) {
       const config = {
         ...DEFAULT_CONFIG,
         ...this.config.codegen.defaults,
@@ -155,7 +156,22 @@ export default class Codegen {
           });
         }
       }
-    });
+
+      if (config.filetype === "png") {
+        const dirname = `${outDir}/${config.dirname || name}`;
+
+        if (!fs.existsSync(dirname)) {
+          fs.mkdirSync(dirname);
+        }
+
+        const promises = tokens.map((token) => {
+          const [name, url] = token;
+          return downloadFile(url, `${dirname}/${name}.png`);
+        });
+
+        await Promise.all(promises);
+      }
+    }
   }
 }
 

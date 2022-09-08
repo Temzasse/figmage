@@ -25,6 +25,7 @@ export default class Tokenizer {
       this.handleHeight(),
       this.handleDimensions(),
       this.handleSvg(),
+      this.handlePng(),
     ]);
   }
 
@@ -279,6 +280,33 @@ export default class Tokenizer {
         }, {});
 
         this.tokens[tokenName] = svgs;
+      }
+    }
+  }
+
+  async handlePng() {
+    if (this.hasTokenType("png")) {
+      const nodeIds = this.getAllTokenNodeIds("png");
+
+      for (const nodeId of nodeIds) {
+        const tokenName = this.getTokenNameByNodeId(nodeId);
+        const current = this.tokens[tokenName];
+        const _nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
+        const nodes = _nodes.filter((n) => !current[n.name]);
+
+        if (nodes.length === 0) continue;
+
+        const images = await this.figmaAPI.fetchImages(
+          nodes.map((n) => n.id),
+          "png"
+        );
+
+        const pngs = Object.values(images).reduce((acc, url, index) => {
+          acc[nodes[index].name] = url;
+          return acc;
+        }, {});
+
+        this.tokens[tokenName] = pngs;
       }
     }
   }

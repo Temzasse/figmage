@@ -22,49 +22,8 @@
           "type": "text"
         },
         {
-          "name": "spacing",
-          "type": "width",
-          "nodeId": "22:582"
-        },
-        {
-          "name": "radii",
-          "type": "radius",
-          "nodeId": "22:641"
-        },
-        {
-          "name": "icons",
-          "type": "svg",
-          "nodeId": "1:1887"
-        }
-      ]
-    },
-    "codegen": {
-      "defaults": {
-        "filetype": "ts",
-        "tokenCase": "camel"
-      }
-    }
-  },
-  "figmage2": {
-    "outDir": "tokens",
-    "tokenize": {
-      "tokens": [
-        {
-          "name": "colors",
-          "type": "color"
-        },
-        {
-          "name": "typography",
-          "type": "text"
-        },
-        {
           "name": "shadows",
           "type": "drop-shadow"
-        },
-        {
-          "name": "icons",
-          "type": "svg",
-          "nodeId": "102:2"
         },
         {
           "name": "spacing",
@@ -77,14 +36,19 @@
           "nodeId": "102:7"
         },
         {
-          "name": "sizing",
-          "type": "width",
-          "nodeId": "136:188"
-        },
-        {
           "name": "radii",
           "type": "radius",
           "nodeId": "102:8"
+        },
+        {
+          "name": "icons",
+          "type": "svg",
+          "nodeId": "102:2"
+        },
+        {
+          "name": "assets",
+          "type": "png",
+          "nodeId": "643:618"
         }
       ]
     },
@@ -93,12 +57,9 @@
         "filetype": "ts",
         "tokenCase": "camel"
       },
-      "icons": {
-        "filetype": "svg",
-        "sprite": {
-          "writeIds": true,
-          "spriteDir": "assets"
-        }
+      "assets": {
+        "filetype": "png",
+        "tokenCase": "kebab"
       }
     }
   }

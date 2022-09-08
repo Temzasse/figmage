@@ -38,7 +38,7 @@ export async function main({ options, config, env }) {
     try {
       spinner.text = "Generating code from design tokens...";
       const codegen = new Codegen({ config });
-      codegen.write();
+      await codegen.write();
       await sleep(2000);
       spinner.succeed("Codegen complete!");
     } catch (error) {
