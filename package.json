@@ -1,6 +1,6 @@
 {
   "name": "figmage",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Flexibly generate design tokens from your Figma files",
   "license": "ISC",
   "repository": {
