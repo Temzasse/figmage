@@ -8,4 +8,4 @@ export const iconSizeLarge = 32;
 export const iconSizeNormal = 24;
 export const iconSizeSmall = 16;
 
-export type Token = "buttonHeightLarge" | "buttonHeightNormal" | "buttonHeightSmall" | "focusRingOffset" | "focusRingSize" | "iconSizeLarge" | "iconSizeNormal" | "iconSizeSmall";
+export type SizingToken = "buttonHeightLarge" | "buttonHeightNormal" | "buttonHeightSmall" | "focusRingOffset" | "focusRingSize" | "iconSizeLarge" | "iconSizeNormal" | "iconSizeSmall";

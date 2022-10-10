@@ -172,4 +172,4 @@ export const web = {
   }
 };
 
-export type Token = "body" | "bodyBold" | "bodyLarge" | "bodyLargeBold" | "bodySmall" | "bodySmallBold" | "caption" | "overline" | "subtitle" | "title1" | "title2" | "title3";
+export type TypographyToken = "body" | "bodyBold" | "bodyLarge" | "bodyLargeBold" | "bodySmall" | "bodySmallBold" | "caption" | "overline" | "subtitle" | "title1" | "title2" | "title3";

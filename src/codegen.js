@@ -96,7 +96,7 @@ export default class Codegen {
 
         fs.writeFileSync(
           `${outDir}/${filename}.${config.filetype}`,
-          compiled({ tokens, tokenNames: Array.from(tokenNames).sort() })
+          compiled({ name, tokens, tokenNames: Array.from(tokenNames).sort() })
         );
       }
 
@@ -185,7 +185,7 @@ const TOKEN_TEMPLATE =
   "<% tokens.forEach(function(x) { %>" +
   "export const <%= x[0] %> = <%= JSON.stringify(x[1], null, 2) %>;\n" +
   "<% }); %>\n" +
-  "export type Token = " +
+  "export type <%= name.charAt(0).toUpperCase() + name.slice(1) %>Token = " +
   "<%= tokenNames.map(t => JSON.stringify(t)).join(' | ') %>;\n";
 
 const SVG_SPRITE_TEMPLATE =
