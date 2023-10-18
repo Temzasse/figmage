@@ -9,6 +9,8 @@
   },
   "scripts": {
     "test": "echo TODO",
+    "example:tokenize": "bin/figmage tokenize --config ./example/.figmage.json --env ./example/.env",
+    "example:codegen": "bin/figmage codegen --config ./example/.figmage.json --env ./example/.env",
     "release": "np --any-branch"
   },
   "bin": {

@@ -32,6 +32,8 @@ export const dark = {
   "pressHighlight": "rgba(150, 150, 150, 0.2)",
   "muted4": "#3a3a3c"
 };
+export const envStaging = "#9a008b";
+export const envTest = "#009a9a";
 export const light = {
   "muted5": "#e5e5ea",
   "hoverHighlight": "rgba(150, 150, 150, 0.1)",
@@ -66,4 +68,4 @@ export const light = {
   "muted1": "#8e8e93"
 };
 
-export type ColorsToken = "backdrop" | "background" | "border" | "elevated" | "error" | "errorMuted" | "errorText" | "focusRing" | "hoverHighlight" | "info" | "infoMuted" | "infoText" | "muted1" | "muted2" | "muted3" | "muted4" | "muted5" | "muted6" | "pressHighlight" | "primary" | "primaryMuted" | "primaryText" | "success" | "successMuted" | "successText" | "surface" | "text" | "textMuted" | "warn" | "warnMuted" | "warnText";
+export type ColorsToken = "backdrop" | "background" | "border" | "elevated" | "envStaging" | "envTest" | "error" | "errorMuted" | "errorText" | "focusRing" | "hoverHighlight" | "info" | "infoMuted" | "infoText" | "muted1" | "muted2" | "muted3" | "muted4" | "muted5" | "muted6" | "pressHighlight" | "primary" | "primaryMuted" | "primaryText" | "success" | "successMuted" | "successText" | "surface" | "text" | "textMuted" | "warn" | "warnMuted" | "warnText";
