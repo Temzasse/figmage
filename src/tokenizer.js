@@ -30,6 +30,15 @@ export default class Tokenizer {
   }
 
   async handleStyles() {
+    const customTokens = this.config.tokenize.tokens.filter((t) =>
+      Boolean(t.nodeId)
+    );
+
+    // If there are no style tokens, return early
+    if (this.config.tokenize.tokens.length === customTokens.length) {
+      return;
+    }
+
     const styles = await this.figmaAPI.fetchStyles();
 
     const stylesById = styles.reduce((acc, style) => {
