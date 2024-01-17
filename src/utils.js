@@ -24,3 +24,6 @@ export const roundToDecimal = (num) => Math.abs(Math.round(num * 10) / 10);
 export const toFixed = (num, dec) => parseFloat(num.toFixed(dec));
 
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const isEmptyObject = (obj) =>
+  Object.keys(obj).length === 0 && obj.constructor === Object;

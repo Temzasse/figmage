@@ -1,8 +1,32 @@
 /* eslint-disable */
 export const native = {
+  "body": {
+    "fontFamily": "Inter",
+    "fontWeight": 400,
+    "fontSize": 16,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
+  "bodyBold": {
+    "fontFamily": "Inter",
+    "fontWeight": 600,
+    "fontSize": 16,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
   "bodyLarge": {
     "fontFamily": "Inter",
     "fontWeight": 400,
+    "fontSize": 18,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
+  "bodyLargeBold": {
+    "fontFamily": "Inter",
+    "fontWeight": 600,
     "fontSize": 18,
     "textTransform": "none",
     "letterSpacing": 0,
@@ -16,18 +40,18 @@ export const native = {
     "letterSpacing": 0,
     "lineHeight": 1.21
   },
-  "caption": {
+  "bodySmallBold": {
     "fontFamily": "Inter",
-    "fontWeight": 400,
-    "fontSize": 10,
+    "fontWeight": 600,
+    "fontSize": 12,
     "textTransform": "none",
     "letterSpacing": 0,
     "lineHeight": 1.21
   },
-  "body": {
+  "caption": {
     "fontFamily": "Inter",
     "fontWeight": 400,
-    "fontSize": 16,
+    "fontSize": 10,
     "textTransform": "none",
     "letterSpacing": 0,
     "lineHeight": 1.21
@@ -48,18 +72,10 @@ export const native = {
     "letterSpacing": 0,
     "lineHeight": 1.21
   },
-  "bodyLargeBold": {
+  "title1": {
     "fontFamily": "Inter",
-    "fontWeight": 600,
-    "fontSize": 18,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
-  },
-  "bodySmallBold": {
-    "fontFamily": "Inter",
-    "fontWeight": 600,
-    "fontSize": 12,
+    "fontWeight": 700,
+    "fontSize": 40,
     "textTransform": "none",
     "letterSpacing": 0,
     "lineHeight": 1.21
@@ -79,57 +95,9 @@ export const native = {
     "textTransform": "none",
     "letterSpacing": 0,
     "lineHeight": 1.21
-  },
-  "bodyBold": {
-    "fontFamily": "Inter",
-    "fontWeight": 600,
-    "fontSize": 16,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
-  },
-  "title1": {
-    "fontFamily": "Inter",
-    "fontWeight": 700,
-    "fontSize": 40,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
   }
 };
 export const web = {
-  "bodySmall": {
-    "fontFamily": "Inter",
-    "fontWeight": 400,
-    "fontSize": 12,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
-  },
-  "title3": {
-    "fontFamily": "Inter",
-    "fontWeight": 700,
-    "fontSize": 24,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
-  },
-  "overline": {
-    "fontFamily": "Inter",
-    "fontWeight": 600,
-    "fontSize": 10,
-    "textTransform": "uppercase",
-    "letterSpacing": 0.5,
-    "lineHeight": 1.21
-  },
-  "title1": {
-    "fontFamily": "Inter",
-    "fontWeight": 700,
-    "fontSize": 48,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
-  },
   "body": {
     "fontFamily": "Inter",
     "fontWeight": 400,
@@ -138,9 +106,9 @@ export const web = {
     "letterSpacing": 0,
     "lineHeight": 1.21
   },
-  "subtitle": {
+  "bodyBold": {
     "fontFamily": "Inter",
-    "fontWeight": 700,
+    "fontWeight": 600,
     "fontSize": 16,
     "textTransform": "none",
     "letterSpacing": 0,
@@ -154,26 +122,18 @@ export const web = {
     "letterSpacing": 0,
     "lineHeight": 1.21
   },
-  "title2": {
-    "fontFamily": "Inter",
-    "fontWeight": 700,
-    "fontSize": 32,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
-  },
-  "bodyBold": {
-    "fontFamily": "Inter",
-    "fontWeight": 600,
-    "fontSize": 16,
-    "textTransform": "none",
-    "letterSpacing": 0,
-    "lineHeight": 1.21
-  },
   "bodyLargeBold": {
     "fontFamily": "Inter",
     "fontWeight": 600,
     "fontSize": 18,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
+  "bodySmall": {
+    "fontFamily": "Inter",
+    "fontWeight": 400,
+    "fontSize": 12,
     "textTransform": "none",
     "letterSpacing": 0,
     "lineHeight": 1.21
@@ -198,6 +158,46 @@ export const web = {
     "fontFamily": "Inter",
     "fontWeight": 700,
     "fontSize": 48,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
+  "overline": {
+    "fontFamily": "Inter",
+    "fontWeight": 600,
+    "fontSize": 10,
+    "textTransform": "uppercase",
+    "letterSpacing": 0.5,
+    "lineHeight": 1.21
+  },
+  "subtitle": {
+    "fontFamily": "Inter",
+    "fontWeight": 700,
+    "fontSize": 16,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
+  "title1": {
+    "fontFamily": "Inter",
+    "fontWeight": 700,
+    "fontSize": 48,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
+  "title2": {
+    "fontFamily": "Inter",
+    "fontWeight": 700,
+    "fontSize": 32,
+    "textTransform": "none",
+    "letterSpacing": 0,
+    "lineHeight": 1.21
+  },
+  "title3": {
+    "fontFamily": "Inter",
+    "fontWeight": 700,
+    "fontSize": 24,
     "textTransform": "none",
     "letterSpacing": 0,
     "lineHeight": 1.21

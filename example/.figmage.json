@@ -49,6 +49,17 @@
     "assets": {
       "filetype": "png",
       "tokenCase": "kebab"
+    },
+    "colors": {
+      "exclude": {
+        "group": ["Env"],
+        "token": "\\b(Figma)\\b.*"
+      }
+    },
+    "sizing": {
+      "exclude": {
+        "token": "\\b(Icon Size)\\b.*"
+      }
     }
   }
 }

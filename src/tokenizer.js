@@ -56,7 +56,7 @@ export default class Tokenizer {
       acc[id] = {
         id,
         name,
-        group: (group || "").trim().toLowerCase(),
+        group: (group || "").trim(),
         type: style.style_type,
       };
 

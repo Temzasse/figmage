@@ -4,7 +4,7 @@
 
 # 🧙‍♂️ Figmage 🧙
 
-A simple CLI tool that helps you generate design tokens as code from your Figma project.
+A CLI tool that helps you generate design tokens as code from your Figma project.
 
 ## Installation
 
@@ -38,7 +38,8 @@ FIGMA_ACCESS_TOKEN="xxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"
 FIGMA_FILE_ID="xxxxxxxxxxxxxxxxxxxxxx"
 ```
 
-> ℹ️ You can change the env file path with the CLI `--env` or `-e` option.
+> [!TIP]
+> You can change the env file path with the CLI `--env` or `-e` option.
 
 ## Configuration
 
@@ -54,7 +55,8 @@ In addition to generic options the config has two concepts that map directly to 
 }
 ```
 
-> ℹ️ You can change the config file path with the CLI `--config` or `-c` option.
+> [!TIP]
+> You can change the config file path with the CLI `--config` or `-c` option.
 
 ### Tokenize
 
@@ -93,7 +95,8 @@ Figmage will automatically group tokens based on top-level folders in Figma. For
 
 #### Supported tokens
 
-> ⚠️ NOTE: for all tokens that are not valid variables (colors, text styles, or effects) inside Figma you need to turn the layer you want to target into a component! You can turn a layer into a component via ⌥⌘K (option+command+K). Figmage will ignore all layers inside a frame that are not components.
+> [!IMPORTANT]
+> For all tokens that are not valid variables (colors, text styles, or effects) inside Figma you need to turn the layer you want to target into a component! You can turn a layer into a component via ⌥⌘K (option+command+K). Figmage will ignore all layers inside a frame that are not components.
 
 | Property          | Description                                                                                                                                                |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -204,7 +207,10 @@ Measures the corner radius of the node as a design token.
 
 Below you can see how the output of `figma tokenize` looks like based on the example configuration.
 
-```js
+<details>
+  <summary>See example JSON</summary>
+
+```json
 {
   "colors": {
     "dark": {
@@ -522,6 +528,8 @@ Below you can see how the output of `figma tokenize` looks like based on the exa
 }
 ```
 
+</details>
+
 ### Codegen
 
 Generate code from the output of `figmage tokenize` (design token specification).
@@ -533,6 +541,8 @@ figmage codegen
 ```
 
 The `codegen` property allows you to modify the code generation behaviour.
+
+You can configure codegen for all tokens under `"defaults"` key and also for each token type separately by defining the configuration under the token type name.
 
 ```js
 {
@@ -558,21 +568,97 @@ The `codegen` property allows you to modify the code generation behaviour.
 }
 ```
 
-### Available options
+#### Available options
 
-| Field                | Description                                                    |
-| -------------------- | -------------------------------------------------------------- | ----- |
-| `defaults.filetype`  | File type for the token: `ts`, `js`, `json`, `svg`             |
-| `defaults.tokenCase` | How should the token value be named: `camel`, `kebab`, `snake` |
-| `[token].filename`   | Filename for the token (defaults to token's name)              |
-| `[token].filetype`   | `ts`, `js`, `json`, `svg`                                      | `png` |
-| `[token].tokenCase`  | `camel`, `kebab`, `snake`                                      |
+| Field                | Type          | Description                                                       |
+| -------------------- | ------------- | ----------------------------------------------------------------- |
+| `defaults.filetype`  | `Filetype`    | File type for all tokens by default                               |
+| `defaults.tokenCase` | `Casing`      | Casing used for all tokens by default                             |
+| `defaults.include`   | `IncludeRule` | What Figma variables and groups should be included for all tokens |
+| `defaults.exclude`   | `IncludeRule` | What Figma variables and groups should be excluded for all tokens |
+| `[token].filename`   | `string`      | Filename for the token (defaults to token's name)                 |
+| `[token].filetype`   | `Filetype`    | File type for this token                                          |
+| `[token].tokenCase`  | `Casing`      | Casing used for this token                                        |
+| `[token].include`    | `IncludeRule` | What Figma variables and groups should be included for this token |
+| `[token].exclude`    | `ExcludeRule` | What Figma variables and groups should be excluded for this token |
+
+```ts
+type Casing = `camel` | `kebab` | `snake`;
+
+type Filetype = `ts` | `js` | `json` | `svg` | `png`;
+
+// For example: "\\bFoobar\\b$" (NOTE: that you don't need the wrapping //)
+type EscapedRegexString = string;
+
+type ExactMatchString = string;
+
+type Rule = EscapedRegexString | ExactMatchString[];
+
+type IncludeRule = {
+  include: {
+    groups: Rule;
+    tokens: Rule;
+  };
+};
+
+type ExcludeRule = {
+  exclude: {
+    groups: Rule;
+    tokens: Rule;
+  };
+};
+```
+
+#### Including and excluding
+
+For example if you want to apply rules for all tokens:
+
+```json
+{
+  "codegen": {
+    "defaults": {
+      "include": {
+        // Only include variable groups that have a name of "System"
+        "groups": "\\bSystem\\b$",
+        // Only include variables which name starts with "System"
+        "tokens": "^\\bSystem\\b.*"
+      }
+    }
+  }
+}
+```
+
+Or if you want to apply rules for a specific token types only:
+
+```json
+{
+  "codegen": {
+    "colors": {
+      "exclude": {
+        // Exclude all colors which name starts with "Figma"
+        "token": "^\\bFigma\\b.*"
+      }
+    },
+    "typography": {
+      "include": {
+        // Only include text style groups that have a name of "Web"
+        "groups": ["Web"]
+      }
+    }
+  }
+}
+```
 
 #### SVG sprites
 
-For SVGs it is possible to bundle all generated SVG tokens into one SVG sprite. You can achieve this by setting the `sprite` key to `true`. It is also possible to set the value to `{ writeIds: true }` if you want to write the token names which are used as ids of the SVG sprite parts into a separate file (for usage in TypeScript etc.).
+For SVGs it is possible to bundle all generated SVG tokens into one SVG sprite.
 
-By setting the `sprite` key only one SVG file will be generated instead of multiple separate SVG files.
+You can achieve this by setting the `sprite` key to `true` for the token that has `"filetype": "svg"`.
+
+It is also possible to set the value to `{ writeIds: true }` if you want to write the token names which are used as ids of the SVG sprite parts into a separate file (for usage in TypeScript etc.).
+
+> [!IMPORTANT]  
+> By setting the `sprite` key only one SVG file will be generated instead of multiple separate SVG files.
 
 ```js
 {

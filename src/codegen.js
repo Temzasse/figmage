@@ -1,15 +1,17 @@
 // @ts-check
 import fs from "fs";
+import get from "lodash.get";
 import template from "lodash.template";
 import camelCase from "lodash.camelcase";
 import kebabCase from "lodash.kebabcase";
 import snakeCase from "lodash.snakecase";
 import log from "./log";
-import { downloadFile } from "./download";
+import { isEmptyObject } from "./utils";
 
 export default class Codegen {
-  constructor({ config }) {
+  constructor({ config, figmaAPI }) {
     this.config = config;
+    this.figmaAPI = figmaAPI;
     this.tokens = this.readTokens();
   }
 
@@ -26,10 +28,15 @@ export default class Codegen {
     }
   }
 
-  filterTokens(token) {
-    if (RESERVED_KEYWORDS.includes(token[0])) {
+  /**
+   * Filter out tokens that are reserved JavaScript keywords
+   * @param {string} tokenName
+   * @returns {boolean}
+   */
+  filterReservedKeywords(tokenName) {
+    if (RESERVED_KEYWORDS.includes(tokenName)) {
       log.error(
-        `Invalid token name! The following token name is a reserved JavaScript keyword: ${token[0]}.`
+        `Invalid token name! The following token name is a reserved JavaScript keyword: ${tokenName}.`
       );
       return false;
     }
@@ -42,61 +49,161 @@ export default class Codegen {
     return 0;
   }
 
+  /**
+   * Format a token name based on the token case
+   * @param {string} name
+   * @param {'camel' | 'kebab' | 'snake'} tokenCase
+   * @returns {string}
+   */
   formatTokenName(name, tokenCase) {
     if (tokenCase === "kebab") return kebabCase(name);
     if (tokenCase === "snake") return snakeCase(name);
     return camelCase(name);
   }
 
+  /**
+   * Check if a token value is a group of tokens
+   * @param {string} key
+   * @param {*} value
+   * @returns {boolean}
+   */
+  isGroup(key, value) {
+    return (
+      typeof value === "object" &&
+      (key === "colors" || (key === "typography" && !("fontSize" in value)))
+    );
+  }
+
+  /**
+   * Get the rules for a token type and rule type
+   * @param {string} tokenType
+   * @param {'include' | 'exclude'} ruleType
+   * @returns {object}
+   */
+  getRules(tokenType, ruleType) {
+    const config = this.config.codegen;
+    const defaultRules = get(config, `defaults.${ruleType}`);
+    const specificRules = get(config, `${tokenType}.${ruleType}`);
+    return specificRules || defaultRules;
+  }
+
+  /**
+   * Check if a token or group should be included or excluded based on the rules
+   * @param {*} rules
+   * @param {string} tokenName
+   * @param {'token' | 'group'} type
+   * @returns {boolean}
+   */
+  checkRule(rules, tokenName, type) {
+    const rule = rules[type];
+
+    if (Array.isArray(rule)) {
+      return rule.includes(tokenName);
+    } else {
+      const regex = new RegExp(rules[type]);
+      return regex.test(tokenName);
+    }
+  }
+
+  /**
+   * Check if a token should be included or excluded based on the rules
+   * @param {string} tokenType
+   * @param {string} tokenName
+   * @param {'token' | 'group'} type
+   * @returns {boolean}
+   */
+  filterByRules(tokenType, tokenName, type) {
+    let shouldInclude = true;
+
+    const includeRules = this.getRules(tokenType, "include");
+
+    if (includeRules && includeRules[type]) {
+      shouldInclude = this.checkRule(includeRules, tokenName, type);
+    }
+
+    if (!shouldInclude) return false;
+
+    const excludeRules = this.getRules(tokenType, "exclude");
+
+    if (excludeRules && excludeRules[type]) {
+      shouldInclude = !this.checkRule(excludeRules, tokenName, type);
+    }
+
+    return shouldInclude;
+  }
+
   async write() {
     const outDir = this.config.outDir || "tokens";
 
-    for (const [name, values] of Object.entries(this.tokens)) {
+    // `tokenType` is one of `colors`, `typography`, `spacing`, etc.
+    for (const [tokenType, tokenValues] of Object.entries(this.tokens)) {
       const config = {
         ...DEFAULT_CONFIG,
         ...this.config.codegen.defaults,
-        ...(this.config.codegen[name] || {}),
+        ...(this.config.codegen[tokenType] || {}),
       };
 
-      const filename = config.filename || name;
-
+      const filename = config.filename || tokenType;
       const tokenNames = new Set();
-      const tokens = Object.entries(values)
-        .map(([k, v]) => {
-          const tokenName = this.formatTokenName(k, config.tokenCase);
-          let tokenValue = v;
+
+      const tokens = Object.entries(tokenValues)
+        .filter(([tokenNameOrGroupName, tokenValueOrGroupValues]) => {
+          if (this.isGroup(tokenType, tokenValueOrGroupValues)) {
+            return this.filterByRules(tokenType, tokenNameOrGroupName, "group");
+          }
+
+          return this.filterByRules(tokenType, tokenNameOrGroupName, "token");
+        })
+        .map(([tokenNameOrGroupName, tokenValueOrGroupValues]) => {
+          const tokenName = this.formatTokenName(
+            tokenNameOrGroupName,
+            config.tokenCase
+          );
+
+          let tokenValue = tokenValueOrGroupValues;
 
           // Format token value object keys for Figma variable groups
           // Eg. `typography.native/web` or `colors.light/dark`
-          if (
-            typeof v === "object" &&
-            (name === "colors" || (name === "typography" && !("fontSize" in v)))
-          ) {
-            tokenValue = Object.entries(v).reduce((acc, entry) => {
-              const _tokenName = this.formatTokenName(
-                entry[0],
-                config.tokenCase
-              );
+          if (this.isGroup(tokenType, tokenValueOrGroupValues)) {
+            tokenValue = Object.entries(tokenValueOrGroupValues)
+              .filter((entry) =>
+                this.filterByRules(tokenType, entry[0], "token")
+              )
+              .reduce((acc, entry) => {
+                const tokenNameInGroup = this.formatTokenName(
+                  entry[0],
+                  config.tokenCase
+                );
 
-              tokenNames.add(_tokenName);
+                tokenNames.add(tokenNameInGroup);
 
-              return { ...acc, [_tokenName]: entry[1] };
-            }, {});
+                return { ...acc, [tokenNameInGroup]: entry[1] };
+              }, {});
+
+            // Sort group token values alphabetically as well
+            tokenValue = Object.entries(tokenValue)
+              .sort(this.sortTokens)
+              .reduce((acc, entry) => ({ ...acc, [entry[0]]: entry[1] }), {});
           } else {
             tokenNames.add(tokenName);
           }
 
           return [tokenName, tokenValue];
         })
-        .filter(this.filterTokens)
-        .sort(this.sortTokens);
+        .filter((entry) => this.filterReservedKeywords(entry[0]))
+        .filter((entry) => !isEmptyObject(entry[1]))
+        .sort(this.sortTokens); // Sort tokens alphabetically
 
       if (config.filetype === "ts" || config.filetype === "js") {
         const compiled = template(TOKEN_TEMPLATE, {});
 
         fs.writeFileSync(
           `${outDir}/${filename}.${config.filetype}`,
-          compiled({ name, tokens, tokenNames: Array.from(tokenNames).sort() })
+          compiled({
+            name: tokenType,
+            tokens,
+            tokenNames: Array.from(tokenNames).sort(),
+          })
         );
       }
 
@@ -145,7 +252,7 @@ export default class Codegen {
             );
           }
         } else {
-          const dirname = `${outDir}/${config.dirname || name}`;
+          const dirname = `${outDir}/${config.dirname || tokenType}`;
 
           if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname);
@@ -158,7 +265,7 @@ export default class Codegen {
       }
 
       if (config.filetype === "png") {
-        const dirname = `${outDir}/${config.dirname || name}`;
+        const dirname = `${outDir}/${config.dirname || tokenType}`;
 
         if (!fs.existsSync(dirname)) {
           fs.mkdirSync(dirname);
@@ -166,7 +273,7 @@ export default class Codegen {
 
         const promises = tokens.map((token) => {
           const [name, url] = token;
-          return downloadFile(url, `${dirname}/${name}.png`);
+          return this.figmaAPI.downloadFile(url, `${dirname}/${name}.png`);
         });
 
         await Promise.all(promises);

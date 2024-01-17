@@ -1,5 +1,10 @@
 // @ts-check
 import axios from "axios";
+import { promisify } from "util";
+import { createWriteStream } from "fs";
+import * as stream from "stream";
+
+const finished = promisify(stream.finished);
 
 export default class FigmaAPI {
   /**
@@ -11,6 +16,20 @@ export default class FigmaAPI {
       baseURL: "https://api.figma.com/v1",
       headers: { "X-Figma-Token": accessToken },
     });
+    this.fileApi = axios.create({
+      headers: { "X-Figma-Token": accessToken },
+    });
+  }
+
+  async downloadFile(url, outPath) {
+    const writer = createWriteStream(outPath);
+
+    return this.fileApi
+      .get(url, { responseType: "stream" })
+      .then((response) => {
+        response.data.pipe(writer);
+        return finished(writer);
+      });
   }
 
   /**

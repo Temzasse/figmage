@@ -24,7 +24,8 @@ export async function main({ options, config, env }) {
       await tokenizer.tokenize();
     } catch (error) {
       spinner.fail("Failed to tokenize Figma file!");
-      throw error;
+      logError(options, error);
+      process.exit(1);
     }
 
     try {
@@ -32,18 +33,20 @@ export async function main({ options, config, env }) {
       spinner.succeed("Design tokens successfully saved!");
     } catch (error) {
       spinner.fail("Failed to write design tokens to disk!");
-      throw error;
+      logError(options, error);
+      process.exit(1);
     }
   } else if (options.commands[0] === "codegen") {
     try {
       spinner.text = "Generating code from design tokens...";
-      const codegen = new Codegen({ config });
+      const codegen = new Codegen({ config, figmaAPI });
       await codegen.write();
       await sleep(2000);
       spinner.succeed("Codegen complete!");
     } catch (error) {
       spinner.fail("Codegen failed!");
-      throw error;
+      logError(options, error);
+      process.exit(1);
     }
   } else {
     if (!options.commands || options.commands.length === 0) {
@@ -52,6 +55,18 @@ export async function main({ options, config, env }) {
       spinner.fail(`Unknow command: ${options.commands[0]}`);
     }
   }
+}
+
+function logError(options, error) {
+  if (options.verbose) {
+    throw error;
+  }
+
+  if (error.isAxiosError) {
+    console.log("Request to Figma API failed");
+  }
+
+  console.log(error.message);
 }
 
 // async function watch({ figmaAPI, tokenizer }) {

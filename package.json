@@ -47,6 +47,7 @@
     "esm": "3.2.25",
     "kleur": "4.1.4",
     "lodash.camelcase": "4.3.0",
+    "lodash.get": "4.4.2",
     "lodash.kebabcase": "4.1.1",
     "lodash.snakecase": "4.1.1",
     "lodash.template": "4.5.0",

@@ -55,6 +55,8 @@ function parseArgumentsIntoOptions(rawArgs) {
       "-c": "--config",
       "--env": String,
       "-e": "--env",
+      "--verbose": Boolean,
+      "-v": "--verbose",
       "--watch": Boolean,
       "-w": "--watch",
       "--only-new": Boolean,
@@ -65,6 +67,7 @@ function parseArgumentsIntoOptions(rawArgs) {
     commands: args["_"],
     config: args["--config"],
     env: args["--env"],
+    verbose: args["--verbose"] || false,
     watch: args["--watch"] || false,
     onlyNew: args["--only-new"] || false,
   };
