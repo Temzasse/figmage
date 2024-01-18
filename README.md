@@ -596,15 +596,15 @@ type Rule = EscapedRegexString | ExactMatchString[];
 
 type IncludeRule = {
   include: {
-    groups: Rule;
-    tokens: Rule;
+    group: Rule;
+    token: Rule;
   };
 };
 
 type ExcludeRule = {
   exclude: {
-    groups: Rule;
-    tokens: Rule;
+    group: Rule;
+    token: Rule;
   };
 };
 ```
@@ -619,9 +619,9 @@ For example if you want to apply rules for all tokens:
     "defaults": {
       "include": {
         // Only include variable groups that have a name of "System"
-        "groups": "\\bSystem\\b$",
+        "group": "\\bSystem\\b$",
         // Only include variables which name starts with "System"
-        "tokens": "^\\bSystem\\b.*"
+        "token": "^\\bSystem\\b.*"
       }
     }
   }
@@ -642,7 +642,7 @@ Or if you want to apply rules for a specific token types only:
     "typography": {
       "include": {
         // Only include text style groups that have a name of "Web"
-        "groups": ["Web"]
+        "group": ["Web"]
       }
     }
   }
