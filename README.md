@@ -1,5 +1,5 @@
 <p align='center'>
-  <img src="media/figmage.png" alt="Figmage logo"/>
+  <img src="media/figmage.png" alt="Figmage logo" style="border-radius: 10px" />
 <p/>
 
 # 🧙‍♂️ Figmage 🧙
@@ -544,7 +544,7 @@ The `codegen` property allows you to modify the code generation behaviour.
 
 You can configure codegen for all tokens under `"defaults"` key and also for each token type separately by defining the configuration under the token type name.
 
-```js
+```json
 {
   "codegen": {
     "defaults": {
@@ -559,7 +559,7 @@ You can configure codegen for all tokens under `"defaults"` key and also for eac
       "dirname": "icons",
       "filetype": "svg",
       "tokenCase": "kebab"
-    }
+    },
     "assets": {
       "filetype": "png",
       "tokenCase": "kebab"
@@ -575,7 +575,7 @@ You can configure codegen for all tokens under `"defaults"` key and also for eac
 | `defaults.filetype`  | `Filetype`    | File type for all tokens by default                               |
 | `defaults.tokenCase` | `Casing`      | Casing used for all tokens by default                             |
 | `defaults.include`   | `IncludeRule` | What Figma variables and groups should be included for all tokens |
-| `defaults.exclude`   | `IncludeRule` | What Figma variables and groups should be excluded for all tokens |
+| `defaults.exclude`   | `ExcludeRule` | What Figma variables and groups should be excluded for all tokens |
 | `[token].filename`   | `string`      | Filename for the token (defaults to token's name)                 |
 | `[token].filetype`   | `Filetype`    | File type for this token                                          |
 | `[token].tokenCase`  | `Casing`      | Casing used for this token                                        |
@@ -583,9 +583,9 @@ You can configure codegen for all tokens under `"defaults"` key and also for eac
 | `[token].exclude`    | `ExcludeRule` | What Figma variables and groups should be excluded for this token |
 
 ```ts
-type Casing = `camel` | `kebab` | `snake`;
+type Casing = "camel" | "kebab" | "snake";
 
-type Filetype = `ts` | `js` | `json` | `svg` | `png`;
+type Filetype = "ts" | "js" | "json" | "svg" | "png";
 
 // For example: "\\bFoobar\\b$" (NOTE: that you don't need the wrapping //)
 type EscapedRegexString = string;
@@ -613,7 +613,7 @@ type ExcludeRule = {
 
 For example if you want to apply rules for all tokens:
 
-```json
+```js
 {
   "codegen": {
     "defaults": {
@@ -630,7 +630,7 @@ For example if you want to apply rules for all tokens:
 
 Or if you want to apply rules for a specific token types only:
 
-```json
+```js
 {
   "codegen": {
     "colors": {
