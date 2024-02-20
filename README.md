@@ -98,14 +98,14 @@ To define all the sources for design tokens that should be handled by Figmage ad
       { "name": "gradients", "type": "linear-gradient" },
       { "name": "typography", "type": "text" },
       { "name": "shadows", "type": "drop-shadow" },
-      // Reference frame by ID
+      // Reference frames by ID
       { "name": "icons", "nodeId": "x:x", "type": "svg" },
       { "name": "assets", "nodeId": "x:x", "type": "png" },
       { "name": "spacing", "nodeId": "x:x", "type": "height" },
       { "name": "elevation", "nodeId": "x:x", "type": "width" },
       { "name": "sizing", "nodeId": "x:x", "type": "dimensions" },
       { "name": "radii", "nodeId": "x:x", "type": "radius" }
-      // Reference frame by the name
+      // Or reference frames by their name
       { "name": "icons", "nodeName": "My Icons", "type": "svg" },
       { "name": "assets", "nodeName": "My Assets", "type": "png" },
       { "name": "spacing", "nodeName": "My Spacing", "type": "height" },
@@ -220,7 +220,7 @@ You can use dimension based tokens for things like spacing and sizing.
 
 ##### Corner radius
 
-Measure the corner radius of the Figma component as a design token.
+Measure the corner radius of a Figma component as a design token.
 
 ```js
 {
