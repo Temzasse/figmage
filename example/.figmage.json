@@ -17,27 +17,17 @@
       {
         "name": "spacing",
         "type": "width",
-        "nodeId": "110:694"
-      },
-      {
-        "name": "sizing",
-        "type": "height",
-        "nodeId": "102:7"
+        "nodeName": "Figmage - Spacing"
       },
       {
         "name": "radii",
         "type": "radius",
-        "nodeId": "102:8"
+        "nodeName": "Figmage - Radii"
       },
       {
         "name": "icons",
         "type": "svg",
-        "nodeId": "102:2"
-      },
-      {
-        "name": "assets",
-        "type": "png",
-        "nodeId": "643:618"
+        "nodeName": "Figmage - Icons"
       }
     ]
   },
@@ -46,19 +36,10 @@
       "filetype": "ts",
       "tokenCase": "camel"
     },
-    "assets": {
-      "filetype": "png",
-      "tokenCase": "kebab"
-    },
     "colors": {
       "exclude": {
         "group": ["Env"],
         "token": "\\b(Figma)\\b.*"
-      }
-    },
-    "sizing": {
-      "exclude": {
-        "token": "\\b(Icon Size)\\b.*"
       }
     }
   }
