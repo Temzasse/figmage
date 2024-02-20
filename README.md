@@ -68,7 +68,27 @@ Command:
 figmage tokenize
 ```
 
-Under `tokenize` you have the `tokens` property which is a list of all the design tokens that should be handled by Figmage.
+There are two different sources for generating design tokens from a Figma project:
+
+1. **Local styles**
+2. **Components inside frames**
+
+Local styles are your basic variable-like styles that you use in Figma to assign colors, text styles, effects, etc. to layers.
+Figmage can turn these styles into design tokens.
+
+> [!CAUTION]
+> Figmage doesn't yet support the new [Figma variables](https://www.figma.com/developers/api#variables) as they are only available for Enterprise org users via the REST API 😔
+
+Figma components inside top-level frames can be used as sources for design tokens.
+Figmage can measure various properties of a component and turn that property into a design token.
+In order to get access to a component Figmage needs to know either the **ID** or the **name** of the frame that contains all the components that you want to measure and convert into design tokens.
+
+> [!TIP]
+> You can get the ID of a frame by selecting it and copying the `node-id` parameter value from the URL.
+
+See [Supported tokens](#supported-tokens) section for more info about all the different token source types.
+
+To define all the sources for design tokens that should be handled by Figmage add `tokens` property under `tokenize` in the Figmage config file:
 
 ```js
 {
@@ -78,12 +98,20 @@ Under `tokenize` you have the `tokens` property which is a list of all the desig
       { "name": "gradients", "type": "linear-gradient" },
       { "name": "typography", "type": "text" },
       { "name": "shadows", "type": "drop-shadow" },
+      // Reference frame by ID
       { "name": "icons", "nodeId": "x:x", "type": "svg" },
       { "name": "assets", "nodeId": "x:x", "type": "png" },
       { "name": "spacing", "nodeId": "x:x", "type": "height" },
       { "name": "elevation", "nodeId": "x:x", "type": "width" },
       { "name": "sizing", "nodeId": "x:x", "type": "dimensions" },
       { "name": "radii", "nodeId": "x:x", "type": "radius" }
+      // Reference frame by the name
+      { "name": "icons", "nodeName": "My Icons", "type": "svg" },
+      { "name": "assets", "nodeName": "My Assets", "type": "png" },
+      { "name": "spacing", "nodeName": "My Spacing", "type": "height" },
+      { "name": "elevation", "nodeName": "My Elevation", "type": "width" },
+      { "name": "sizing", "nodeName": "My Dimensions", "type": "dimensions" },
+      { "name": "radii", "nodeName": "My Radii", "type": "radius" }
     ]
   }
 }
@@ -96,7 +124,7 @@ Figmage will automatically group tokens based on top-level folders in Figma. For
 #### Supported tokens
 
 > [!IMPORTANT]
-> For all tokens that are not valid variables (colors, text styles, or effects) inside Figma you need to turn the layer you want to target into a component! You can turn a layer into a component via ⌥⌘K (option+command+K). Figmage will ignore all layers inside a frame that are not components.
+> For all tokens that are not variable-like styles in Figma (colors, text styles, or effects) you need to turn the layer you want to target into a **component**! You can turn a layer into a component via ⌥⌘K (option+command+K). Figmage will ignore all layers inside a frame that are **not** components.
 
 | Property          | Description                                                                                                                                                |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -112,7 +140,10 @@ Figmage will automatically group tokens based on top-level folders in Figma. For
 
 ##### Colors
 
-Color tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
+Color tokens are parsed from the color styles in Figma.
+
+> [!NOTE]
+> You don't need to define a node id or node name for colors.
 
 ```js
 {
@@ -127,7 +158,10 @@ Color tokens are parsed from the global color variables that you have created in
 
 ##### Typography
 
-Typography tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
+Typography tokens are parsed from the text styles in Figma.
+
+> [!NOTE]
+> You don't need to define a node id or node name for typography.
 
 ```js
 {
@@ -142,9 +176,12 @@ Typography tokens are parsed from the global color variables that you have creat
 
 ##### Effects
 
-Effects tokens are parsed from the global color variables that you have created in Figma so you don't need to define a node id.
+Effect tokens are parsed from the effect styles in Figma.
 
-Effects in Figma include thigns like drop/inner shadows and blurs. Only drop shadows are currently supported.
+Effects in Figma include things like drop/inner shadows and blurs. **Figmage currently only supports drop shadows!**
+
+> [!NOTE]
+> You don't need to define a node id or node name for effects.
 
 ```js
 {
@@ -159,15 +196,22 @@ Effects in Figma include thigns like drop/inner shadows and blurs. Only drop sha
 
 ##### Dimensions
 
-Properties: `width` | `height` | `dimensions` (both width and height).
+Measure a property or multiple properties of a Figma component and use the measured value(s) as a design token.
+
+Supported types: `width` | `height` | `dimensions`.
+
+You can use dimension based tokens for things like spacing and sizing.
+
+> [!NOTE]
+> The `dimension` type will produce a token like: `{ width: number, height: number }`
 
 ```js
 {
   "tokenize": {
     "tokens": [
-      { "name": "spacing", "nodeId": "x:x", "type": "height" },
-      { "name": "elevation", "nodeId": "x:x", "type": "width" },
-      { "name": "sizing", "nodeId": "x:x", "type": "dimensions" }
+      { "name": "spacing", "type": "height", "nodeId|nodeName": "xxx" },
+      { "name": "elevation", "type": "width", "nodeId|nodeName": "xxx" },
+      { "name": "sizing", "type": "dimensions", "nodeId|nodeName": "xxx" }
       // Other tokens...
     ]
   }
@@ -176,13 +220,13 @@ Properties: `width` | `height` | `dimensions` (both width and height).
 
 ##### Corner radius
 
-Measures the corner radius of the node as a design token.
+Measure the corner radius of the Figma component as a design token.
 
 ```js
 {
   "tokenize": {
     "tokens": [
-      { "name": "radii", "nodeId": "x:x", "type": "radius" }
+      { "name": "radii", "nodeId|nodeName": "xxx", "type": "radius" }
       // Other tokens...
     ]
   }
@@ -195,8 +239,8 @@ Measures the corner radius of the node as a design token.
 {
   "tokenize": {
     "tokens": [
-      { "name": "icons", "nodeId": "x:x", "type": "svg" }
-      { "name": "assets", "nodeId": "x:x", "type": "png" }
+      { "name": "icons", "nodeId|nodeName": "xxx", "type": "svg" }
+      { "name": "assets", "nodeId|nodeName": "xxx", "type": "png" }
       // Other tokens...
     ]
   }

@@ -9,6 +9,7 @@ export default class Tokenizer {
   constructor({ config, figmaAPI, onlyNew }) {
     this.figmaAPI = figmaAPI;
     this.config = config;
+    this.frameIds = {}; // { name: id }
     this.tokens = onlyNew
       ? this.readTokens()
       : config.tokenize.tokens.reduce((acc, val) => {
@@ -18,6 +19,12 @@ export default class Tokenizer {
   }
 
   async tokenize() {
+    // If any of the tokens reference a node by name we need to fetch the top
+    // level frames to get the node ids
+    if (this.config.tokenize.tokens.some((t) => t.nodeName)) {
+      this.frameIds = await this.figmaAPI.fetchFrames();
+    }
+
     await Promise.all([
       this.handleStyles(),
       this.handleBorderRadius(),
@@ -31,7 +38,7 @@ export default class Tokenizer {
 
   async handleStyles() {
     const customTokens = this.config.tokenize.tokens.filter((t) =>
-      Boolean(t.nodeId)
+      Boolean(t.nodeId || t.nodeName)
     );
 
     // If there are no style tokens, return early
@@ -63,7 +70,13 @@ export default class Tokenizer {
       return acc;
     }, {});
 
-    const nodes = await this.figmaAPI.fetchNodes(Object.keys(stylesById));
+    const stylesIds = Object.keys(stylesById);
+
+    if (stylesIds.length === 0) {
+      return;
+    }
+
+    const nodes = await this.figmaAPI.fetchNodes(stylesIds);
 
     Object.entries(nodes).forEach(([id, node]) => {
       const style = stylesById[id];
@@ -186,14 +199,12 @@ export default class Tokenizer {
 
   async handleHeight() {
     if (this.hasTokenType("height")) {
-      const nodeIds = this.getAllTokenNodeIds("height");
+      const settings = this.getTokenSettingsForType("height");
 
-      for (const nodeId of nodeIds) {
+      for (const { nodeId, tokenName } of settings) {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const tokenName = this.getTokenNameByNodeId(nodeId);
-
           this.tokens[tokenName][node.name] = roundToDecimal(
             node.absoluteBoundingBox.height
           );
@@ -204,14 +215,12 @@ export default class Tokenizer {
 
   async handleWidth() {
     if (this.hasTokenType("width")) {
-      const nodeIds = this.getAllTokenNodeIds("width");
+      const settings = this.getTokenSettingsForType("width");
 
-      for (const nodeId of nodeIds) {
+      for (const { nodeId, tokenName } of settings) {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const tokenName = this.getTokenNameByNodeId(nodeId);
-
           this.tokens[tokenName][node.name] = roundToDecimal(
             node.absoluteBoundingBox.width
           );
@@ -222,14 +231,12 @@ export default class Tokenizer {
 
   async handleDimensions() {
     if (this.hasTokenType("dimensions")) {
-      const nodeIds = this.getAllTokenNodeIds("dimensions");
+      const settings = this.getTokenSettingsForType("dimensions");
 
-      for (const nodeId of nodeIds) {
+      for (const { nodeId, tokenName } of settings) {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          const tokenName = this.getTokenNameByNodeId(nodeId);
-
           this.tokens[tokenName][node.name] = {
             height: roundToDecimal(node.absoluteBoundingBox.height),
             width: roundToDecimal(node.absoluteBoundingBox.width),
@@ -241,14 +248,12 @@ export default class Tokenizer {
 
   async handleBorderRadius() {
     if (this.hasTokenType("radius")) {
-      const nodeIds = this.getAllTokenNodeIds("radius");
+      const settings = this.getTokenSettingsForType("radius");
 
-      for (const nodeId of nodeIds) {
+      for (const { nodeId, tokenName } of settings) {
         const radiiNodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         radiiNodes.forEach((node) => {
-          const tokenName = this.getTokenNameByNodeId(nodeId);
-
           this.tokens[tokenName][node.name] = roundToDecimal(
             node.children[0].cornerRadius
           );
@@ -259,10 +264,9 @@ export default class Tokenizer {
 
   async handleSvg() {
     if (this.hasTokenType("svg")) {
-      const nodeIds = this.getAllTokenNodeIds("svg");
+      const settings = this.getTokenSettingsForType("svg");
 
-      for (const nodeId of nodeIds) {
-        const tokenName = this.getTokenNameByNodeId(nodeId);
+      for (const { nodeId, tokenName } of settings) {
         const current = this.tokens[tokenName];
         const _nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
         const nodes = _nodes.filter((n) => !current[n.name]);
@@ -295,10 +299,9 @@ export default class Tokenizer {
 
   async handlePng() {
     if (this.hasTokenType("png")) {
-      const nodeIds = this.getAllTokenNodeIds("png");
+      const settings = this.getTokenSettingsForType("png");
 
-      for (const nodeId of nodeIds) {
-        const tokenName = this.getTokenNameByNodeId(nodeId);
+      for (const { nodeId, tokenName } of settings) {
         const current = this.tokens[tokenName];
         const _nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
         const nodes = _nodes.filter((n) => !current[n.name]);
@@ -343,22 +346,18 @@ export default class Tokenizer {
     return this.config.tokenize.tokens.find((t) => t.type === type).name;
   }
 
-  getTokenNameByNodeId(nodeId) {
-    return this.config.tokenize.tokens.find(
-      (t) => decodeURIComponent(t.nodeId) === decodeURIComponent(nodeId)
-    ).name;
-  }
-
-  getTokenNodeId(type) {
-    return decodeURIComponent(
-      this.config.tokenize.tokens.find((t) => t.type === type).nodeId
-    );
-  }
-
-  getAllTokenNodeIds(type) {
+  getTokenSettingsForType(type) {
     return this.config.tokenize.tokens
       .filter((t) => t.type === type)
-      .map((t) => decodeURIComponent(t.nodeId));
+      .map((t) => {
+        if (t.nodeName) {
+          return { nodeId: this.frameIds[t.nodeName], tokenName: t.name };
+        } else if (t.nodeId) {
+          return { nodeId: decodeURIComponent(t.nodeId), tokenName: t.name };
+        }
+        return null;
+      })
+      .filter(Boolean);
   }
 
   write() {

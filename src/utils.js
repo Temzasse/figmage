@@ -15,15 +15,40 @@ export async function promiseAllInBatches(task, items, batchSize) {
   return results;
 }
 
-export const rgbToHex = (r, g, b) => {
+export function rgbToHex(r, g, b) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-};
+}
 
-export const roundToDecimal = (num) => Math.abs(Math.round(num * 10) / 10);
+export function roundToDecimal(num) {
+  return Math.abs(Math.round(num * 10) / 10);
+}
 
-export const toFixed = (num, dec) => parseFloat(num.toFixed(dec));
+export function toFixed(num, dec) {
+  return parseFloat(num.toFixed(dec));
+}
 
-export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-export const isEmptyObject = (obj) =>
-  Object.keys(obj).length === 0 && obj.constructor === Object;
+export function isEmptyObject(obj) {
+  return Object.keys(obj).length === 0 && obj.constructor === Object;
+}
+
+export function normalizeFrames(rootNode) {
+  const nodesByName = {};
+
+  function traverse(node) {
+    if (node.children) {
+      node.children.forEach(traverse);
+    }
+
+    if (node.type === "FRAME") {
+      nodesByName[node.name] = node.id;
+    }
+  }
+
+  traverse(rootNode);
+
+  return nodesByName;
+}

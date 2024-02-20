@@ -3,6 +3,7 @@ import axios from "axios";
 import { promisify } from "util";
 import { createWriteStream } from "fs";
 import * as stream from "stream";
+import { normalizeFrames } from "./utils";
 
 const finished = promisify(stream.finished);
 
@@ -53,6 +54,12 @@ export default class FigmaAPI {
     });
 
     return res.data.nodes;
+  }
+
+  async fetchFrames() {
+    const res = await this.api.get(`/files/${this.fileId}?depth=2'`);
+    const frames = normalizeFrames(res.data.document);
+    return frames;
   }
 
   /**
