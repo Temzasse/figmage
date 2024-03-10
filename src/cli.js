@@ -3,11 +3,30 @@ const dotenv = require("dotenv");
 
 import fs from "fs";
 import arg from "arg";
-import { main } from "./main";
+import { tokenize, codegen, spritesheet } from "./main";
 
 export function cli(args) {
   const options = parseArgumentsIntoOptions(args);
 
+  const command = options.commands[0];
+
+  if (command === "tokenize") {
+    const config = getConfig(options);
+    const env = getEnv(options);
+    tokenize({ options, config, env });
+  } else if (command === "codegen") {
+    const config = getConfig(options);
+    const env = getEnv(options);
+    codegen({ options, config, env });
+  } else if (command === "spritesheet") {
+    spritesheet(options);
+  } else {
+    console.error(`Invalid command ${command}!`);
+    process.exit(1);
+  }
+}
+
+function getConfig(options) {
   let config;
 
   if (options.config) {
@@ -28,6 +47,10 @@ export function cli(args) {
     throw Error("No config found!");
   }
 
+  return config;
+}
+
+function getEnv(options) {
   if (options.env) {
     dotenv.config({ path: options.env });
   } else {
@@ -45,7 +68,7 @@ export function cli(args) {
     );
   }
 
-  main({ options, config, env });
+  return env;
 }
 
 function parseArgumentsIntoOptions(rawArgs) {
@@ -57,9 +80,12 @@ function parseArgumentsIntoOptions(rawArgs) {
       "-e": "--env",
       "--verbose": Boolean,
       "-v": "--verbose",
-      "--watch": Boolean,
-      "-w": "--watch",
       "--only-new": Boolean,
+      // Spritesheet options
+      "--sprite-input": String,
+      "--sprite-case": String, // kebab, snake, camel
+      "--sprite-out-dir": String,
+      "--sprite-ids-out-dir": String,
     },
     { argv: rawArgs.slice(2) }
   );
@@ -68,7 +94,11 @@ function parseArgumentsIntoOptions(rawArgs) {
     config: args["--config"],
     env: args["--env"],
     verbose: args["--verbose"] || false,
-    watch: args["--watch"] || false,
     onlyNew: args["--only-new"] || false,
+    // Spritesheet options
+    spriteInput: args["--sprite-input"],
+    spriteCase: args["--sprite-case"],
+    spriteOutDir: args["--sprite-out-dir"],
+    spriteIdsOutDir: args["--sprite-ids-out-dir"],
   };
 }

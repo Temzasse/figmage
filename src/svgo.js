@@ -6,7 +6,7 @@ import { optimize } from "svgo";
  * @param {string} svg
  */
 export function optimizeSvg(svg) {
-  return optimize(svg, {
+  const { data } = optimize(svg, {
     plugins: [
       { name: "cleanupAttrs", active: true },
       { name: "removeDoctype", active: true },
@@ -30,4 +30,6 @@ export function optimizeSvg(svg) {
       { name: "convertShapeToPath", active: true },
     ],
   });
+
+  return data;
 }

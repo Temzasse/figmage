@@ -693,11 +693,12 @@ Or if you want to apply rules for a specific token types only:
 }
 ```
 
-#### SVG sprites
+#### SVG icon spritesheet
 
-For SVGs it is possible to bundle all generated SVG tokens into one SVG sprite.
+For SVG icons it is possible to bundle all generated SVG tokens into one SVG spritesheet
+to improve performance by not including SVGs in your JS bundle.
 
-You can achieve this by setting the `sprite` key to `true` for the token that has `"filetype": "svg"`.
+You can achieve this by setting the `sprite` key to `true` for the token that has `"filetype": "svg"` - note that this only really useful for icons.
 
 It is also possible to set the value to `{ writeIds: true }` if you want to write the token names which are used as ids of the SVG sprite parts into a separate file (for usage in TypeScript etc.).
 
@@ -719,6 +720,68 @@ It is also possible to set the value to `{ writeIds: true }` if you want to writ
 ```
 
 With the config above Figmage would generate two files: `icon-sprite.svg` and `icon-sprite-ids.ts`.
+
+The following options are available for spritesheets:
+
+```ts
+"sprite": {
+  "writeIds": boolean,
+  "idsFilename": string, // name of the generated TS file for token name ids
+  "spriteDir": string, // where to write the sprite SVG file
+}
+```
+
+### Standalone SVG icon spritesheet
+
+If you dont' have your SVG icons in Figma but instead you have some existing SVG files in your project that you want compile into a spritesheet you can use the `figmage spritesheet` command:
+
+```sh
+figmage spritesheet --sprite-input ./icons --sprite-out-dir ./public --sprite-ids-out-dir ./app/components
+```
+
+The `spritesheet` command expects that you have your icons under the `--sprite-input` directory like so:
+
+```txt
+└── icons
+   ├── arrow-right.svg
+   ├── arrow-left.svg
+   ├── twitter.svg
+   ├── github.svg
+   └── home.svg
+```
+
+The output of the command will look like this:
+
+```txt
+├── public
+│  ├── ...other public assets...
+│  └── icons-sprite.svg
+├── app
+│   └── components
+│       ├── ...your components...
+│       └── icons-ids.ts
+```
+
+Figmage will use the name of the directory where the icons are read from as the filename suffix to generate:
+
+- `${dirname}-sprite.svg`
+- `${dirname}-ids.ts`
+
+The `figmage spritesheet` accepts the following flags:
+
+```sh
+# Directory where input SVG files are (required)
+--sprite-input
+
+# Where to write the SVG spritesheet (required)
+--sprite-out-dir
+
+# Where to store the TS file for icon name ids (optional)
+--sprite-ids-out-dir
+
+# Change icon name casing: kebab (default), camel, or snake (optional)
+--sprite-case
+```
 
 ## Figma template
 

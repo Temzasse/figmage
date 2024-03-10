@@ -2,11 +2,10 @@
 import fs from "fs";
 import get from "lodash.get";
 import template from "lodash.template";
-import camelCase from "lodash.camelcase";
-import kebabCase from "lodash.kebabcase";
-import snakeCase from "lodash.snakecase";
+
 import log from "./log";
-import { isEmptyObject } from "./utils";
+import { isEmptyObject, isObject, isString, toCase } from "./utils";
+import { generateSpritesheet } from "./sprite";
 
 export default class Codegen {
   constructor({ config, figmaAPI }) {
@@ -56,9 +55,7 @@ export default class Codegen {
    * @returns {string}
    */
   formatTokenName(name, tokenCase) {
-    if (tokenCase === "kebab") return kebabCase(name);
-    if (tokenCase === "snake") return snakeCase(name);
-    return camelCase(name);
+    return toCase(name, tokenCase);
   }
 
   /**
@@ -69,7 +66,7 @@ export default class Codegen {
    */
   isGroup(key, value) {
     return (
-      typeof value === "object" &&
+      isObject(value) &&
       (key === "colors" || (key === "typography" && !("fontSize" in value)))
     );
   }
@@ -221,36 +218,31 @@ export default class Codegen {
 
       if (config.filetype === "svg") {
         if (config.sprite) {
-          const spriteCompiled = template(SVG_SPRITE_TEMPLATE, {});
-          const rgx = /<svg.*?>([\s\S]*)<\/svg>/i; // remove wrapping svg tag
-          const svgs = tokens.map(([k, v]) => [k, v.match(rgx)[1]]);
-
           let spriteDir = outDir;
           let writeIds = false;
+          let idsFilename = `${filename}-ids`;
 
-          if (typeof config.sprite === "object") {
+          if (isObject(config.sprite)) {
             writeIds = Boolean(config.sprite.writeIds);
 
-            if (typeof config.sprite.spriteDir === "string") {
+            if (isString(config.sprite.spriteDir)) {
               spriteDir = config.sprite.spriteDir;
+            }
+
+            if (isString(config.sprite.idsFilename)) {
+              idsFilename = config.sprite.idsFilename;
             }
           }
 
-          fs.writeFileSync(
-            `${spriteDir}/${filename}.svg`,
-            spriteCompiled({ svgs })
-          );
-
-          // Write ids so that we can more easily reference them in TS
-          if (writeIds) {
-            const idsCompiled = template(SVG_SPRITE_IDS_TEMPLATE, {});
-            const idsFilename = config.sprite.idsFilename || `${filename}-ids`;
-
-            fs.writeFileSync(
-              `${outDir}/${idsFilename}.ts`,
-              idsCompiled({ ids: svgs.map(([name]) => name) })
-            );
-          }
+          generateSpritesheet({
+            // @ts-ignore
+            spriteTokens: tokens,
+            spriteOutDir: spriteDir,
+            spriteFilename: filename,
+            idsOutDir: outDir,
+            idsFilename,
+            writeIds,
+          });
         } else {
           const dirname = `${outDir}/${config.dirname || tokenType}`;
 
@@ -294,23 +286,6 @@ const TOKEN_TEMPLATE =
   "<% }); %>\n" +
   "export type <%= name.charAt(0).toUpperCase() + name.slice(1) %>Token = " +
   "<%= tokenNames.map(t => JSON.stringify(t)).join(' | ') %>;\n";
-
-const SVG_SPRITE_TEMPLATE =
-  '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-  "<defs><% svgs.forEach(function(x) { %>" +
-  '<symbol viewBox="0 0 24 24" id="<%= x[0] %>">' +
-  "<%= x[1] %>" +
-  "</symbol><% }); %>" +
-  "</defs>" +
-  "</svg>";
-
-const SVG_SPRITE_IDS_TEMPLATE =
-  "/* eslint-disable */\n" +
-  "export const ids = [" +
-  "<% ids.forEach(function(x) { %>" +
-  "<%= JSON.stringify(x) %>," +
-  "<% }); %>" +
-  "] as const;\n";
 
 const RESERVED_KEYWORDS = [
   "break",

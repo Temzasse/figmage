@@ -3,7 +3,7 @@ import fs from "fs";
 import axios from "axios";
 import log from "./log";
 import { optimizeSvg } from "./svgo";
-import { rgbToHex, roundToDecimal, toFixed } from "./utils";
+import { isNumber, rgbToHex, roundToDecimal, toFixed } from "./utils";
 
 export default class Tokenizer {
   constructor({ config, figmaAPI, onlyNew }) {
@@ -94,7 +94,7 @@ export default class Tokenizer {
 
         let color = "";
 
-        if (typeof fill.opacity === "number") {
+        if (isNumber(fill.opacity)) {
           const alpha = toFixed(fill.opacity, 2);
           color = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
         } else {
@@ -282,8 +282,7 @@ export default class Tokenizer {
         const svgOptimized = await Promise.all(
           imageContents.map(async ({ data }) => {
             const optimized = await optimizeSvg(data);
-            // @ts-ignore
-            return optimized.data;
+            return optimized;
           })
         );
 

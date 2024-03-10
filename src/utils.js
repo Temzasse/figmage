@@ -1,4 +1,7 @@
 // @ts-check
+import camelCase from "lodash.camelcase";
+import kebabCase from "lodash.kebabcase";
+import snakeCase from "lodash.snakecase";
 
 export async function promiseAllInBatches(task, items, batchSize) {
   let cursor = 0;
@@ -31,6 +34,18 @@ export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function isObject(obj) {
+  return typeof obj === "object" && obj !== null;
+}
+
+export function isString(str) {
+  return typeof str === "string" && str.length > 0;
+}
+
+export function isNumber(num) {
+  return typeof num === "number" && !isNaN(num);
+}
+
 export function isEmptyObject(obj) {
   return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
@@ -51,4 +66,16 @@ export function normalizeFrames(rootNode) {
   traverse(rootNode);
 
   return nodesByName;
+}
+
+/**
+ * Converts a string to a specific case.
+ * @param {string} str
+ * @param {'kebab' | 'snake' | 'camel'} casing
+ * @returns string
+ */
+export function toCase(str, casing) {
+  if (casing === "kebab") return kebabCase(str);
+  if (casing === "snake") return snakeCase(str);
+  return camelCase(str);
 }
