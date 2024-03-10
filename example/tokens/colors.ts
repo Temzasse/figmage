@@ -24,6 +24,7 @@ export const info = {
   "infoMutedHover": "#dae7fd"
 };
 export const line = {
+  "focusRing": "#296bd7",
   "line1": "rgba(0, 0, 0, 0.5)",
   "line2": "rgba(0, 0, 0, 0.25)",
   "line3": "rgba(0, 0, 0, 0.1)"
@@ -71,4 +72,4 @@ export const warn = {
   "warnMutedHover": "#ede0bd"
 };
 
-export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "mint" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "pink" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedHover" | "purple" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "surface" | "text" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";
+export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "focusRing" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "mint" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "pink" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedHover" | "purple" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "surface" | "text" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";

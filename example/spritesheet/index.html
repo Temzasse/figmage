@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spritesheet test</title>
+    <link
+      rel="preload"
+      as="image"
+      type="image/svg+xml"
+      href="/public/icons-sprite.svg"
+    />
+    <style>
+      .icons {
+        display: flex;
+        gap: 1rem;
+      }
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Spritesheet test</h1>
+    <div class="icons">
+      <svg>
+        <use href="/public/icons-sprite.svg#home"></use>
+      </svg>
+      <svg>
+        <use href="/public/icons-sprite.svg#pen"></use>
+      </svg>
+      <svg>
+        <use href="/public/icons-sprite.svg#twitter"></use>
+      </svg>
+      <svg>
+        <use href="/public/icons-sprite.svg#github"></use>
+      </svg>
+    </div>
+  </body>
+</html>

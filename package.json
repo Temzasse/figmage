@@ -11,6 +11,8 @@
     "test": "echo TODO",
     "example:tokenize": "bin/figmage tokenize --config ./example/.figmage.json --env ./example/.env",
     "example:codegen": "bin/figmage codegen --config ./example/.figmage.json --env ./example/.env",
+    "example:spritesheet": "bin/figmage spritesheet --sprite-input ./example/spritesheet/icons --sprite-out-dir ./example/spritesheet/public --sprite-ids-out-dir ./example/spritesheet",
+    "example:spritesheet:serve": "npx serve ./example/spritesheet",
     "release": "np --any-branch"
   },
   "bin": {
