@@ -51,7 +51,7 @@ export default class Codegen {
   /**
    * Format a token name based on the token case
    * @param {string} name
-   * @param {'camel' | 'kebab' | 'snake'} tokenCase
+   * @param {'camel' | 'kebab' | 'snake' | 'lower'} tokenCase
    * @returns {string}
    */
   formatTokenName(name, tokenCase) {

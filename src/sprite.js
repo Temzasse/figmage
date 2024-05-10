@@ -8,7 +8,7 @@ import { optimizeSvg } from "./svgo";
  * Read SVG files from a directory and return an array of tuples with the file name and the SVG content
  * @param {Object} param0
  * @param {string} param0.input
- * @param {'camel' | 'kebab' | 'snake'} param0.nameCase
+ * @param {'camel' | 'kebab' | 'snake' | 'lower'} param0.nameCase
  * @returns {Promise<string[][]>}
  */
 export async function readSpritesheetInput({ input, nameCase }) {

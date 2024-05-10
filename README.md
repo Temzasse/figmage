@@ -627,7 +627,7 @@ You can configure codegen for all tokens under `"defaults"` key and also for eac
 | `[token].exclude`    | `ExcludeRule` | What Figma variables and groups should be excluded for this token |
 
 ```ts
-type Casing = "camel" | "kebab" | "snake";
+type Casing = "camel" | "kebab" | "snake" | "lower";
 
 type Filetype = "ts" | "js" | "json" | "svg" | "png";
 
@@ -779,7 +779,7 @@ The `figmage spritesheet` accepts the following flags:
 # Where to store the TS file for icon name ids (optional)
 --sprite-ids-out-dir
 
-# Change icon name casing: kebab (default), camel, or snake (optional)
+# Change icon name casing: kebab (default), camel, snake, or lower (optional)
 --sprite-case
 ```
 

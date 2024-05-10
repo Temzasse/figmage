@@ -71,11 +71,12 @@ export function normalizeFrames(rootNode) {
 /**
  * Converts a string to a specific case.
  * @param {string} str
- * @param {'kebab' | 'snake' | 'camel'} casing
+ * @param {'kebab' | 'snake' | 'camel' | 'lower'} casing
  * @returns string
  */
 export function toCase(str, casing) {
   if (casing === "kebab") return kebabCase(str);
   if (casing === "snake") return snakeCase(str);
+  if (casing === "lower") return str.toLowerCase();
   return camelCase(str);
 }
