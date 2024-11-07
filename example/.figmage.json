@@ -36,10 +36,22 @@
       "filetype": "ts",
       "tokenCase": "camel"
     },
+    "spacing": {
+      "filetype": "json",
+      "tokenCase": "lower"
+    },
     "colors": {
       "exclude": {
         "group": ["Env"],
         "token": "\\b(Figma)\\b.*"
+      }
+    },
+    "icons": {
+      "filetype": "svg",
+      "filename": "icon-sprite",
+      "sprite": {
+        "writeIds": true,
+        "spriteDir": "./example/tokens/assets"
       }
     }
   }

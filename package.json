@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "echo TODO",
+    "example:sync": "npm run example:tokenize && npm run example:codegen",
     "example:tokenize": "bin/figmage tokenize --config ./example/.figmage.json --env ./example/.env",
     "example:codegen": "bin/figmage codegen --config ./example/.figmage.json --env ./example/.env",
     "example:spritesheet": "bin/figmage spritesheet --sprite-input ./example/spritesheet/icons --sprite-out-dir ./example/spritesheet/public --sprite-ids-out-dir ./example/spritesheet",
@@ -18,7 +19,9 @@
   "bin": {
     "figmage": "bin/figmage"
   },
+  "type": "module",
   "main": "src/main.js",
+  "sideEffects": false,
   "files": [
     "bin/",
     "src/"
@@ -36,24 +39,23 @@
   ],
   "author": {
     "name": "Teemu Taskula",
-    "email": "themetor@gmail.com",
+    "email": "taskuteemu@gmail.com",
     "url": "https://github.com/Temzasse"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=18"
   },
   "dependencies": {
-    "arg": "5.0.1",
-    "axios": "0.21.4",
-    "dotenv": "10.0.0",
-    "esm": "3.2.25",
-    "kleur": "4.1.4",
+    "arg": "5.0.2",
+    "axios": "1.7.7",
+    "dotenv": "16.4.5",
+    "kleur": "4.1.5",
     "lodash.camelcase": "4.3.0",
     "lodash.get": "4.4.2",
     "lodash.kebabcase": "4.1.1",
     "lodash.snakecase": "4.1.1",
     "lodash.template": "4.5.0",
-    "ora": "5.2.0",
-    "svgo": "2.5.0"
+    "ora": "8.1.1",
+    "svgo": "3.3.2"
   }
 }

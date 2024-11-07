@@ -1,21 +1,20 @@
 // @ts-check
 import fs from "fs";
 import axios from "axios";
-import log from "./log";
-import { optimizeSvg } from "./svgo";
-import { isNumber, rgbToHex, roundToDecimal, toFixed } from "./utils";
 
-export default class Tokenizer {
-  constructor({ config, figmaAPI, onlyNew }) {
+import { log } from "./log.js";
+import { optimizeSvg } from "./svgo.js";
+import { isNumber, rgbToHex, roundToDecimal, toFixed } from "./utils.js";
+
+export class Tokenizer {
+  constructor({ config, figmaAPI }) {
     this.figmaAPI = figmaAPI;
     this.config = config;
     this.frameIds = {}; // { name: id }
-    this.tokens = onlyNew
-      ? this.readTokens()
-      : config.tokenize.tokens.reduce((acc, val) => {
-          acc[val.name] = {};
-          return acc;
-        }, {});
+    this.tokens = config.tokenize.tokens.reduce((acc, val) => {
+      acc[val.name] = {};
+      return acc;
+    }, {});
   }
 
   async tokenize() {
@@ -280,10 +279,7 @@ export default class Tokenizer {
         );
 
         const svgOptimized = await Promise.all(
-          imageContents.map(async ({ data }) => {
-            const optimized = await optimizeSvg(data);
-            return optimized;
-          })
+          imageContents.map(({ data }) => optimizeSvg(data))
         );
 
         const svgs = svgOptimized.reduce((acc, svg, index) => {

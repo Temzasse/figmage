@@ -15,6 +15,7 @@ export async function promiseAllInBatches(task, items, batchSize) {
     ];
     cursor += batchSize;
   }
+
   return results;
 }
 

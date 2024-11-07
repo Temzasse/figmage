@@ -3,11 +3,12 @@ import axios from "axios";
 import { promisify } from "util";
 import { createWriteStream } from "fs";
 import * as stream from "stream";
-import { normalizeFrames } from "./utils";
+
+import { normalizeFrames } from "./utils.js";
 
 const finished = promisify(stream.finished);
 
-export default class FigmaAPI {
+export class FigmaAPI {
   /**
    * @param {{ accessToken: string; fileId: string }} param0
    */

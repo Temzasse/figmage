@@ -3,11 +3,11 @@ import fs from "fs";
 import get from "lodash.get";
 import template from "lodash.template";
 
-import log from "./log";
-import { isEmptyObject, isObject, isString, toCase } from "./utils";
-import { generateSpritesheet } from "./sprite";
+import { log } from "./log.js";
+import { isEmptyObject, isObject, isString, toCase } from "./utils.js";
+import { generateSpritesheet } from "./sprite.js";
 
-export default class Codegen {
+export class Codegen {
   constructor({ config, figmaAPI }) {
     this.config = config;
     this.figmaAPI = figmaAPI;

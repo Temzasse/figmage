@@ -1,13 +1,12 @@
 // @ts-check
-const dotenv = require("dotenv");
-
+import dotenv from "dotenv";
 import fs from "fs";
 import arg from "arg";
-import { tokenize, codegen, spritesheet } from "./main";
+
+import { tokenize, codegen, spritesheet } from "./main.js";
 
 export function cli(args) {
   const options = parseArgumentsIntoOptions(args);
-
   const command = options.commands[0];
 
   if (command === "tokenize") {
@@ -80,7 +79,6 @@ function parseArgumentsIntoOptions(rawArgs) {
       "-e": "--env",
       "--verbose": Boolean,
       "-v": "--verbose",
-      "--only-new": Boolean,
       // Spritesheet options
       "--sprite-input": String,
       "--sprite-case": String, // kebab, snake, camel
@@ -94,7 +92,6 @@ function parseArgumentsIntoOptions(rawArgs) {
     config: args["--config"],
     env: args["--env"],
     verbose: args["--verbose"] || false,
-    onlyNew: args["--only-new"] || false,
     // Spritesheet options
     spriteInput: args["--sprite-input"],
     spriteCase: args["--sprite-case"],

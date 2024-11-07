@@ -782,13 +782,3 @@ The `figmage spritesheet` accepts the following flags:
 # Change icon name casing: kebab (default), camel, snake, or lower (optional)
 --sprite-case
 ```
-
-## Figma template
-
-In the screenshot below you can see how the example Figma template looks like that is used in the `/example` folder of this repo.
-
-> ⚠️ TODO: add instructions about Figma.
-
-<p align='center'>
-  <img src="media/figma_template.png" alt="Example Figma template"/>
-<p/>

@@ -1,8 +1,9 @@
 // @ts-check
 import fs from "fs";
 import template from "lodash.template";
-import { toCase } from "./utils";
-import { optimizeSvg } from "./svgo";
+
+import { toCase } from "./utils.js";
+import { optimizeSvg } from "./svgo.js";
 
 /**
  * Read SVG files from a directory and return an array of tuples with the file name and the SVG content

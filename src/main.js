@@ -1,11 +1,13 @@
 // @ts-check
 
 import ora from "ora";
-import { sleep } from "./utils";
-import { generateSpritesheet, readSpritesheetInput } from "./sprite";
-import FigmaAPI from "./api";
-import Tokenizer from "./tokenizer";
-import Codegen from "./codegen";
+
+import { sleep } from "./utils.js";
+import { log } from "./log.js";
+import { generateSpritesheet, readSpritesheetInput } from "./sprite.js";
+import { FigmaAPI } from "./api.js";
+import { Tokenizer } from "./tokenizer.js";
+import { Codegen } from "./codegen.js";
 
 export async function tokenize({ options, env, config }) {
   const spinner = ora().start();
@@ -15,11 +17,7 @@ export async function tokenize({ options, env, config }) {
     fileId: env.FIGMA_FILE_ID,
   });
 
-  const tokenizer = new Tokenizer({
-    config,
-    figmaAPI,
-    onlyNew: options.onlyNew,
-  });
+  const tokenizer = new Tokenizer({ config, figmaAPI });
 
   try {
     spinner.text = "Generating design tokens from Figma file...";
@@ -108,8 +106,8 @@ function logError(options, error) {
   }
 
   if (error.isAxiosError) {
-    console.log("Request to Figma API failed");
+    log.error("Request to Figma API failed");
   }
 
-  console.log(error.message);
+  log.error(error.message);
 }

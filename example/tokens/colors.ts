@@ -34,8 +34,9 @@ export const neutral = {
   "neutral2": "#92969d",
   "neutral3": "#d4d6db",
   "neutral4": "#e4e5e9",
-  "neutral5": "#f0f1f5",
-  "surface": "#ffffff"
+  "neutral5": "#f5f5f5",
+  "surface": "#ffffff",
+  "surfaceHover": "#f5f6fa"
 };
 export const primary = {
   "primary": "#296bd7",
@@ -43,6 +44,7 @@ export const primary = {
   "primaryContrastHover": "#08357f",
   "primaryHover": "#1857be",
   "primaryMuted": "#ebf3ff",
+  "primaryMutedDarker": "#cedef8",
   "primaryMutedHover": "#dee9fd"
 };
 export const success = {
@@ -54,7 +56,8 @@ export const success = {
   "successMutedHover": "#c1e6d9"
 };
 export const text = {
-  "text": "#000000",
+  "text": "#1a1a1a",
+  "textDisabled": "#7d7f85",
   "textMuted": "#55575e",
   "textOnContrastingBg": "#ffffff"
 };
@@ -72,4 +75,4 @@ export const warn = {
   "warnMutedHover": "#ede0bd"
 };
 
-export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "focusRing" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "mint" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "pink" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedHover" | "purple" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "surface" | "text" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";
+export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "focusRing" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "mint" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "pink" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedDarker" | "primaryMutedHover" | "purple" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "surface" | "surfaceHover" | "text" | "textDisabled" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";
