@@ -84,6 +84,7 @@ function parseArgumentsIntoOptions(rawArgs) {
       "--sprite-case": String, // kebab, snake, camel
       "--sprite-out-dir": String,
       "--sprite-ids-out-dir": String,
+      "--sprite-convert-colors": Boolean,
     },
     { argv: rawArgs.slice(2) }
   );
@@ -97,5 +98,6 @@ function parseArgumentsIntoOptions(rawArgs) {
     spriteCase: args["--sprite-case"],
     spriteOutDir: args["--sprite-out-dir"],
     spriteIdsOutDir: args["--sprite-ids-out-dir"],
+    spriteConvertColors: args["--sprite-convert-colors"],
   };
 }

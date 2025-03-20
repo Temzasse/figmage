@@ -28,6 +28,14 @@
         "name": "icons",
         "type": "svg",
         "nodeName": "Figmage - Icons"
+      },
+      {
+        "name": "icons-multicolor",
+        "type": "svg",
+        "nodeName": "Figmage - Multicolor Icons",
+        "options": {
+          "convertColors": false
+        }
       }
     ]
   },
@@ -49,6 +57,14 @@
     "icons": {
       "filetype": "svg",
       "filename": "icon-sprite",
+      "sprite": {
+        "writeIds": true,
+        "spriteDir": "./example/tokens/assets"
+      }
+    },
+    "icons-multicolor": {
+      "filetype": "svg",
+      "filename": "icon-sprite-multicolor",
       "sprite": {
         "writeIds": true,
         "spriteDir": "./example/tokens/assets"

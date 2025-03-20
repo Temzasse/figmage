@@ -265,7 +265,7 @@ export class Tokenizer {
     if (this.hasTokenType("svg")) {
       const settings = this.getTokenSettingsForType("svg");
 
-      for (const { nodeId, tokenName } of settings) {
+      for (const { nodeId, tokenName, options } of settings) {
         const current = this.tokens[tokenName];
         const _nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
         const nodes = _nodes.filter((n) => !current[n.name]);
@@ -278,8 +278,13 @@ export class Tokenizer {
           Object.values(images).map((imageUrl) => axios.get(imageUrl))
         );
 
+        const svgOptions = {
+          convertColors: true,
+          ...options,
+        };
+
         const svgOptimized = await Promise.all(
-          imageContents.map(({ data }) => optimizeSvg(data))
+          imageContents.map(({ data }) => optimizeSvg(data, svgOptions))
         );
 
         const svgs = svgOptimized.reduce((acc, svg, index) => {
@@ -346,9 +351,17 @@ export class Tokenizer {
       .filter((t) => t.type === type)
       .map((t) => {
         if (t.nodeName) {
-          return { nodeId: this.frameIds[t.nodeName], tokenName: t.name };
+          return {
+            nodeId: this.frameIds[t.nodeName],
+            tokenName: t.name,
+            options: t.options || {},
+          };
         } else if (t.nodeId) {
-          return { nodeId: decodeURIComponent(t.nodeId), tokenName: t.name };
+          return {
+            nodeId: decodeURIComponent(t.nodeId),
+            tokenName: t.name,
+            options: t.options || {},
+          };
         }
         return null;
       })

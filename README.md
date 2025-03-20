@@ -235,6 +235,8 @@ Measure the corner radius of a Figma component as a design token.
 
 ##### Image assets
 
+Extract image assets (raster or vector) from Figma components and use them as design tokens.
+
 ```js
 {
   "tokenize": {
@@ -246,6 +248,39 @@ Measure the corner radius of a Figma component as a design token.
   }
 }
 ```
+
+The `svg` tokens can take additional options:
+
+- `convertColors` - Replace all hard coded colors with [`currentColor`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword) for SVG elements to allow controlling the color in application code. This is **enabled by default** but you might want to disable it in some cases.
+
+Example:
+
+```js
+{
+  "tokenize": {
+    "tokens": [
+      // Single color icons should replace the hard coded color
+      {
+        "name": "icons",
+        "nodeId": "xxx-xxx",
+        "type": "svg"
+      },
+      // Multicolor icons should use their original colors
+      {
+        "name": "icons-multicolor",
+        "nodeId": "yyy-yyy",
+        "type": "svg",
+        "options": {
+          "convertColors": false
+        }
+      }
+    ]
+  }
+}
+```
+
+> [!TIP]
+> If you have both multicolor and single color icons in your design system make sure to separate them into different frames and represent them as separate tokens in the Figmage config (meaning they have their own `tokenize` and `codegen` configurations). This way you can control the color conversion for each group of icons.
 
 #### Output example
 
@@ -733,7 +768,7 @@ The following options are available for spritesheets:
 
 ### Standalone SVG icon spritesheet
 
-If you dont' have your SVG icons in Figma but instead you have some existing SVG files in your project that you want compile into a spritesheet you can use the `figmage spritesheet` command:
+If you don't have your SVG icons in Figma but instead you have some existing SVG files in your project that you want compile into a spritesheet you can use the `figmage spritesheet` command:
 
 ```sh
 figmage spritesheet --sprite-input ./icons --sprite-out-dir ./public --sprite-ids-out-dir ./app/components
@@ -781,4 +816,7 @@ The `figmage spritesheet` accepts the following flags:
 
 # Change icon name casing: kebab (default), camel, snake, or lower (optional)
 --sprite-case
+
+# Replace all hard coded colors with currentColor (optional)
+--sprite-convert-colors
 ```
