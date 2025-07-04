@@ -5,20 +5,25 @@ import arg from "arg";
 
 import { tokenize, codegen, spritesheet } from "./main.js";
 
-export function cli(args) {
+export async function cli(args) {
   const options = parseArgumentsIntoOptions(args);
   const command = options.commands[0];
 
   if (command === "tokenize") {
     const config = getConfig(options);
     const env = getEnv(options);
-    tokenize({ options, config, env });
+    await tokenize({ options, config, env });
   } else if (command === "codegen") {
     const config = getConfig(options);
     const env = getEnv(options);
-    codegen({ options, config, env });
+    await codegen({ options, config, env });
+  } else if (command === "sync") {
+    const config = getConfig(options);
+    const env = getEnv(options);
+    await tokenize({ options, config, env });
+    await codegen({ options, config, env });
   } else if (command === "spritesheet") {
-    spritesheet(options);
+    await spritesheet(options);
   } else {
     console.error(`Invalid command ${command}!`);
     process.exit(1);

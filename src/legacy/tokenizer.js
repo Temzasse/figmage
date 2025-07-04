@@ -1,6 +1,7 @@
 // @ts-check
 import fs from "fs";
 import axios from "axios";
+import get from "lodash.get";
 
 import { log } from "./log.js";
 import { optimizeSvg } from "./svgo.js";
@@ -11,16 +12,18 @@ export class Tokenizer {
     this.figmaAPI = figmaAPI;
     this.config = config;
     this.frameIds = {}; // { name: id }
-    this.tokens = config.tokenize.tokens.reduce((acc, val) => {
-      acc[val.name] = {};
+    this.tokens = config.tokens.reduce((acc, token) => {
+      acc[token.name] = {};
       return acc;
     }, {});
   }
 
   async tokenize() {
-    // If any of the tokens reference a node by name we need to fetch the top
-    // level frames to get the node ids
-    if (this.config.tokenize.tokens.some((t) => t.nodeName)) {
+    /**
+     * If any of the tokens reference a Frame by name we need to fetch the top
+     * level Frames to get the node ids.
+     */
+    if (this.config.tokens.some((t) => get(t, "source.parentFrameName"))) {
       this.frameIds = await this.figmaAPI.fetchFrames();
     }
 
@@ -36,12 +39,12 @@ export class Tokenizer {
   }
 
   async handleStyles() {
-    const customTokens = this.config.tokenize.tokens.filter((t) =>
+    const customTokens = this.config.tokens.filter((t) =>
       Boolean(t.nodeId || t.nodeName)
     );
 
     // If there are no style tokens, return early
-    if (this.config.tokenize.tokens.length === customTokens.length) {
+    if (this.config.tokens.length === customTokens.length) {
       return;
     }
 
@@ -326,7 +329,7 @@ export class Tokenizer {
   // Helpers ------------------------------------------------------------------
 
   hasTokenType(type) {
-    return !!this.config.tokenize.tokens.find((t) => t.type === type);
+    return !!this.config.tokens.find((t) => t.type === type);
   }
 
   readTokens() {
@@ -343,11 +346,11 @@ export class Tokenizer {
   }
 
   getTokenNameByType(type) {
-    return this.config.tokenize.tokens.find((t) => t.type === type).name;
+    return this.config.tokens.find((t) => t.type === type).name;
   }
 
   getTokenSettingsForType(type) {
-    return this.config.tokenize.tokens
+    return this.config.tokens
       .filter((t) => t.type === type)
       .map((t) => {
         if (t.nodeName) {
