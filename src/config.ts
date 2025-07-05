@@ -8,7 +8,10 @@ export function defineConfig(config: Config) {
   return config;
 }
 
-export async function loadConfig(configPath: string, cwd = process.cwd()) {
+export async function loadConfig(
+  configPath: string,
+  cwd = process.cwd()
+): Promise<Config> {
   const foundConfig = [configPath, "figmage.config.js"]
     .map((file) => path.join(cwd, file))
     .find(fs.existsSync);

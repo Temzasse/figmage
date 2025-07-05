@@ -1,4 +1,5 @@
 import type { FrameTraits, GetImagesQueryParams } from "@figma/rest-api-spec";
+import type { TOKEN_TYPE } from "./constants";
 
 export interface OutputConfig {
   /**
@@ -16,11 +17,27 @@ export interface OutputConfig {
   fileType?: string;
   /**
    * Casing style for the token names.
-   * Supported values: "camel", "pascal", "snake", "lower".
+   * Supported values: "camel", "kebab", "snake", "lower".
    * If not specified, defaults to "camel".
    * @default "camel"
    */
-  tokenCasing?: "camel" | "pascal" | "snake" | "lower" | "kebab";
+  tokenCasing?: "camel" | "kebab" | "snake" | "lower";
+}
+
+export interface ImageOutputConfig {
+  /**
+   * Directory where the generated files will be saved.
+   * If not specified, defaults to `./tokens`.
+   * @default "./tokens"
+   */
+  directory?: string;
+  /**
+   * Casing style for the token names.
+   * Supported values: "camel", "kebab", "snake", "lower".
+   * If not specified, defaults to "camel".
+   * @default "camel"
+   */
+  tokenCasing?: "camel" | "kebab" | "snake" | "lower";
 }
 
 interface Token {
@@ -28,27 +45,23 @@ interface Token {
   output?: OutputConfig;
 }
 
+export type TokenType = typeof TOKEN_TYPE;
+
 export interface ColorToken extends Token {
-  source: {
-    type: "COLOR_STYLE";
-  };
+  type: TokenType["color"];
 }
 
 export interface TextToken extends Token {
-  source: {
-    type: "TEXT_STYLE";
-  };
+  type: TokenType["text"];
 }
 
-export interface ShadowToken extends Token {
-  source: {
-    type: "DROP_SHADOW_EFFECT";
-  };
+export interface DropShadowToken extends Token {
+  type: TokenType["dropShadow"];
 }
 
 export interface PropertyToken extends Token {
+  type: TokenType["property"];
   source: {
-    type: "COMPONENT_PROPERTY";
     parentFrameName?: string;
     parentFrameId?: string;
     property: NonNullable<DotPaths<NonNullableFields<FrameTraits>>>;
@@ -56,17 +69,44 @@ export interface PropertyToken extends Token {
 }
 
 export interface ImageToken extends Token {
+  type: TokenType["image"];
+  output?: ImageOutputConfig;
   source: {
-    type: "IMAGE";
     parentFrameName?: string;
     parentFrameId?: string;
-    imageOptions: Omit<GetImagesQueryParams, "ids">;
-  };
+  } & Omit<GetImagesQueryParams, "ids">;
 }
 
 export interface Config {
+  /**
+   * Personal access token for the Figma API.
+   * You can generate a token from your Figma account settings.
+   * See: https://www.figma.com/developers/api#access-tokens
+   */
+  accessToken: string;
+  /**
+   * The ID of the Figma file to sync tokens from.
+   * You can find the file ID in the URL of the Figma file.
+   * Example: https://www.figma.com/file/<fileId>/...
+   */
+  fileId: string;
+  /**
+   * The output configuration for the generated tokens.
+   * If not specified, defaults to saving tokens in `./tokens` directory
+   * with TypeScript files.
+   * @default { directory: "./tokens", fileType: "ts", tokenCasing: "camel" }
+   */
   output?: OutputConfig;
-  tokens: (ColorToken | TextToken | ShadowToken | PropertyToken | ImageToken)[];
+  /**
+   * An array of token definitions to sync from the Figma file.
+   */
+  tokens: (
+    | ColorToken
+    | TextToken
+    | DropShadowToken
+    | PropertyToken
+    | ImageToken
+  )[];
 }
 
 // Helpers

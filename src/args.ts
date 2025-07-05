@@ -6,10 +6,8 @@ export async function parseCliArgs(rawArgs: string[]) {
     allowPositionals: true,
     options: {
       config: { type: "string", short: "c" },
-      env: { type: "string", short: "e" },
       help: { type: "boolean", short: "h" },
       version: { type: "boolean", short: "v" },
-      verbose: { type: "boolean", short: "V" },
     },
   });
 }

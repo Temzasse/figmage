@@ -1,104 +1,63 @@
 // @ts-check
-import { defineConfig } from "figmage";
+import "dotenv/config"; // read .env file for environment variables
+import { defineConfig, token } from "figmage";
+
+const accessToken = process.env.FIGMA_ACCESS_TOKEN;
+const fileId = process.env.FIGMA_FILE_ID;
+
+if (!accessToken || !fileId) {
+  throw new Error(
+    "Please set `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` in your `.env` file."
+  );
+}
 
 /** @type {import("figmage").Config} */
 export default defineConfig({
+  accessToken,
+  fileId,
   output: {
     directory: "./example/tokens",
     fileType: "ts",
     tokenCasing: "camel",
   },
   tokens: [
-    {
-      name: "colors",
-      source: {
-        type: "COLOR_STYLE",
-        // filter: () => {}, TODO
-      },
-    },
-    {
-      name: "typography",
-      source: {
-        type: "TEXT_STYLE",
-      },
-    },
-    {
-      name: "shadows",
-      source: {
-        type: "DROP_SHADOW_EFFECT",
-      },
-    },
-    {
-      name: "spacing",
-      source: {
-        type: "COMPONENT_PROPERTY",
-        parentFrameName: "Spacing",
-        property: "absoluteBoundingBox.height",
-      },
-      output: {
-        fileType: "json",
-        tokenCasing: "lower",
-      },
-    },
-    {
-      name: "radii",
-      source: {
-        type: "COMPONENT_PROPERTY",
-        parentFrameName: "Radii",
-        property: "cornerRadius",
-      },
-    },
-    {
-      name: "icons",
-      source: {
-        type: "IMAGE",
-        parentFrameName: "Icons",
-        imageOptions: {
-          format: "svg",
-        },
-      },
-      // output: {
-      //   imageOptions: {
-      //     convertColors: true,
-      //     generateSpriteSheet: true,
-      //     spriteSheet: "./example/tokens/assets/icons-multicolor-sprite.svg",
-      //     spriteSheetType: "./example/tokens/icons-multicolor-sprite.ids.ts",
-      //   },
-      // },
-    },
-    {
-      name: "icons-multicolor",
-      source: {
-        type: "IMAGE",
-        parentFrameName: "Multicolor Icons",
-        imageOptions: {
-          format: "svg",
-        },
-      },
-      // output: {
-      //   imageOptions: {
-      //     convertColors: false,
-      //     spriteSheet: {
-      //       svg: "./example/tokens/assets/icons-multicolor-sprite.svg",
-      //       ids: "./example/tokens/icons-multicolor-sprite.ids.ts",
-      //     },
-      //   },
-      // },
-    },
-    {
-      name: "assets",
-      source: {
-        type: "IMAGE",
-        parentFrameName: "Assets",
-        imageOptions: {
-          scale: 2,
-          format: "png",
-        },
-      },
-      output: {
-        fileType: "png",
-        tokenCasing: "kebab",
-      },
-    },
+    token.color("colors"),
+    token.text("typography"),
+    token.dropShadow("shadows"),
+    token.height("spacing", {
+      parentFrameName: "Spacing",
+      tokenCasing: "lower",
+      fileType: "json",
+    }),
+    token.cornerRadius("radii", {
+      parentFrameName: "Radii",
+    }),
+    token.svg("icons", {
+      parentFrameName: "Icons",
+    }),
+    token.svg("icons-multicolor", {
+      parentFrameName: "Multicolor Icons",
+    }),
+    token.png("assets", {
+      parentFrameName: "Assets",
+      tokenCasing: "kebab",
+      scale: 2,
+    }),
+    // {
+    //   name: "icons",
+    //   type: tokenType.image,
+    //   source: {
+    //     parentFrameName: "Icons",
+    //     format: "svg",
+    //   },
+    //   output: {
+    //     imageOptions: {
+    //       convertColors: true,
+    //       generateSpriteSheet: true,
+    //       spriteSheet: "./example/tokens/assets/icons-multicolor-sprite.svg",
+    //       spriteSheetType: "./example/tokens/icons-multicolor-sprite.ids.ts",
+    //     },
+    //   },
+    // },
   ],
 });

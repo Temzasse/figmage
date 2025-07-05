@@ -1,37 +1,47 @@
-import { consola } from "consola";
 import { parseCliArgs } from "./args";
-import { getVersion } from "./version";
 import { loadConfig } from "./config";
+import { log } from "./log";
+import { sync } from "./sync";
+import { getVersion } from "./version";
 
 export async function cli(args: string[]) {
   const { values, positionals } = await parseCliArgs(args);
 
   if (values.help) {
-    consola.info("Usage: figmage <command> [options]");
+    log.info("Usage: figmage <command> [options]");
     process.exit(0);
   }
 
   if (values.version) {
     const version = await getVersion();
-    consola.info(`Figmage v${version}`);
+    log.info(`Figmage v${version}`);
     process.exit(0);
+  }
+
+  if (positionals.length === 0) {
+    log.error("No command provided. Use --help for usage information.");
+    process.exit(1);
   }
 
   const command = positionals[0];
   const configPath = values.config || "figmage.config.js";
   const config = await loadConfig(configPath);
 
-  consola.log("Loaded config:", config);
+  if (!config.accessToken || !config.fileId) {
+    log.error(
+      "Missing required configuration: `accessToken` and `fileId` must be set."
+    );
+    process.exit(1);
+  }
 
   switch (command) {
-    case "tokenize":
-      consola.start("Running tokenize...");
-      break;
-    case "codegen":
-      consola.start("Running codegen...");
+    case "sync":
+      log.start("Syncing design tokens from Figma...");
+      await sync(config);
+      log.success("Design tokens synced successfully.");
       break;
     default:
-      consola.error(`Unknown command: ${command}`);
+      log.error(`Unknown command: ${command}`);
       process.exit(1);
   }
 }

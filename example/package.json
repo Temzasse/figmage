@@ -1,16 +1,17 @@
 {
-  "name": "example",
+  "type": "module",
   "version": "1.0.0",
+  "name": "figmage-example",
+  "description": "Figmage example project",
+  "author": "Teemu Taskula",
+  "license": "ISC",
   "scripts": {
-    "tokenize": "figmage tokenize",
-    "codegen": "figmage codegen",
     "sync": "figmage sync"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "figmage": "file:.yalc/figmage"
+  },
+  "devDependencies": {
+    "dotenv": "17.0.1"
   }
 }
