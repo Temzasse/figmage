@@ -16,7 +16,7 @@ export default defineConfig({
   accessToken,
   fileId,
   output: {
-    directory: "./example/tokens",
+    directory: "./tokens-v2",
     fileType: "ts",
     tokenCasing: "camel",
   },

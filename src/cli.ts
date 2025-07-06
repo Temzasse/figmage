@@ -1,11 +1,15 @@
+import { createConsola } from "consola";
 import { parseCliArgs } from "./args";
 import { loadConfig } from "./config";
-import { log } from "./log";
-import { sync } from "./sync";
+import { Sync } from "./sync";
 import { getVersion } from "./version";
 
 export async function cli(args: string[]) {
   const { values, positionals } = await parseCliArgs(args);
+
+  const log = createConsola({
+    level: values.verbose ? 4 : 3,
+  });
 
   if (values.help) {
     log.info("Usage: figmage <command> [options]");
@@ -35,13 +39,26 @@ export async function cli(args: string[]) {
   }
 
   switch (command) {
-    case "sync":
+    case "sync": {
+      const sync = new Sync({ config, log });
+
       log.start("Syncing design tokens from Figma...");
-      await sync(config);
+
+      const result = await sync.run();
+
+      if (result.length === 0) {
+        log.info("No tokens to write.");
+        return;
+      }
+
+      await sync.write(result);
+
       log.success("Design tokens synced successfully.");
       break;
-    default:
+    }
+    default: {
       log.error(`Unknown command: ${command}`);
       process.exit(1);
+    }
   }
 }

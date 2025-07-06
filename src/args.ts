@@ -8,6 +8,7 @@ export async function parseCliArgs(rawArgs: string[]) {
       config: { type: "string", short: "c" },
       help: { type: "boolean", short: "h" },
       version: { type: "boolean", short: "v" },
+      verbose: { type: "boolean", short: "V" },
     },
   });
 }

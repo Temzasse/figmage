@@ -1,4 +1,5 @@
 import type { Node } from "@figma/rest-api-spec";
+import type { TokenCasing } from "./types";
 
 export async function promiseAllInBatches<T, R>(
   task: (item: T, index: number) => Promise<R>,
@@ -99,10 +100,7 @@ export function snakeCase(str: string): string {
 /**
  * Converts a string to a specific case.
  */
-export function toCase(
-  str: string,
-  casing: "kebab" | "snake" | "camel" | "lower"
-): string {
+export function toCase(str: string, casing: TokenCasing = "camel"): string {
   if (casing === "kebab") return kebabCase(str);
   if (casing === "snake") return snakeCase(str);
   if (casing === "lower") return str.toLowerCase();

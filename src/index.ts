@@ -1,4 +1,4 @@
-export { cli } from "./cli.js";
-export { defineConfig } from "./config.js";
-export { token } from "./presets.js";
-export * from "./types.js";
+export { cli } from "./cli";
+export { defineConfig } from "./config";
+export { token } from "./presets";
+export * from "./types";

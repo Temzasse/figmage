@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@figma/rest-api-spec": "0.32.0",
+    "color-convert": "3.1.0",
     "consola": "3.4.2",
     "dotenv": "17.0.1",
     "lodash.camelcase": "4.3.0",
@@ -61,6 +62,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.2",
     "@biomejs/biome": "2.0.6",
+    "@types/lodash.template": "4.5.3",
     "@types/node": "24.0.10",
     "tsdown": "0.12.9",
     "typescript": "5.8.3"

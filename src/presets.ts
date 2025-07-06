@@ -1,82 +1,87 @@
 import type {
-  ColorToken,
-  DropShadowToken,
+  ColorTokenConfig,
+  DropShadowTokenConfig,
   ImageOutputConfig,
-  ImageToken,
-  PropertyToken,
-  TextToken,
+  ImageTokenConfig,
+  PropertyTokenConfig,
+  TextTokenConfig,
 } from "./types";
 
-type PropertyOptions = Omit<PropertyToken["source"], "property"> &
-  PropertyToken["output"];
+type PropertyOptions = Omit<PropertyTokenConfig["source"], "property"> &
+  PropertyTokenConfig["output"];
 
-type ImageOptions = Omit<ImageToken["source"], "format"> & ImageOutputConfig;
+type ImageOptions = Omit<ImageTokenConfig["source"], "format"> &
+  ImageOutputConfig;
 
 export const token = {
-  color: (name: string): ColorToken => ({
+  color: (
+    name: string,
+    opts?: { format?: ColorTokenConfig["format"] }
+  ): ColorTokenConfig => ({
     name,
     type: "COLOR",
+    ...opts,
   }),
-  text: (name: string): TextToken => ({
+  text: (name: string): TextTokenConfig => ({
     name,
     type: "TEXT",
   }),
-  dropShadow: (name: string): DropShadowToken => ({
+  dropShadow: (name: string): DropShadowTokenConfig => ({
     name,
     type: "DROP_SHADOW",
   }),
   height: (
     name: string,
-    { directory, fileType, tokenCasing, ...rest }: PropertyOptions
-  ): PropertyToken => ({
+    { directory, fileType, tokenCasing, ...source }: PropertyOptions
+  ): PropertyTokenConfig => ({
     name,
     type: "PROPERTY",
-    source: { ...rest, property: "absoluteBoundingBox.height" },
+    source: { ...source, property: "absoluteBoundingBox.height" },
     output: { directory, fileType, tokenCasing },
   }),
   width: (
     name: string,
-    { directory, fileType, tokenCasing, ...rest }: PropertyOptions
-  ): PropertyToken => ({
+    { directory, fileType, tokenCasing, ...source }: PropertyOptions
+  ): PropertyTokenConfig => ({
     name,
     type: "PROPERTY",
-    source: { ...rest, property: "absoluteBoundingBox.width" },
+    source: { ...source, property: "absoluteBoundingBox.width" },
     output: { directory, fileType, tokenCasing },
   }),
   cornerRadius: (
     name: string,
-    { directory, fileType, tokenCasing, ...rest }: PropertyOptions
-  ): PropertyToken => ({
+    { directory, fileType, tokenCasing, ...source }: PropertyOptions
+  ): PropertyTokenConfig => ({
     name,
     type: "PROPERTY",
-    source: { ...rest, property: "cornerRadius" },
+    source: { ...source, property: "cornerRadius" },
     output: { directory, fileType, tokenCasing },
   }),
   svg: (
     name: string,
-    { directory, tokenCasing, ...rest }: ImageOptions
-  ): ImageToken => ({
+    { directory, tokenCasing, ...source }: ImageOptions
+  ): ImageTokenConfig => ({
     name,
     type: "IMAGE",
-    source: { ...rest, format: "svg" },
+    source: { ...source, format: "svg" },
     output: { directory, tokenCasing },
   }),
   png: (
     name: string,
-    { directory, tokenCasing, ...rest }: ImageOptions
-  ): ImageToken => ({
+    { directory, tokenCasing, ...source }: ImageOptions
+  ): ImageTokenConfig => ({
     name,
     type: "IMAGE",
-    source: { ...rest, format: "png" },
+    source: { ...source, format: "png" },
     output: { directory, tokenCasing },
   }),
   jpg: (
     name: string,
-    { directory, tokenCasing, ...rest }: ImageOptions
-  ): ImageToken => ({
+    { directory, tokenCasing, ...source }: ImageOptions
+  ): ImageTokenConfig => ({
     name,
     type: "IMAGE",
-    source: { ...rest, format: "jpg" },
+    source: { ...source, format: "jpg" },
     output: { directory, tokenCasing },
   }),
 };

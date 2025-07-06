@@ -1,6 +1,8 @@
 import type { FrameTraits, GetImagesQueryParams } from "@figma/rest-api-spec";
 import type { TOKEN_TYPE } from "./constants";
 
+export type TokenCasing = "camel" | "kebab" | "snake" | "lower";
+
 export interface OutputConfig {
   /**
    * Directory where the generated files will be saved.
@@ -21,7 +23,7 @@ export interface OutputConfig {
    * If not specified, defaults to "camel".
    * @default "camel"
    */
-  tokenCasing?: "camel" | "kebab" | "snake" | "lower";
+  tokenCasing?: TokenCasing;
 }
 
 export interface ImageOutputConfig {
@@ -37,29 +39,38 @@ export interface ImageOutputConfig {
    * If not specified, defaults to "camel".
    * @default "camel"
    */
-  tokenCasing?: "camel" | "kebab" | "snake" | "lower";
+  tokenCasing?: TokenCasing;
 }
 
-interface Token {
+interface TokenConfig {
   name: string;
   output?: OutputConfig;
 }
 
 export type TokenType = typeof TOKEN_TYPE;
 
-export interface ColorToken extends Token {
+export type ColorFormat = "hex" | "rgb" | "hsl" | "hwb" | "lab" | "lch";
+
+export interface ColorTokenConfig extends TokenConfig {
   type: TokenType["color"];
+  /**
+   * The format in which the color token should be generated.
+   * Supported values: "hex", "rgb", "hsl", "hwb", "lab", "lch".
+   * If not specified, defaults to "hex".
+   * @default "hex"
+   */
+  format?: ColorFormat;
 }
 
-export interface TextToken extends Token {
+export interface TextTokenConfig extends TokenConfig {
   type: TokenType["text"];
 }
 
-export interface DropShadowToken extends Token {
+export interface DropShadowTokenConfig extends TokenConfig {
   type: TokenType["dropShadow"];
 }
 
-export interface PropertyToken extends Token {
+export interface PropertyTokenConfig extends TokenConfig {
   type: TokenType["property"];
   source: {
     parentFrameName?: string;
@@ -68,7 +79,7 @@ export interface PropertyToken extends Token {
   };
 }
 
-export interface ImageToken extends Token {
+export interface ImageTokenConfig extends TokenConfig {
   type: TokenType["image"];
   output?: ImageOutputConfig;
   source: {
@@ -101,13 +112,19 @@ export interface Config {
    * An array of token definitions to sync from the Figma file.
    */
   tokens: (
-    | ColorToken
-    | TextToken
-    | DropShadowToken
-    | PropertyToken
-    | ImageToken
+    | ColorTokenConfig
+    | TextTokenConfig
+    | DropShadowTokenConfig
+    | PropertyTokenConfig
+    | ImageTokenConfig
   )[];
 }
+
+export type SyncResult = {
+  name: string;
+  tokens: { group: string; name: string; value: string | number }[];
+  output?: OutputConfig;
+};
 
 // Helpers
 
