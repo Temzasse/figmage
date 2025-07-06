@@ -16,15 +16,19 @@ type ImageOptions = Omit<ImageTokenConfig["source"], "format"> &
 export const token = {
   color: (
     name: string,
-    opts?: { format?: ColorTokenConfig["format"] }
+    opts?: Pick<ColorTokenConfig, "format">
   ): ColorTokenConfig => ({
     name,
     type: "COLOR",
     ...opts,
   }),
-  text: (name: string): TextTokenConfig => ({
+  text: (
+    name: string,
+    opts?: Pick<TextTokenConfig, "format" | "baseFontSize">
+  ): TextTokenConfig => ({
     name,
     type: "TEXT",
+    ...opts,
   }),
   dropShadow: (name: string): DropShadowTokenConfig => ({
     name,

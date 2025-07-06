@@ -21,8 +21,13 @@ export default defineConfig({
     tokenCasing: "camel",
   },
   tokens: [
-    token.color("colors"),
-    token.text("typography"),
+    token.color("colors", {
+      format: "hsl",
+    }),
+    token.text("typography", {
+      format: "rem",
+      baseFontSize: 16,
+    }),
     token.dropShadow("shadows"),
     token.height("spacing", {
       parentFrameName: "Spacing",

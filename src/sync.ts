@@ -85,16 +85,15 @@ export class Sync {
           const fileName = `${result.name}.${fileType}`;
           const filePath = `${outputDir}/${fileName}`;
 
-          const filteredTokens = result.tokens
-            .filter((t) => {
-              if (RESERVED_KEYWORDS.includes(t.name)) {
-                this.log.warn(
-                  `Token name "${t.name}" is a reserved keyword in JavaScript and will be skipped.`
-                );
-                return false;
-              }
-              return true;
-            });
+          const filteredTokens = result.tokens.filter((t) => {
+            if (RESERVED_KEYWORDS.includes(t.name)) {
+              this.log.warn(
+                `Token name "${t.name}" is a reserved keyword in JavaScript and will be skipped.`
+              );
+              return false;
+            }
+            return true;
+          });
 
           const content = renderTokensTemplate(result.name, filteredTokens);
 
@@ -116,7 +115,7 @@ export class Sync {
         ...etc.
       ]
     */
-    const tokens: { group: string; name: string; value: string }[] = [];
+    const tokens: SyncResult["tokens"] = [];
 
     Object.entries(styleNodes).forEach(([id, node]) => {
       const style = stylesById[id];
@@ -156,7 +155,43 @@ export class Sync {
 
   private async syncText(opts: TextTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
-    // TODO
+
+    const tokens: SyncResult["tokens"] = [];
+
+    Object.entries(styleNodes).forEach(([id, node]) => {
+      const style = stylesById[id];
+      const doc = node.document;
+
+      if (style.type === "TEXT" && doc.type === "TEXT") {
+        const fontSizeBase = doc.style.fontSize || 16;
+        const fontSize =
+          opts.format === "rem" && opts.baseFontSize
+            ? `${toFixed(fontSizeBase / opts.baseFontSize, 2)}rem`
+            : `${toFixed(fontSizeBase, 2)}px`;
+
+        const value = {
+          fontSize,
+          fontFamily: doc.style.fontFamily,
+          fontWeight: doc.style.fontWeight,
+          textTransform: doc.style.textCase === "UPPER" ? "uppercase" : "none",
+          letterSpacing: doc.style.letterSpacing
+            ? toFixed(doc.style.letterSpacing, 2)
+            : undefined,
+          lineHeight:
+            doc.style.lineHeightPx && doc.style.fontSize
+              ? toFixed(doc.style.lineHeightPx / doc.style.fontSize, 3)
+              : undefined,
+        };
+
+        tokens.push({
+          group: style.group ? this.toCase(style.group, opts) : "_",
+          name: this.toCase(style.name, opts),
+          value,
+        });
+      }
+    });
+
+    return { name: opts.name, output: opts.output, tokens };
   }
 
   private async syncDropShadow(opts: DropShadowTokenConfig) {

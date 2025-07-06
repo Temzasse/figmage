@@ -51,6 +51,8 @@ export type TokenType = typeof TOKEN_TYPE;
 
 export type ColorFormat = "hex" | "rgb" | "hsl" | "hwb" | "lab" | "lch";
 
+export type TextFormat = "none" | "px" | "rem";
+
 export interface ColorTokenConfig extends TokenConfig {
   type: TokenType["color"];
   /**
@@ -64,6 +66,19 @@ export interface ColorTokenConfig extends TokenConfig {
 
 export interface TextTokenConfig extends TokenConfig {
   type: TokenType["text"];
+  /**
+   * The format in which the text token should be generated.
+   * Supported values: "none" for unitless, "px" for pixels, "rem" for rem units.
+   * If not specified, defaults to "none".
+   * @default { unit: "none" }
+   */
+  format?: TextFormat;
+  /**
+   * The base font size to use for rem calculations.
+   * If not specified, defaults to 16px.
+   * @default 16
+   */
+  baseFontSize?: number;
 }
 
 export interface DropShadowTokenConfig extends TokenConfig {
@@ -122,7 +137,7 @@ export interface Config {
 
 export type SyncResult = {
   name: string;
-  tokens: { group: string; name: string; value: string | number }[];
+  tokens: { group: string; name: string; value: string | number | object }[];
   output?: OutputConfig;
 };
 
