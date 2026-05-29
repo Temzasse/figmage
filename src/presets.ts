@@ -1,91 +1,115 @@
 import type {
   ColorTokenConfig,
+  ComponentPropertyTokenConfig,
   DropShadowTokenConfig,
   ImageOutputConfig,
   ImageTokenConfig,
-  PropertyTokenConfig,
   TextTokenConfig,
 } from "./types";
 
-type PropertyOptions = Omit<PropertyTokenConfig["source"], "property"> &
-  PropertyTokenConfig["output"];
-
-type ImageOptions = Omit<ImageTokenConfig["source"], "format"> &
-  ImageOutputConfig;
-
 export const token = {
-  color: (
-    name: string,
-    opts?: Pick<ColorTokenConfig, "format">
-  ): ColorTokenConfig => ({
+  color: (name: string, opts?: Pick<ColorTokenConfig, "format">): ColorTokenConfig => ({
     name,
-    type: "COLOR",
+    type: "color",
     ...opts,
   }),
   text: (
     name: string,
-    opts?: Pick<TextTokenConfig, "format" | "baseFontSize">
+    opts?: Pick<TextTokenConfig, "format" | "baseFontSize">,
   ): TextTokenConfig => ({
     name,
-    type: "TEXT",
+    type: "text",
     ...opts,
   }),
   dropShadow: (name: string): DropShadowTokenConfig => ({
     name,
-    type: "DROP_SHADOW",
+    type: "drop-shadow",
   }),
   height: (
     name: string,
-    { directory, fileType, tokenCasing, ...source }: PropertyOptions
-  ): PropertyTokenConfig => ({
-    name,
-    type: "PROPERTY",
-    source: { ...source, property: "absoluteBoundingBox.height" },
-    output: { directory, fileType, tokenCasing },
-  }),
+    { directory, fileType, tokenCasing, ...source }: ComponentFlatOptions,
+  ): ComponentPropertyTokenConfig => {
+    ensureComponentSource(source);
+    return {
+      name,
+      type: "property",
+      source: { ...source, property: "absoluteBoundingBox.height" },
+      output: { directory, fileType, tokenCasing },
+    };
+  },
   width: (
     name: string,
-    { directory, fileType, tokenCasing, ...source }: PropertyOptions
-  ): PropertyTokenConfig => ({
-    name,
-    type: "PROPERTY",
-    source: { ...source, property: "absoluteBoundingBox.width" },
-    output: { directory, fileType, tokenCasing },
-  }),
+    { directory, fileType, tokenCasing, ...source }: ComponentFlatOptions,
+  ): ComponentPropertyTokenConfig => {
+    ensureComponentSource(source);
+    return {
+      name,
+      type: "property",
+      source: { ...source, property: "absoluteBoundingBox.width" },
+      output: { directory, fileType, tokenCasing },
+    };
+  },
   cornerRadius: (
     name: string,
-    { directory, fileType, tokenCasing, ...source }: PropertyOptions
-  ): PropertyTokenConfig => ({
-    name,
-    type: "PROPERTY",
-    source: { ...source, property: "cornerRadius" },
-    output: { directory, fileType, tokenCasing },
-  }),
+    { directory, fileType, tokenCasing, ...source }: ComponentFlatOptions,
+  ): ComponentPropertyTokenConfig => {
+    ensureComponentSource(source);
+    return {
+      name,
+      type: "property",
+      source: { ...source, property: "cornerRadius" },
+      output: { directory, fileType, tokenCasing },
+    };
+  },
   svg: (
     name: string,
-    { directory, tokenCasing, ...source }: ImageOptions
-  ): ImageTokenConfig => ({
-    name,
-    type: "IMAGE",
-    source: { ...source, format: "svg" },
-    output: { directory, tokenCasing },
-  }),
+    { directory, tokenCasing, ...source }: ImageFlatOptions,
+  ): ImageTokenConfig => {
+    ensureComponentSource(source);
+    return {
+      name,
+      type: "image",
+      source: { ...source, format: "svg" },
+      output: { directory, tokenCasing },
+    };
+  },
   png: (
     name: string,
-    { directory, tokenCasing, ...source }: ImageOptions
-  ): ImageTokenConfig => ({
-    name,
-    type: "IMAGE",
-    source: { ...source, format: "png" },
-    output: { directory, tokenCasing },
-  }),
+    { directory, tokenCasing, ...source }: ImageFlatOptions,
+  ): ImageTokenConfig => {
+    ensureComponentSource(source);
+    return {
+      name,
+      type: "image",
+      source: { ...source, format: "png" },
+      output: { directory, tokenCasing },
+    };
+  },
   jpg: (
     name: string,
-    { directory, tokenCasing, ...source }: ImageOptions
-  ): ImageTokenConfig => ({
-    name,
-    type: "IMAGE",
-    source: { ...source, format: "jpg" },
-    output: { directory, tokenCasing },
-  }),
+    { directory, tokenCasing, ...source }: ImageFlatOptions,
+  ): ImageTokenConfig => {
+    ensureComponentSource(source);
+    return {
+      name,
+      type: "image",
+      source: { ...source, format: "jpg" },
+      output: { directory, tokenCasing },
+    };
+  },
 };
+
+// Helpers
+
+function ensureComponentSource(source: Record<string, unknown>) {
+  if (!source.componentSetName && !source.parentFrameId && !source.parentFrameName) {
+    throw new Error(
+      "Either `componentSetName`, `parentFrameId`, or `parentFrameName` must be specified!",
+    );
+  }
+}
+
+type ComponentFlatOptions = ComponentPropertyTokenConfig["output"] &
+  Omit<ComponentPropertyTokenConfig["source"], "property">;
+
+type ImageFlatOptions = Omit<ImageTokenConfig["source"], "format"> & ImageOutputConfig;

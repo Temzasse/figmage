@@ -39,9 +39,7 @@ export class Tokenizer {
   }
 
   async handleStyles() {
-    const customTokens = this.config.tokens.filter((t) =>
-      Boolean(t.nodeId || t.nodeName)
-    );
+    const customTokens = this.config.tokens.filter((t) => Boolean(t.nodeId || t.nodeName));
 
     // If there are no style tokens, return early
     if (this.config.tokens.length === customTokens.length) {
@@ -84,11 +82,7 @@ export class Tokenizer {
       const style = stylesById[id];
       const doc = node.document;
 
-      if (
-        style.type === "FILL" &&
-        doc.fills[0].type === "SOLID" &&
-        this.hasTokenType("color")
-      ) {
+      if (style.type === "FILL" && doc.fills[0].type === "SOLID" && this.hasTokenType("color")) {
         // COLORS --------------------------------------------------------------
         const tokenName = this.getTokenNameByType("color");
         const fill = doc.fills[0];
@@ -100,11 +94,7 @@ export class Tokenizer {
           const alpha = toFixed(fill.opacity, 2);
           color = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
         } else {
-          color = rgbToHex(
-            Math.round(r * 255),
-            Math.round(g * 255),
-            Math.round(b * 255)
-          );
+          color = rgbToHex(Math.round(r * 255), Math.round(g * 255), Math.round(b * 255));
         }
 
         if (style.group) {
@@ -128,11 +118,7 @@ export class Tokenizer {
           const { x, y } = gradientHandlePositions[stop.position];
           const { r, g, b } = stop.color;
 
-          const hex = rgbToHex(
-            Math.round(r * 255),
-            Math.round(g * 255),
-            Math.round(b * 255)
-          );
+          const hex = rgbToHex(Math.round(r * 255), Math.round(g * 255), Math.round(b * 255));
 
           return {
             hex,
@@ -175,11 +161,7 @@ export class Tokenizer {
           const { r, g, b, a } = shadow.color;
           const alpha = toFixed(a, 2);
           const rgba = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`; // prettier-ignore
-          const hex = rgbToHex(
-            Math.round(r * 255),
-            Math.round(g * 255),
-            Math.round(b * 255)
-          );
+          const hex = rgbToHex(Math.round(r * 255), Math.round(g * 255), Math.round(b * 255));
 
           return {
             boxShadow: `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${rgba}`,
@@ -193,8 +175,7 @@ export class Tokenizer {
         const tokenName = this.getTokenNameByType("drop-shadow");
         const shadows = doc.effects.map(getShadow);
 
-        this.tokens[tokenName][style.name] =
-          shadows.length === 1 ? shadows[0] : shadows;
+        this.tokens[tokenName][style.name] = shadows.length === 1 ? shadows[0] : shadows;
       }
     });
   }
@@ -207,9 +188,7 @@ export class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          this.tokens[tokenName][node.name] = roundToDecimal(
-            node.absoluteBoundingBox.height
-          );
+          this.tokens[tokenName][node.name] = roundToDecimal(node.absoluteBoundingBox.height);
         });
       }
     }
@@ -223,9 +202,7 @@ export class Tokenizer {
         const nodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         nodes.forEach((node) => {
-          this.tokens[tokenName][node.name] = roundToDecimal(
-            node.absoluteBoundingBox.width
-          );
+          this.tokens[tokenName][node.name] = roundToDecimal(node.absoluteBoundingBox.width);
         });
       }
     }
@@ -256,9 +233,7 @@ export class Tokenizer {
         const radiiNodes = await this.figmaAPI.fetchNodeChildren(nodeId);
 
         radiiNodes.forEach((node) => {
-          this.tokens[tokenName][node.name] = roundToDecimal(
-            node.children[0].cornerRadius
-          );
+          this.tokens[tokenName][node.name] = roundToDecimal(node.children[0].cornerRadius);
         });
       }
     }
@@ -278,7 +253,7 @@ export class Tokenizer {
         const images = await this.figmaAPI.fetchImages(nodes.map((n) => n.id));
 
         const imageContents = await Promise.all(
-          Object.values(images).map((imageUrl) => axios.get(imageUrl))
+          Object.values(images).map((imageUrl) => axios.get(imageUrl)),
         );
 
         const svgOptions = {
@@ -287,7 +262,7 @@ export class Tokenizer {
         };
 
         const svgOptimized = await Promise.all(
-          imageContents.map(({ data }) => optimizeSvg(data, svgOptions))
+          imageContents.map(({ data }) => optimizeSvg(data, svgOptions)),
         );
 
         const svgs = svgOptimized.reduce((acc, svg, index) => {
@@ -313,7 +288,7 @@ export class Tokenizer {
 
         const images = await this.figmaAPI.fetchImages(
           nodes.map((n) => n.id),
-          "png"
+          "png",
         );
 
         const pngs = Object.values(images).reduce((acc, url, index) => {
@@ -338,9 +313,7 @@ export class Tokenizer {
     try {
       return JSON.parse(fs.readFileSync(`${outDir}/tokens.json`, "utf8"));
     } catch (error) {
-      log.error(
-        "No tokens found! Make sure to run `figmage tokenize` without any flags first."
-      );
+      log.error("No tokens found! Make sure to run `figmage tokenize` without any flags first.");
       throw error;
     }
   }
@@ -378,9 +351,6 @@ export class Tokenizer {
       fs.mkdirSync(outDir);
     }
 
-    fs.writeFileSync(
-      `${outDir}/tokens.json`,
-      JSON.stringify(this.tokens, null, 2)
-    );
+    fs.writeFileSync(`${outDir}/tokens.json`, JSON.stringify(this.tokens, null, 2));
   }
 }

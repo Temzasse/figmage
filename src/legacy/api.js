@@ -26,12 +26,10 @@ export class FigmaAPI {
   async downloadFile(url, outPath) {
     const writer = createWriteStream(outPath);
 
-    return this.fileApi
-      .get(url, { responseType: "stream" })
-      .then((response) => {
-        response.data.pipe(writer);
-        return finished(writer);
-      });
+    return this.fileApi.get(url, { responseType: "stream" }).then((response) => {
+      response.data.pipe(writer);
+      return finished(writer);
+    });
   }
 
   /**
@@ -83,7 +81,7 @@ export class FigmaAPI {
     }
 
     const nodes = flattenChildren(res.data.nodes[id].document).filter(
-      (n) => n.type === "COMPONENT"
+      (n) => n.type === "COMPONENT",
     );
 
     return nodes;

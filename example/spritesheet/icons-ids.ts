@@ -1,2 +1,2 @@
 /* eslint-disable */
-export const ids = ["github","home","pen","twitter",] as const;
+export const ids = ["github", "home", "pen", "twitter"] as const;

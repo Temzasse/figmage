@@ -1,10 +1,10 @@
 {
-  "type": "module",
-  "version": "1.0.0",
   "name": "figmage-example",
+  "version": "1.0.0",
   "description": "Figmage example project",
-  "author": "Teemu Taskula",
   "license": "ISC",
+  "author": "Teemu Taskula",
+  "type": "module",
   "scripts": {
     "sync": "figmage sync"
   },

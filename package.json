@@ -2,23 +2,26 @@
   "name": "figmage",
   "version": "1.1.0",
   "description": "Flexibly generate design tokens from your Figma files",
+  "keywords": [
+    "cli",
+    "design",
+    "design system",
+    "design tokens",
+    "figma",
+    "figma api",
+    "sync",
+    "system",
+    "token"
+  ],
   "license": "ISC",
+  "author": {
+    "name": "Teemu Taskula",
+    "email": "taskuteemu@gmail.com",
+    "url": "https://github.com/Temzasse"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/Temzasse/figmage.git"
-  },
-  "scripts": {
-    "test": "echo TODO",
-    "build": "tsdown --on-success \"npm run example:link\"",
-    "build:watch": "tsdown --watch ./src --on-success \"npm run example:update\"",
-    "format": "biome format",
-    "lint": "biome check",
-    "example:update": "yalc push --replace",
-    "example:tokenize": "cd example && npm run tokenize",
-    "example:codegen": "cd example && npm run codegen",
-    "example:spritesheet": "bin/figmage spritesheet --sprite-input ./example/spritesheet/icons --sprite-out-dir ./example/spritesheet/public --sprite-ids-out-dir ./example/spritesheet",
-    "example:spritesheet:serve": "npx serve ./example/spritesheet",
-    "release": "np --any-branch"
   },
   "bin": {
     "figmage": "bin/figmage"
@@ -28,48 +31,9 @@
     "src/",
     "dist/"
   ],
-  "keywords": [
-    "cli",
-    "figma",
-    "figma api",
-    "token",
-    "design",
-    "system",
-    "design system",
-    "design tokens",
-    "sync"
-  ],
-  "author": {
-    "name": "Teemu Taskula",
-    "email": "taskuteemu@gmail.com",
-    "url": "https://github.com/Temzasse"
-  },
-  "engines": {
-    "node": ">=20.19"
-  },
-  "dependencies": {
-    "@figma/rest-api-spec": "0.32.0",
-    "color-convert": "3.1.0",
-    "consola": "3.4.2",
-    "dotenv": "17.0.1",
-    "lodash.camelcase": "4.3.0",
-    "lodash.get": "4.4.2",
-    "lodash.kebabcase": "4.1.1",
-    "lodash.snakecase": "4.1.1",
-    "lodash.template": "4.5.0",
-    "svgo": "4.0.0"
-  },
-  "devDependencies": {
-    "@arethetypeswrong/core": "0.18.2",
-    "@biomejs/biome": "2.0.6",
-    "@types/lodash.template": "4.5.3",
-    "@types/node": "24.0.10",
-    "tsdown": "0.12.9",
-    "typescript": "5.8.3"
-  },
+  "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
-  "type": "module",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
   "exports": {
@@ -78,5 +42,44 @@
       "require": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "echo TODO",
+    "build": "tsdown --on-success \"npm run example:link\"",
+    "build:watch": "tsdown --watch ./src --on-success \"npm run example:update\"",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "typecheck": "tsgo --noEmit",
+    "example:update": "yalc push --replace",
+    "example:tokenize": "cd example && npm run tokenize",
+    "example:codegen": "cd example && npm run codegen",
+    "example:spritesheet": "bin/figmage spritesheet --sprite-input ./example/spritesheet/icons --sprite-out-dir ./example/spritesheet/public --sprite-ids-out-dir ./example/spritesheet",
+    "example:spritesheet:serve": "npx serve ./example/spritesheet",
+    "release": "np --any-branch"
+  },
+  "dependencies": {
+    "@figma/rest-api-spec": "0.39.0",
+    "color-convert": "3.1.0",
+    "consola": "3.4.2",
+    "lodash.get": "4.4.2",
+    "lodash.groupby": "4.6.0",
+    "lodash.template": "4.5.0",
+    "svgo": "4.0.1"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "0.18.2",
+    "@types/lodash.get": "4.4.9",
+    "@types/lodash.groupby": "4.6.9",
+    "@types/lodash.template": "4.5.3",
+    "@types/node": "25.9.1",
+    "@typescript/native-preview": "7.0.0-dev.20260527.2",
+    "oxfmt": "0.52.0",
+    "oxlint": "1.67.0",
+    "tsdown": "0.22.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

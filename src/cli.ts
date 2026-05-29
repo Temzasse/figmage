@@ -32,9 +32,7 @@ export async function cli(args: string[]) {
   const config = await loadConfig(configPath);
 
   if (!config.accessToken || !config.fileId) {
-    log.error(
-      "Missing required configuration: `accessToken` and `fileId` must be set."
-    );
+    log.error("Missing required configuration: `accessToken` and `fileId` must be set.");
     process.exit(1);
   }
 

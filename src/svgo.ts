@@ -1,20 +1,12 @@
-// @ts-check
-import { optimize } from "svgo";
+import { optimize, type PluginConfig } from "svgo";
 
-/**
- * Optimize SVG
- * @param {string} svg
- * @param {object} options
- * @param {boolean} options.convertColors
- */
 export function optimizeSvg(
-  svg,
+  svg: string,
   options = {
     convertColors: true,
   },
 ) {
-  /** @type {import("svgo").PluginConfig[]} */
-  const plugins = [
+  const plugins: PluginConfig[] = [
     "cleanupAttrs",
     "removeDoctype",
     "removeXMLProcInst",

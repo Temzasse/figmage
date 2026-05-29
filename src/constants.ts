@@ -1,18 +1,24 @@
 export const TOKEN_TYPE = {
-  color: "COLOR",
-  text: "TEXT",
-  dropShadow: "DROP_SHADOW",
-  property: "PROPERTY",
-  image: "IMAGE",
+  color: "color",
+  property: "property",
+  dropShadow: "drop-shadow",
+  image: "image",
+  text: "text",
 } as const;
 
-export const TOKEN_TEMPLATE =
+export const TS_TEMPLATE =
   "/* eslint-disable */\n" +
   "<% tokens.forEach(function(x) { %>" +
   "export const <%= x[0] %> = <%= JSON.stringify(x[1], null, 2) %>;\n" +
   "<% }); %>\n" +
   "export type <%= name.charAt(0).toUpperCase() + name.slice(1) %>Token = " +
   "<%= tokenNames.map(t => JSON.stringify(t)).join(' | ') %>;\n";
+
+export const JS_TEMPLATE =
+  "/* eslint-disable */\n" +
+  "<% tokens.forEach(function(x) { %>" +
+  "export const <%= x[0] %> = <%= JSON.stringify(x[1], null, 2) %>;\n" +
+  "<% }); %>\n";
 
 export const RESERVED_KEYWORDS = [
   "break",

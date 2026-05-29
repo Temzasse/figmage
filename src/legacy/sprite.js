@@ -13,9 +13,7 @@ import { optimizeSvg } from "./svgo.js";
  * @returns {Promise<string[][]>}
  */
 export async function readSpritesheetInput({ input, nameCase }) {
-  const svgFiles = fs
-    .readdirSync(input)
-    .filter((file) => file.endsWith(".svg"));
+  const svgFiles = fs.readdirSync(input).filter((file) => file.endsWith(".svg"));
 
   const spriteTokens = [];
 
@@ -67,7 +65,7 @@ export function generateSpritesheet({
 
     fs.writeFileSync(
       `${idsOutDir}/${idsFilename}.ts`,
-      idsCompiled({ ids: svgs.map(([name]) => name) })
+      idsCompiled({ ids: svgs.map(([name]) => name) }),
     );
   }
 }

@@ -7,7 +7,7 @@ const fileId = process.env.FIGMA_FILE_ID;
 
 if (!accessToken || !fileId) {
   throw new Error(
-    "Please set `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` in your `.env` file."
+    "Please set `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` in your `.env` file.",
   );
 }
 
@@ -30,24 +30,25 @@ export default defineConfig({
     }),
     token.dropShadow("shadows"),
     token.height("spacing", {
-      parentFrameName: "Spacing",
-      tokenCasing: "lower",
-      fileType: "json",
+      componentSetName: "Spacing",
+    }),
+    token.height("spacing", {
+      parentFrameName: "Figmage - Spacing",
     }),
     token.cornerRadius("radii", {
-      parentFrameName: "Radii",
+      componentSetName: "Radii",
     }),
     token.svg("icons", {
-      parentFrameName: "Icons",
+      componentSetName: "Icons",
     }),
-    token.svg("icons-multicolor", {
-      parentFrameName: "Multicolor Icons",
-    }),
-    token.png("assets", {
-      parentFrameName: "Assets",
-      tokenCasing: "kebab",
-      scale: 2,
-    }),
+    // tokwen.svg("icons-multicolor", {
+    //   parentFrameName: "Multicolor Icons",
+    // }),
+    // token.png("assets", {
+    //   parentFrameName: "Assets",
+    //   tokenCasing: "kebab",
+    //   scale: 2,
+    // }),
     // {
     //   name: "icons",
     //   type: tokenType.image,

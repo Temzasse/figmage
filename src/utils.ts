@@ -4,7 +4,7 @@ import type { TokenCasing } from "./types";
 export async function promiseAllInBatches<T, R>(
   task: (item: T, index: number) => Promise<R>,
   items: T[],
-  batchSize: number
+  batchSize: number,
 ): Promise<R[]> {
   let cursor = 0;
   let results: R[] = [];
@@ -22,7 +22,6 @@ export async function promiseAllInBatches<T, R>(
 }
 
 export function rgbToHex(r: number, g: number, b: number): string {
-  // biome-ignore lint/style/useTemplate: Ignore
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 

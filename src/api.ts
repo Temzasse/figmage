@@ -2,6 +2,7 @@ import { createWriteStream } from "node:fs";
 import * as stream from "node:stream";
 import { promisify } from "node:util";
 import type {
+  GetFileComponentSetsResponse,
   GetFileNodesResponse,
   GetFileResponse,
   GetFileStylesResponse,
@@ -36,10 +37,7 @@ export class FigmaAPI {
     };
   }
 
-  private async fetchAPI<T>(
-    endpoint: string,
-    params?: Record<string, string>
-  ): Promise<T> {
+  private async fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
     const url = new URL(`${this.baseURL}/${endpoint}`);
 
     if (params) {
@@ -76,9 +74,7 @@ export class FigmaAPI {
       throw new Error("Response body is null");
     }
 
-    const nodeStream = stream.Readable.fromWeb(
-      response.body as ReadableStream<Uint8Array>
-    );
+    const nodeStream = stream.Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
 
     nodeStream.pipe(writer);
 
@@ -86,31 +82,35 @@ export class FigmaAPI {
   }
 
   async fetchNodes(ids: string[]) {
-    const res = await this.fetchAPI<GetFileNodesResponse>(
-      `files/${this.fileId}/nodes`,
-      {
-        ids: ids.join(","),
-      }
-    );
+    const res = await this.fetchAPI<GetFileNodesResponse>(`files/${this.fileId}/nodes`, {
+      ids: ids.join(","),
+    });
 
     return res.nodes;
   }
 
   async fetchFrames() {
-    const res = await this.fetchAPI<GetFileResponse>(
-      `files/${this.fileId}?depth=2`
-    );
+    const res = await this.fetchAPI<GetFileResponse>(`files/${this.fileId}?depth=2`);
 
     return normalizeFrames(res.document);
   }
 
-  async fetchNodeChildren(id: string) {
-    const res = await this.fetchAPI<GetFileNodesResponse>(
-      `files/${this.fileId}/nodes`,
-      {
-        ids: id,
-      }
+  async fetchComponentSets(name: string) {
+    const res = await this.fetchAPI<GetFileComponentSetsResponse>(
+      `files/${this.fileId}/component_sets`,
     );
+
+    const set = res.meta.component_sets.find((s) => s.name === name);
+    if (!set) return [];
+
+    const nodes = await this.fetchNodeChildren(set.node_id);
+    return nodes;
+  }
+
+  async fetchNodeChildren(id: string) {
+    const res = await this.fetchAPI<GetFileNodesResponse>(`files/${this.fileId}/nodes`, {
+      ids: id,
+    });
 
     function flattenChildren(node: Node): Node[] {
       const children = "children" in node ? node.children : [];
@@ -124,25 +124,23 @@ export class FigmaAPI {
     }
 
     const nodes = flattenChildren(res.nodes[id].document).filter(
-      (n: Node) => n.type === "COMPONENT"
+      (n: Node) => n.type === "COMPONENT",
     );
 
     return nodes;
   }
 
   async fetchImages(ids: string[], format = "svg") {
-    const res = await this.fetchAPI<GetImagesResponse>(
-      `images/${this.fileId}`,
-      { ids: ids.join(","), format }
-    );
+    const res = await this.fetchAPI<GetImagesResponse>(`images/${this.fileId}`, {
+      ids: ids.join(","),
+      format,
+    });
 
-    return res.images;
+    return Object.values(res.images).filter(Boolean) as string[];
   }
 
   async fetchStyles() {
-    const res = await this.fetchAPI<GetFileStylesResponse>(
-      `files/${this.fileId}/styles`
-    );
+    const res = await this.fetchAPI<GetFileStylesResponse>(`files/${this.fileId}/styles`);
 
     return res.meta.styles;
   }

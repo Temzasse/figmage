@@ -67,9 +67,7 @@ function getEnv(options) {
   };
 
   if (!env.FIGMA_ACCESS_TOKEN || !env.FIGMA_FILE_ID) {
-    throw Error(
-      "Missing environment variables for Figma access token and file id!"
-    );
+    throw Error("Missing environment variables for Figma access token and file id!");
   }
 
   return env;
@@ -91,7 +89,7 @@ function parseArgumentsIntoOptions(rawArgs) {
       "--sprite-ids-out-dir": String,
       "--sprite-convert-colors": Boolean,
     },
-    { argv: rawArgs.slice(2) }
+    { argv: rawArgs.slice(2) },
   );
   return {
     commands: args["_"],
