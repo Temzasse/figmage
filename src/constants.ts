@@ -1,7 +1,7 @@
 export const TOKEN_TYPE = {
   color: "color",
   property: "property",
-  dropShadow: "drop-shadow",
+  dropShadow: "dropShadow",
   image: "image",
   text: "text",
 } as const;

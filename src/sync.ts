@@ -1,5 +1,10 @@
 import fs from "node:fs/promises";
-import type { DropShadowEffect, StyleType } from "@figma/rest-api-spec";
+import assert from "node:assert";
+import type {
+  ComponentNode,
+  DropShadowEffect,
+  StyleType,
+} from "@figma/rest-api-spec";
 import type { ConsolaInstance } from "consola";
 import get from "lodash.get";
 import { FigmaAPI } from "./api";
@@ -14,15 +19,14 @@ import {
 import type {
   ColorTokenConfig,
   ComponentPropertyTokenConfig,
-  ComponentSetPropertyTokenConfig,
   Config,
   DropShadowTokenConfig,
-  ImageTokenConfig,
+  ImageAssetTokenConfig,
   OutputConfig,
   SyncResult,
   TextTokenConfig,
 } from "./types";
-import { rgbToHex, roundToDecimal, toCase, toFixed } from "./utils";
+import { roundToDecimal, toCase, toFixed } from "./utils";
 
 export class Sync {
   private readonly config: Config;
@@ -40,24 +44,26 @@ export class Sync {
   }
 
   async run() {
-    const result = await Promise.allSettled(
-      this.config.tokens.map((opts) => {
-        switch (opts.type) {
-          case "color":
-            return this.syncColor(opts);
-          case "text":
-            return this.syncText(opts);
-          case "drop-shadow":
-            return this.syncDropShadow(opts);
-          case "property":
-            return this.syncComponentProperty(opts);
-          case "image":
-            return this.syncImage(opts);
-          default:
-            throw new Error("Unknown token");
-        }
-      }),
-    );
+    const promises: Promise<SyncResult>[] = [];
+
+    // TODO: add partial sync via CLI flag
+    this.config.tokens.forEach((opts) => {
+      if (opts.type === "color") {
+        promises.push(this.syncColorStyle(opts));
+      } else if (opts.type === "text") {
+        promises.push(this.syncTextStyle(opts));
+      } else if (opts.type === "dropShadow") {
+        promises.push(this.syncDropShadow(opts));
+      } else if (opts.type === "property") {
+        promises.push(this.syncComponentProperty(opts));
+      } else if (opts.type === "image") {
+        promises.push(this.syncImageAsset(opts));
+      } else {
+        throw new Error("Unknown token");
+      }
+    });
+
+    const result = await Promise.allSettled(promises);
 
     const fulfilled = result.filter(
       (r) => r.status === "fulfilled" && !!r.value,
@@ -113,7 +119,7 @@ export class Sync {
     );
   }
 
-  private async syncColor(opts: ColorTokenConfig) {
+  private async syncColorStyle({ name, transform, output }: ColorTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
 
     /*
@@ -130,6 +136,7 @@ export class Sync {
     Object.entries(styleNodes).forEach(([id, node]) => {
       const style = stylesById[id];
       const doc = node.document;
+      const format = transform?.format || "hex";
 
       if (
         style.type !== "FILL" ||
@@ -148,15 +155,15 @@ export class Sync {
         const g = Math.round(fill.color.g * 255);
         const b = Math.round(fill.color.b * 255);
         const a = fill.opacity ? toFixed(fill.opacity, 2) : undefined;
-        const color = convertColor({ r, g, b, a }, opts.format || "hex");
+        const color = convertColor({ r, g, b, a }, format);
 
         tokens.push({
-          group: style.group ? this.toCase(style.group, opts) : "_",
-          name: this.toCase(style.name, opts),
+          group: style.group ? this.toCase(style.group, output) : "_",
+          name: this.toCase(style.name, output),
           value: color,
         });
       } else if (colorType === "GRADIENT_LINEAR") {
-        // GRADIENTS -----------------------------------------------------------
+        // LINEAR GRADIENTS ----------------------------------------------------
         const { gradientStops, gradientHandlePositions } = doc.fills[0];
 
         const colors = gradientStops.map((stop) => {
@@ -170,7 +177,7 @@ export class Sync {
               b: Math.round(b * 255),
               a: toFixed(a, 2),
             },
-            opts.format || "hex",
+            format,
           );
 
           return {
@@ -182,18 +189,18 @@ export class Sync {
 
         colors.forEach((color) => {
           tokens.push({
-            group: style.group ? this.toCase(style.group, opts) : "_",
-            name: this.toCase(style.name, opts),
+            group: style.group ? this.toCase(style.group, output) : "_",
+            name: this.toCase(style.name, output),
             value: color,
           });
         });
       }
     });
 
-    return { name: opts.name, output: opts.output, tokens };
+    return { name, output, tokens };
   }
 
-  private async syncText(opts: TextTokenConfig) {
+  private async syncTextStyle({ name, transform, output }: TextTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
 
     const tokens: SyncResult["tokens"] = [];
@@ -205,8 +212,8 @@ export class Sync {
       if (style.type === "TEXT" && doc.type === "TEXT") {
         const fontSizeBase = doc.style.fontSize || 16;
         const fontSize =
-          opts.format === "rem" && opts.baseFontSize
-            ? `${toFixed(fontSizeBase / opts.baseFontSize, 2)}rem`
+          transform?.format === "rem" && transform?.baseFontSize
+            ? `${toFixed(fontSizeBase / transform.baseFontSize, 2)}rem`
             : `${toFixed(fontSizeBase, 2)}px`;
 
         const textStyle = {
@@ -224,17 +231,21 @@ export class Sync {
         };
 
         tokens.push({
-          group: style.group ? this.toCase(style.group, opts) : "_",
-          name: this.toCase(style.name, opts),
+          group: style.group ? this.toCase(style.group, output) : "_",
+          name: this.toCase(style.name, output),
           value: textStyle,
         });
       }
     });
 
-    return { name: opts.name, output: opts.output, tokens };
+    return { name, output, tokens };
   }
 
-  private async syncDropShadow(opts: DropShadowTokenConfig) {
+  private async syncDropShadow({
+    name,
+    transform,
+    output,
+  }: DropShadowTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
 
     const tokens: SyncResult["tokens"] = [];
@@ -253,105 +264,159 @@ export class Sync {
           const g = Math.round(shadow.color.g * 255);
           const b = Math.round(shadow.color.b * 255);
           const a = toFixed(shadow.color.a, 3);
-          const rgba = `rgba(${r}, ${g}, ${b}, ${a})`;
+          const color = convertColor(
+            { r, g, b, a },
+            transform?.format || "rgba",
+          );
 
-          return `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${rgba}`;
+          return `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${color}`;
         }
 
         const boxShadow = doc.effects.map(getShadow).reverse().join(", ");
 
         tokens.push({
-          group: style.group ? this.toCase(style.group, opts) : "_",
-          name: this.toCase(style.name, opts),
+          group: style.group ? this.toCase(style.group, output) : "_",
+          name: this.toCase(style.name, output),
           value: boxShadow,
         });
       }
     });
 
-    return { name: opts.name, output: opts.output, tokens };
+    return { name, output, tokens };
   }
 
   private async syncComponentProperty(opts: ComponentPropertyTokenConfig) {
-    if (opts.source.componentSetName) {
+    if ("componentSet" in opts.source) {
       return this.syncComponentSetProperty(opts);
+    } else if ("frameName" in opts.source || "frameId" in opts.source) {
+      return this.syncComponentFrameProperty(opts);
     }
-
-    // TODO
+    throw new Error("Unknown component property source type");
   }
 
-  private async syncComponentSetProperty(
-    opts: ComponentSetPropertyTokenConfig,
-  ) {
-    const components = await this.api.fetchComponentSets(
-      opts.source.componentSetName,
-    );
+  private async syncComponentFrameProperty({
+    name,
+    source,
+    output,
+  }: ComponentPropertyTokenConfig) {
+    assert("frameName" in source || "frameId" in source);
+
+    let frameId = source.frameId;
+
+    if (source.frameName && !frameId) {
+      frameId = await this.getFrameIdByName(source.frameName);
+    }
+
+    const children = await this.api.fetchNodeChildren(frameId!);
 
     const tokens: SyncResult["tokens"] = [];
 
-    components.forEach((component) => {
-      const propertyValue = get(component, opts.source.property);
-
-      if (propertyValue === undefined || propertyValue === null) {
-        this.log.warn(
-          `Property "${opts.source.property}" not found in component "${component.name}"`,
-        );
-        return;
-      }
-
-      // TODO: can we support more types?
-      if (
-        typeof propertyValue !== "string" &&
-        typeof propertyValue !== "number"
-      ) {
-        this.log.warn(
-          `Property "${opts.source.property}" in component "${component.name}" is not a string or number, skipping token creation.`,
-        );
-        return;
-      }
-
-      // Remove everything up to first `=` in the property name
-      const name = component.name.replace(/^[^=]*=/, "").trim();
+    children.forEach((component) => {
+      const propertyValue = this.readComponentProperty(
+        component,
+        source.property,
+      );
 
       tokens.push({
         group: "_",
-        name: this.toCase(name, opts),
+        name: this.toCase(component.name, output),
         value: propertyValue,
       });
     });
 
-    return { name: opts.name, output: opts.output, tokens };
+    return { name, output, tokens };
   }
 
-  private async syncImage(opts: ImageTokenConfig) {
+  private async syncComponentSetProperty({
+    name,
+    source,
+    output,
+  }: ComponentPropertyTokenConfig) {
+    assert("componentSet" in source);
+
+    const components = await this.api.fetchComponentSets(source.componentSet);
+
     const tokens: SyncResult["tokens"] = [];
 
-    if (opts.source.componentSetName) {
-      const components = await this.api.fetchComponentSets(
-        opts.source.componentSetName,
+    components.forEach((component) => {
+      const propertyValue = this.readComponentProperty(
+        component,
+        source.property,
       );
 
-      const images = await this.api.fetchImages(components.map((c) => c.id));
+      // Remove everything up to first `=` in the property name
+      const valueName = component.name.replace(/^[^=]*=/, "").trim();
 
-      const imageContents = await Promise.all(
-        Object.values(images)
-          .filter(Boolean)
-          .map((url) => fetch(url).then((res) => res.text())),
-      );
+      tokens.push({
+        group: "_",
+        name: this.toCase(valueName, output),
+        value: propertyValue,
+      });
+    });
 
-      const svgOptions = {
-        convertColors: true,
-        // ...options,
-      };
-
-      const svgOptimized = imageContents.map((img) =>
-        optimizeSvg(img, svgOptions),
-      );
-    }
+    return { name, output, tokens };
   }
 
-  private toCase(name: string, opts?: { output?: OutputConfig }) {
+  private readComponentProperty(
+    component: ComponentNode,
+    propertyPath: string,
+  ) {
+    const propertyValue = get(component, propertyPath);
+
+    if (propertyValue === undefined || propertyValue === null) {
+      throw new Error(
+        `Property "${propertyPath}" not found in component "${component.name}"`,
+      );
+    }
+
+    // TODO: can we support more types?
+    if (
+      typeof propertyValue !== "string" &&
+      typeof propertyValue !== "number"
+    ) {
+      throw new Error(
+        `Property "${propertyPath}" in component "${component.name}" is not a string or number, skipping token creation.`,
+      );
+    }
+
+    return propertyValue;
+  }
+
+  private async syncImageAsset({
+    name,
+    source,
+    output,
+  }: ImageAssetTokenConfig) {
+    const tokens: SyncResult["tokens"] = [];
+
+    // if ("componentSet" in source) {
+    //   const components = await this.api.fetchComponentSets(source.componentSet);
+    //   const images = await this.api.fetchImages(components.map((c) => c.id));
+
+    //   const imageContents = await Promise.all(
+    //     Object.values(images)
+    //       .filter(Boolean)
+    //       .map((url) => fetch(url).then((res) => res.text())),
+    //   );
+
+    //   const svgOptions = {
+    //     convertColors: true,
+    //     // ...options,
+    //   };
+
+    //   const svgOptimized = imageContents.map((img) =>
+    //     optimizeSvg(img, svgOptions),
+    //   );
+
+    //   // TODO
+    // }
+
+    return { name, output, tokens };
+  }
+
+  private toCase(name: string, output?: OutputConfig) {
     const casing =
-      opts?.output?.tokenCasing ?? this.config.output?.tokenCasing ?? "camel";
+      output?.tokenCasing ?? this.config.output?.tokenCasing ?? "camel";
 
     return toCase(name, casing);
   }
@@ -390,9 +455,28 @@ export class Sync {
     }, {});
 
     const stylesIds = Object.keys(stylesById);
-
     const styleNodes = await this.api.fetchNodes(stylesIds);
 
     return { stylesById, styleNodes };
+  }
+
+  // Memoization cache for promises
+  private framesPromise: ReturnType<typeof this.api.fetchFrameIds> | null =
+    null;
+  private async getFrameIds() {
+    if (this.framesPromise) return this.framesPromise;
+    this.framesPromise = this.api.fetchFrameIds();
+    return this.framesPromise;
+  }
+
+  private async getFrameIdByName(frameName: string) {
+    const frameIds = await this.getFrameIds();
+    const frameId = frameIds[frameName];
+
+    if (!frameId) {
+      throw new Error(`Frame with name "${frameName}" not found`);
+    }
+
+    return frameId;
   }
 }

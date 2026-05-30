@@ -2,13 +2,17 @@ import type {
   ColorTokenConfig,
   ComponentPropertyTokenConfig,
   DropShadowTokenConfig,
+  ImageAssetTokenConfig,
   ImageOutputConfig,
-  ImageTokenConfig,
+  Prettify,
   TextTokenConfig,
 } from "./types";
 
 export const token = {
-  color: (name: string, opts?: Pick<ColorTokenConfig, "format">): ColorTokenConfig => ({
+  color: (
+    name: string,
+    opts?: Pick<ColorTokenConfig, "format">,
+  ): ColorTokenConfig => ({
     name,
     type: "color",
     ...opts,
@@ -21,9 +25,13 @@ export const token = {
     type: "text",
     ...opts,
   }),
-  dropShadow: (name: string): DropShadowTokenConfig => ({
+  dropShadow: (
+    name: string,
+    opts?: Pick<DropShadowTokenConfig, "format">,
+  ): DropShadowTokenConfig => ({
     name,
     type: "drop-shadow",
+    ...opts,
   }),
   height: (
     name: string,
@@ -64,7 +72,7 @@ export const token = {
   svg: (
     name: string,
     { directory, tokenCasing, ...source }: ImageFlatOptions,
-  ): ImageTokenConfig => {
+  ): ImageAssetTokenConfig => {
     ensureComponentSource(source);
     return {
       name,
@@ -76,25 +84,25 @@ export const token = {
   png: (
     name: string,
     { directory, tokenCasing, ...source }: ImageFlatOptions,
-  ): ImageTokenConfig => {
+  ): ImageAssetTokenConfig => {
     ensureComponentSource(source);
     return {
       name,
       type: "image",
-      source: { ...source, format: "png" },
-      output: { directory, tokenCasing },
+      source,
+      output: { directory, tokenCasing, format: "png" },
     };
   },
   jpg: (
     name: string,
     { directory, tokenCasing, ...source }: ImageFlatOptions,
-  ): ImageTokenConfig => {
+  ): ImageAssetTokenConfig => {
     ensureComponentSource(source);
     return {
       name,
       type: "image",
-      source: { ...source, format: "jpg" },
-      output: { directory, tokenCasing },
+      source,
+      output: { directory, tokenCasing, format: "jpg" },
     };
   },
 };
@@ -102,14 +110,26 @@ export const token = {
 // Helpers
 
 function ensureComponentSource(source: Record<string, unknown>) {
-  if (!source.componentSetName && !source.parentFrameId && !source.parentFrameName) {
+  if (
+    !source.componentSetName &&
+    !source.parentFrameId &&
+    !source.parentFrameName
+  ) {
     throw new Error(
       "Either `componentSetName`, `parentFrameId`, or `parentFrameName` must be specified!",
     );
   }
 }
 
-type ComponentFlatOptions = ComponentPropertyTokenConfig["output"] &
-  Omit<ComponentPropertyTokenConfig["source"], "property">;
+type ComponentFlatOptions = Prettify<
+  Omit<
+    ComponentPropertyTokenConfig["output"] &
+      ComponentPropertyTokenConfig["source"],
+    "property"
+  >
+>;
 
-type ImageFlatOptions = Omit<ImageTokenConfig["source"], "format"> & ImageOutputConfig;
+type ImageFlatOptions = Prettify<
+  ImageAssetTokenConfig["source"] &
+    Omit<ImageAssetTokenConfig["output"], "format">
+>;

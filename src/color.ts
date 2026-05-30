@@ -13,6 +13,7 @@ export function convertColor(rgba: RGBA, format: ColorFormat): string {
     case "hex":
       return rgbToHexString(rgba);
     case "rgb":
+    case "rgba":
       return rgbToRgbString(rgba);
     case "hsl":
       return rgbToHslString(rgba);

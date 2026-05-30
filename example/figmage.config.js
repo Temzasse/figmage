@@ -21,49 +21,58 @@ export default defineConfig({
     tokenCasing: "camel",
   },
   tokens: [
-    token.color("colors", {
-      format: "hsl",
-    }),
-    token.text("typography", {
-      format: "rem",
-      baseFontSize: 16,
-    }),
-    token.dropShadow("shadows"),
-    token.height("spacing", {
-      componentSetName: "Spacing",
-    }),
-    token.height("spacing", {
-      parentFrameName: "Figmage - Spacing",
-    }),
-    token.cornerRadius("radii", {
-      componentSetName: "Radii",
-    }),
-    token.svg("icons", {
-      componentSetName: "Icons",
-    }),
-    // tokwen.svg("icons-multicolor", {
-    //   parentFrameName: "Multicolor Icons",
-    // }),
-    // token.png("assets", {
-    //   parentFrameName: "Assets",
-    //   tokenCasing: "kebab",
-    //   scale: 2,
-    // }),
-    // {
-    //   name: "icons",
-    //   type: tokenType.image,
-    //   source: {
-    //     parentFrameName: "Icons",
-    //     format: "svg",
-    //   },
-    //   output: {
-    //     imageOptions: {
-    //       convertColors: true,
-    //       generateSpriteSheet: true,
-    //       spriteSheet: "./example/tokens/assets/icons-multicolor-sprite.svg",
-    //       spriteSheetType: "./example/tokens/icons-multicolor-sprite.ids.ts",
-    //     },
-    //   },
-    // },
+    {
+      name: "colors",
+      type: "color",
+      transform: {
+        format: "hsl",
+      },
+    },
+    {
+      name: "typography",
+      type: "text",
+      transform: {
+        format: "rem",
+        baseFontSize: 16,
+      },
+    },
+    {
+      name: "shadows",
+      type: "dropShadow",
+      transform: {
+        format: "hsl",
+      },
+    },
+    {
+      name: "spacing",
+      type: "property",
+      source: {
+        componentSet: "Spacing",
+        property: "absoluteBoundingBox.width",
+      },
+    },
+    {
+      name: "spacing2",
+      type: "property",
+      source: {
+        frameName: "Figmage - Spacing",
+        property: "absoluteBoundingBox.width",
+      },
+    },
+    {
+      name: "radii",
+      type: "property",
+      source: {
+        componentSet: "Radii",
+        property: "cornerRadius",
+      },
+    },
+    {
+      name: "icons",
+      type: "image",
+      source: {
+        componentSet: "Icons",
+      },
+    },
   ],
 });

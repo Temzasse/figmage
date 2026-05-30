@@ -5,13 +5,28 @@ export type TokenType = typeof TOKEN_TYPE;
 
 export type TokenCasing = "camel" | "kebab" | "snake" | "lower";
 
-export type ColorFormat = "hex" | "rgb" | "hsl" | "hwb" | "lab" | "lch";
+export type ColorFormat =
+  | "hex"
+  | "rgb"
+  | "rgba"
+  | "hsl"
+  | "hwb"
+  | "lab"
+  | "lch";
 
 export type TextFormat = "none" | "px" | "rem";
 
 export type PropertyFormat = "none" | "px" | "rem";
 
-export type OutputConfig = {
+export type ImageFormat = "png" | "jpg" | "svg";
+
+export interface TokenConfig {
+  name: string;
+  type: TokenType[keyof TokenType];
+  output?: OutputConfig;
+}
+
+export interface OutputConfig {
   /**
    * Directory where the generated files will be saved.
    *
@@ -35,66 +50,12 @@ export type OutputConfig = {
    * @default "camel"
    */
   tokenCasing?: TokenCasing;
-};
-
-export type ImageOutputConfig = {
-  /**
-   * Directory where the generated files will be saved.
-   *
-   * If not specified, defaults to `./tokens`.
-   * @default "./tokens"
-   */
-  directory?: string;
-  /**
-   * Casing style for the token names.
-   * Supported values: `"camel"`, `"kebab"`, `"snake"`, `"lower"`.
-   *
-   * If not specified, defaults to `"camel"`.
-   * @default "camel"
-   */
-  tokenCasing?: TokenCasing;
-};
-
-interface TokenConfig {
-  name: string;
-  output?: OutputConfig;
 }
 
-type ComponentSource = {
-  /**
-   * The name of the parent frame where the components are located.
-   * Components within this frame will be used as the source for the property
-   * value token.
-   *
-   * For example: `"Spacing"` or `"Radii"`.
-   *
-   * Either `parentFrameName` or `parentFrameId` must be specified.
-   */
-  parentFrameName?: string;
-  /**
-   * The ID of the parent frame where the components are located.
-   * Components within this frame will be used as the source for the property
-   * value token.
-   *
-   * The ID looks like `123:456` and can be found in the Figma file URL when
-   * selecting the frame.
-   *
-   * Either `parentFrameName` or `parentFrameId` must be specified.
-   */
-  parentFrameId?: string;
-  /**
-   * The name of the published component set to sync properties from.
-   * This is used to identify the component set in the Figma file.
-   * Example: "Spacing" or "Radii".
-   */
-  componentSetName?: string;
-};
-
-export interface ColorTokenConfig extends TokenConfig {
-  type: TokenType["color"];
+export interface ColorTransform {
   /**
    * The format in which the color token should be generated.
-   * Supported values: `"hex"`, `"rgb"`, `"hsl"`, `"hwb"`, `"lab"`, `"lch"`.
+   * Supported values: `"hex"`, `"rgb"`, `"rgba"`, `"hsl"`, `"hwb"`, `"lab"`, `"lch"`.
    *
    * If not specified, defaults to `"hex"`.
    * @default "hex"
@@ -102,16 +63,26 @@ export interface ColorTokenConfig extends TokenConfig {
   format?: ColorFormat;
 }
 
-export interface TextTokenConfig extends TokenConfig {
-  type: TokenType["text"];
+export interface ImageTransform {
   /**
-   * The format in which the text token should be generated.
-   * Supported values: `"none"` for unitless, `"px"` for pixels, `"rem"` for rem units.
+   * The format of the image asset files to be generated.
+   * Supported values: `"png"`, `"jpg"`, `"svg"`.
+   *
+   * If not specified, defaults to `"png"`.
+   * @default "png"
+   */
+  format: ImageFormat;
+}
+
+export interface TextTransform {
+  /**
+   * The format of the text token files to be generated.
+   * Supported values: `"none"`, `"px"`, `"rem"`.
    *
    * If not specified, defaults to `"none"`.
-   * @default { unit: "none" }
+   * @default "none"
    */
-  format?: TextFormat;
+  format: TextFormat;
   /**
    * The base font size to use for rem calculations.
    *
@@ -121,35 +92,139 @@ export interface TextTokenConfig extends TokenConfig {
   baseFontSize?: number;
 }
 
+export interface DropShadowTransform {
+  /**
+   * The format in which the color parts of the drop shadow token should be generated.
+   * Supported values: `"hex"`, `"rgb"`, `"rgba"`, `"hsl"`, `"hwb"`, `"lab"`, `"lch"`.
+   *
+   * If not specified, defaults to `"rgba"`.
+   * @default "rgba"
+   */
+  format?: ColorFormat;
+}
+
+export interface ComponentPropertyTransform {
+  /**
+   * The format in which the property token should be generated.
+   * Supported values: `"none"` for unitless, `"px"` for pixels, `"rem"` for rem units.
+   *
+   * If not specified, defaults to `"none"`.
+   * @default "none"
+   */
+  format?: PropertyFormat;
+}
+
+export interface ColorTokenConfig extends TokenConfig {
+  type: TokenType["color"];
+  transform?: ColorTransform;
+}
+
+export interface TextTokenConfig extends TokenConfig {
+  type: TokenType["text"];
+  transform?: TextTransform;
+}
+
 export interface DropShadowTokenConfig extends TokenConfig {
   type: TokenType["dropShadow"];
+  transform?: DropShadowTransform;
 }
 
 export interface ComponentPropertyTokenConfig extends TokenConfig {
   type: TokenType["property"];
-  source: ComponentSource & {
-    /**
-     * The property in dot notation to extract the value of the token from.
-     *
-     * For example, "absoluteBoundingBox.height" or "absoluteBoundingBox.width".
-     * See: https://www.figma.com/developers/api#frame-props
-     */
-    property: NonNullable<DotPaths<NonNullableFields<FrameTraits>>>;
-    /**
-     * The format in which the property token should be generated.
-     * Supported values: `"none"` for unitless, `"px"` for pixels, `"rem"` for rem units.
-     *
-     * If not specified, defaults to `"none"`.
-     * @default "none"
-     */
-    format?: PropertyFormat;
-  };
+  transform?: ComponentPropertyTransform;
+  source:
+    | {
+        /**
+         * The name of the published component set to sync properties from.
+         * This is used to identify the component set in the Figma file.
+         * Example: "Spacing" or "Radii".
+         */
+        componentSet: string;
+        /**
+         * The property in dot notation to extract the value of the token from.
+         *
+         * For example, "absoluteBoundingBox.height" or "absoluteBoundingBox.width".
+         * See: https://www.figma.com/developers/api#frame-props
+         */
+        property: NonNullable<DotPaths<NonNullableFields<FrameTraits>>>;
+      }
+    | {
+        /**
+         * The name of the parent frame where the components are located.
+         * Components within this frame will be used as the source for the property
+         * value token.
+         *
+         * For example: `"Spacing"` or `"Radii"`.
+         *
+         * Either `frameName` or `frameId` must be specified.
+         */
+        frameName?: string;
+        /**
+         * The ID of the parent frame where the components are located.
+         * Components within this frame will be used as the source for the property
+         * value token.
+         *
+         * The ID looks like `123:456` and can be found in the Figma file URL when
+         * selecting the frame.
+         *
+         * Either `frameName` or `frameId` must be specified.
+         */
+        frameId?: string;
+        /**
+         * The property in dot notation to extract the value of the token from.
+         *
+         * For example, "absoluteBoundingBox.height" or "absoluteBoundingBox.width".
+         * See: https://www.figma.com/developers/api#frame-props
+         */
+        property: NonNullable<DotPaths<NonNullableFields<FrameTraits>>>;
+      };
 }
 
-export interface ImageTokenConfig extends TokenConfig {
+type ImageQueryParams = Omit<
+  CamelCaseKeys<GetImagesQueryParams>,
+  "ids" | "format"
+>;
+
+export interface ImageAssetTokenConfig extends TokenConfig {
   type: TokenType["image"];
-  output?: ImageOutputConfig;
-  source: Omit<GetImagesQueryParams, "ids"> & ComponentSource;
+  source:
+    | (ImageQueryParams & {
+        /**
+         * The name of the published component set to sync properties from.
+         * This is used to identify the component set in the Figma file.
+         * Example: "Spacing" or "Radii".
+         */
+        componentSet: string;
+        /**
+         * The property in dot notation to extract the value of the token from.
+         *
+         * For example, "absoluteBoundingBox.height" or "absoluteBoundingBox.width".
+         * See: https://www.figma.com/developers/api#frame-props
+         */
+      })
+    | (ImageQueryParams & {
+        /**
+         * The name of the parent frame where the components are located.
+         * Components within this frame will be used as the source for the property
+         * value token.
+         *
+         * For example: `"Spacing"` or `"Radii"`.
+         *
+         * Either `frameName` or `frameId` must be specified.
+         */
+        frameName?: string;
+        /**
+         * The ID of the parent frame where the components are located.
+         * Components within this frame will be used as the source for the property
+         * value token.
+         *
+         * The ID looks like `123:456` and can be found in the Figma file URL when
+         * selecting the frame.
+         *
+         * Either `frameName` or `frameId` must be specified.
+         */
+        frameId?: string;
+      });
 }
 
 export type Config = {
@@ -184,7 +259,7 @@ export type Config = {
     | TextTokenConfig
     | DropShadowTokenConfig
     | ComponentPropertyTokenConfig
-    | ImageTokenConfig
+    | ImageAssetTokenConfig
   )[];
 };
 
@@ -196,7 +271,7 @@ export type SyncResult = {
 
 // Helpers
 
-type DotPaths<T, Prefix extends string = ""> = {
+export type DotPaths<T, Prefix extends string = ""> = {
   [K in keyof T]: T[K] extends object
     ? T[K] extends Array<any> // Avoid traversing arrays
       ? `${Prefix}${K & string}`
@@ -204,8 +279,23 @@ type DotPaths<T, Prefix extends string = ""> = {
     : `${Prefix}${K & string}`;
 }[keyof T];
 
-type NonNullableFields<T> = {
+export type NonNullableFields<T> = {
   [K in keyof T]-?: T[K] extends object
     ? NonNullableFields<T[K]>
     : NonNullable<T[K]>;
 };
+
+export type CamelCase<S extends string> =
+  S extends `${infer P1}_${infer P2}${infer P3}`
+    ? `${Lowercase<P1>}${Uppercase<P2>}${CamelCase<P3>}`
+    : Lowercase<S>;
+
+export type CamelCaseKeys<T> = {
+  [K in keyof T as CamelCase<string & K>]: T[K] extends {}
+    ? CamelCaseKeys<T[K]>
+    : T[K];
+};
+
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};

@@ -37,7 +37,10 @@ export class FigmaAPI {
     };
   }
 
-  private async fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
+  private async fetchAPI<T>(
+    endpoint: string,
+    params?: Record<string, string>,
+  ): Promise<T> {
     const url = new URL(`${this.baseURL}/${endpoint}`);
 
     if (params) {
@@ -74,7 +77,9 @@ export class FigmaAPI {
       throw new Error("Response body is null");
     }
 
-    const nodeStream = stream.Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
+    const nodeStream = stream.Readable.fromWeb(
+      response.body as ReadableStream<Uint8Array>,
+    );
 
     nodeStream.pipe(writer);
 
@@ -82,15 +87,20 @@ export class FigmaAPI {
   }
 
   async fetchNodes(ids: string[]) {
-    const res = await this.fetchAPI<GetFileNodesResponse>(`files/${this.fileId}/nodes`, {
-      ids: ids.join(","),
-    });
+    const res = await this.fetchAPI<GetFileNodesResponse>(
+      `files/${this.fileId}/nodes`,
+      {
+        ids: ids.join(","),
+      },
+    );
 
     return res.nodes;
   }
 
-  async fetchFrames() {
-    const res = await this.fetchAPI<GetFileResponse>(`files/${this.fileId}?depth=2`);
+  async fetchFrameIds() {
+    const res = await this.fetchAPI<GetFileResponse>(
+      `files/${this.fileId}?depth=2`,
+    );
 
     return normalizeFrames(res.document);
   }
@@ -108,9 +118,12 @@ export class FigmaAPI {
   }
 
   async fetchNodeChildren(id: string) {
-    const res = await this.fetchAPI<GetFileNodesResponse>(`files/${this.fileId}/nodes`, {
-      ids: id,
-    });
+    const res = await this.fetchAPI<GetFileNodesResponse>(
+      `files/${this.fileId}/nodes`,
+      {
+        ids: id,
+      },
+    );
 
     function flattenChildren(node: Node): Node[] {
       const children = "children" in node ? node.children : [];
@@ -131,16 +144,21 @@ export class FigmaAPI {
   }
 
   async fetchImages(ids: string[], format = "svg") {
-    const res = await this.fetchAPI<GetImagesResponse>(`images/${this.fileId}`, {
-      ids: ids.join(","),
-      format,
-    });
+    const res = await this.fetchAPI<GetImagesResponse>(
+      `images/${this.fileId}`,
+      {
+        ids: ids.join(","),
+        format,
+      },
+    );
 
     return Object.values(res.images).filter(Boolean) as string[];
   }
 
   async fetchStyles() {
-    const res = await this.fetchAPI<GetFileStylesResponse>(`files/${this.fileId}/styles`);
+    const res = await this.fetchAPI<GetFileStylesResponse>(
+      `files/${this.fileId}/styles`,
+    );
 
     return res.meta.styles;
   }

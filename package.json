@@ -34,11 +34,11 @@
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.cts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
@@ -74,10 +74,10 @@
     "@types/lodash.groupby": "4.6.9",
     "@types/lodash.template": "4.5.3",
     "@types/node": "25.9.1",
-    "@typescript/native-preview": "7.0.0-dev.20260527.2",
     "oxfmt": "0.52.0",
     "oxlint": "1.67.0",
-    "tsdown": "0.22.1"
+    "tsdown": "0.22.1",
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": ">=22"
