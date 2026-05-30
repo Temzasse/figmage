@@ -55,7 +55,7 @@ export default defineConfig({
       name: "spacing2",
       type: "property",
       source: {
-        frameName: "Figmage - Spacing",
+        frame: "Figmage - Spacing",
         property: "absoluteBoundingBox.width",
       },
     },

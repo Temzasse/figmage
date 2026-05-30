@@ -12,6 +12,6 @@
     "figmage": "file:.yalc/figmage"
   },
   "devDependencies": {
-    "dotenv": "17.0.1"
+    "dotenv": "17.4.2"
   }
 }

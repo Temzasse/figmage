@@ -166,8 +166,15 @@ export class Sync {
         // LINEAR GRADIENTS ----------------------------------------------------
         const { gradientStops, gradientHandlePositions } = doc.fills[0];
 
-        const colors = gradientStops.map((stop) => {
-          const { x, y } = gradientHandlePositions[stop.position];
+        const start = gradientHandlePositions[0];
+        const end = gradientHandlePositions[1];
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const angle = roundToDecimal(
+          (90 - (Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360,
+        );
+
+        const stops = gradientStops.map((stop) => {
           const { r, g, b, a } = stop.color;
 
           const color = convertColor(
@@ -182,17 +189,19 @@ export class Sync {
 
           return {
             color,
-            x: roundToDecimal(x),
-            y: roundToDecimal(y),
+            // Original position is between 0 and 1, convert to percentage and round to 2 decimals
+            position: toFixed(stop.position * 100, 2),
           };
         });
 
-        colors.forEach((color) => {
-          tokens.push({
-            group: style.group ? this.toCase(style.group, output) : "_",
-            name: this.toCase(style.name, output),
-            value: color,
-          });
+        const value = `linear-gradient(${angle}deg, ${stops
+          .map((s) => `${s.color} ${s.position}%`)
+          .join(", ")})`;
+
+        tokens.push({
+          group: style.group ? this.toCase(style.group, output) : "_",
+          name: this.toCase(style.name, output),
+          value,
         });
       }
     });
@@ -288,7 +297,7 @@ export class Sync {
   private async syncComponentProperty(opts: ComponentPropertyTokenConfig) {
     if ("componentSet" in opts.source) {
       return this.syncComponentSetProperty(opts);
-    } else if ("frameName" in opts.source || "frameId" in opts.source) {
+    } else if ("frame" in opts.source || "frameId" in opts.source) {
       return this.syncComponentFrameProperty(opts);
     }
     throw new Error("Unknown component property source type");
@@ -299,12 +308,12 @@ export class Sync {
     source,
     output,
   }: ComponentPropertyTokenConfig) {
-    assert("frameName" in source || "frameId" in source);
+    assert("frame" in source || "frameId" in source);
 
     let frameId = source.frameId;
 
-    if (source.frameName && !frameId) {
-      frameId = await this.getFrameIdByName(source.frameName);
+    if (source.frame && !frameId) {
+      frameId = await this.getFrameIdByName(source.frame);
     }
 
     const children = await this.api.fetchNodeChildren(frameId!);

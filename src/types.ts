@@ -156,9 +156,9 @@ export interface ComponentPropertyTokenConfig extends TokenConfig {
          *
          * For example: `"Spacing"` or `"Radii"`.
          *
-         * Either `frameName` or `frameId` must be specified.
+         * Either `frame` or `frameId` must be specified.
          */
-        frameName?: string;
+        frame?: string;
         /**
          * The ID of the parent frame where the components are located.
          * Components within this frame will be used as the source for the property
@@ -167,7 +167,7 @@ export interface ComponentPropertyTokenConfig extends TokenConfig {
          * The ID looks like `123:456` and can be found in the Figma file URL when
          * selecting the frame.
          *
-         * Either `frameName` or `frameId` must be specified.
+         * Either `frame` or `frameId` must be specified.
          */
         frameId?: string;
         /**
@@ -210,9 +210,9 @@ export interface ImageAssetTokenConfig extends TokenConfig {
          *
          * For example: `"Spacing"` or `"Radii"`.
          *
-         * Either `frameName` or `frameId` must be specified.
+         * Either `frame` or `frameId` must be specified.
          */
-        frameName?: string;
+        frame?: string;
         /**
          * The ID of the parent frame where the components are located.
          * Components within this frame will be used as the source for the property
@@ -221,7 +221,7 @@ export interface ImageAssetTokenConfig extends TokenConfig {
          * The ID looks like `123:456` and can be found in the Figma file URL when
          * selecting the frame.
          *
-         * Either `frameName` or `frameId` must be specified.
+         * Either `frame` or `frameId` must be specified.
          */
         frameId?: string;
       });
