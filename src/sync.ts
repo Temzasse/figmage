@@ -399,40 +399,78 @@ export class Sync {
   }: ImageAssetTokenConfig) {
     const tokens: SyncResult["tokens"] = [];
 
+    const imageFormat =
+      transform?.format || this.config.transform?.defaultImageFormat || "svg";
+
+    let data: { url: string; component: ComponentNode }[] = [];
+
     if ("componentSet" in source) {
       const components = await this.api.fetchComponentSets(source.componentSet);
-      const images = await this.api.fetchImages(components.map((c) => c.id));
 
-      const imageContents = await Promise.all(
-        Object.values(images)
-          .filter(Boolean)
-          .map((url) => fetch(url).then((res) => res.text())),
+      const images = await this.api.fetchImages(
+        components.map((c) => c.id),
+        imageFormat,
       );
 
-      const svgOptions = {
-        convertColors: true,
-        // TODO: allow configuring this via transform options?
-      };
+      data = components.map((component, index) => ({
+        url: images[index],
+        component,
+      }));
+    } else if ("frame" in source || "frameId" in source) {
+      let frameId = source.frameId;
 
-      const svgOptimized = imageContents.map((img) =>
-        optimizeSvg(img, svgOptions),
+      if (source.frame && !frameId) {
+        frameId = await this.getFrameIdByName(source.frame);
+      }
+
+      const children = await this.api.fetchNodeChildren(frameId!);
+      const filteredChildren = children.filter((child) => child.name);
+
+      const images = await this.api.fetchImages(
+        filteredChildren.map((c) => c.id),
+        imageFormat,
       );
 
-      svgOptimized.forEach((content, index) => {
-        const component = components[index];
-        const componentName = this.cleanComponentSetName(component.name);
-        const tokenName = this.toCase(componentName, transform?.casing);
-        this.log.debug(
-          `Names: original="${component.name}", cleaned="${componentName}", token="${tokenName}"`,
-        );
-
-        tokens.push({
-          group: "_",
-          name: tokenName,
-          value: content,
-        });
-      });
+      data = filteredChildren.map((component, index) => ({
+        url: images[index],
+        component,
+      }));
     }
+
+    if (data.length === 0) {
+      this.log.warn(
+        `No images found for token "${name}". Please check the source configuration.`,
+      );
+      return { name, output, tokens };
+    }
+
+    const imageContents = await Promise.all(
+      data
+        .map((d) => d.url)
+        .filter(Boolean)
+        .map((url) => fetch(url).then((res) => res.text())),
+    );
+
+    const svgOptions = {
+      convertColors: true,
+      // TODO: allow configuring this via transform options?
+    };
+
+    const svgOptimized = imageContents.map((img) =>
+      optimizeSvg(img, svgOptions),
+    );
+
+    svgOptimized.forEach((content, index) => {
+      const component = data[index].component;
+      const componentName = this.cleanComponentSetName(component.name);
+      const tokenName = this.toCase(componentName, transform?.casing);
+
+      tokens.push({
+        group: "_",
+        name: tokenName,
+        value: content,
+      });
+    });
 
     return { name, output, tokens };
   }

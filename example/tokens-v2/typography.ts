@@ -111,14 +111,14 @@ export const headingS = {
   "textTransform": "none",
   "lineHeight": 1.5
 };
-export const headingXL = {
+export const headingXl = {
   "fontSize": "2.63rem",
   "fontFamily": "Inter",
   "fontWeight": 700,
   "textTransform": "none",
   "lineHeight": 1.5
 };
-export const headingXXL = {
+export const headingXxl = {
   "fontSize": "4.5rem",
   "fontFamily": "Inter",
   "fontWeight": 700,
@@ -175,4 +175,4 @@ export const overlineSmall = {
   "lineHeight": 1.5
 };
 
-export type TypographyToken = "body" | "bodyBold" | "bodyExtraSmall" | "bodyExtraSmallBold" | "bodyLarge" | "bodyLargeBold" | "bodySemiBold" | "bodySmall" | "bodySmallBold" | "bodySmallSemiBold" | "displayExtraSmall" | "displayLarge" | "displaySmall" | "headingL" | "headingM" | "headingS" | "headingXL" | "headingXXL" | "label" | "lead" | "leadBold" | "linkText" | "linkTextHover" | "overlineRegular" | "overlineSmall";
+export type TypographyToken = "body" | "bodyBold" | "bodyExtraSmall" | "bodyExtraSmallBold" | "bodyLarge" | "bodyLargeBold" | "bodySemiBold" | "bodySmall" | "bodySmallBold" | "bodySmallSemiBold" | "displayExtraSmall" | "displayLarge" | "displaySmall" | "headingL" | "headingM" | "headingS" | "headingXl" | "headingXxl" | "label" | "lead" | "leadBold" | "linkText" | "linkTextHover" | "overlineRegular" | "overlineSmall";

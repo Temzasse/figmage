@@ -71,29 +71,54 @@ export function normalizeFrames(rootNode: Node): Record<string, string> {
   return nodesByName;
 }
 
+function splitWords(str: string): string[] {
+  if (!str) return [];
+
+  const normalized = str
+    // Replace common separators with spaces first.
+    .replace(/[\s._\-/\\]+/g, " ")
+    // Handle camelCase and PascalCase boundaries.
+    .replace(/([a-z\d])([A-Z])/g, "$1 $2")
+    // Handle acronym boundaries like "APIResponse" -> "API Response".
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    // Split alpha/number boundaries.
+    .replace(/([A-Za-z])(\d)/g, "$1 $2")
+    .replace(/(\d)([A-Za-z])/g, "$1 $2")
+    // Keep only letters, numbers, and spaces.
+    .replace(/[^A-Za-z0-9 ]+/g, " ")
+    .trim();
+
+  if (!normalized) return [];
+
+  return normalized
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.toLowerCase());
+}
+
+function capitalize(word: string): string {
+  if (!word) return "";
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
 export function camelCase(str: string): string {
-  return str
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
-      return index === 0 ? word.toLowerCase() : word.toUpperCase();
-    })
-    .replace(/\s+/g, "")
-    .replace(/[^a-zA-Z0-9]/g, "");
+  const words = splitWords(str);
+  if (words.length === 0) return "";
+
+  const [first, ...rest] = words;
+  return first + rest.map(capitalize).join("");
 }
 
 export function kebabCase(str: string): string {
-  return str
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/[\s_]+/g, "-")
-    .replace(/[^a-zA-Z0-9-]/g, "")
-    .toLowerCase();
+  return splitWords(str).join("-");
 }
 
 export function snakeCase(str: string): string {
-  return str
-    .replace(/([a-z])([A-Z])/g, "$1_$2")
-    .replace(/[\s-]+/g, "_")
-    .replace(/[^a-zA-Z0-9_]/g, "")
-    .toLowerCase();
+  return splitWords(str).join("_");
+}
+
+export function lowerCase(str: string): string {
+  return splitWords(str).join("");
 }
 
 /**
@@ -102,6 +127,6 @@ export function snakeCase(str: string): string {
 export function toCase(str: string, casing: TokenCasing = "camel"): string {
   if (casing === "kebab") return kebabCase(str);
   if (casing === "snake") return snakeCase(str);
-  if (casing === "lower") return str.toLowerCase();
+  if (casing === "lower") return lowerCase(str);
   return camelCase(str);
 }

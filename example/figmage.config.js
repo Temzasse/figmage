@@ -83,6 +83,19 @@ export default defineConfig({
       source: {
         componentSet: "Icon",
       },
+      output: {
+        fileName: "icons-component-set",
+      },
+    },
+    {
+      name: "icons",
+      type: "image",
+      source: {
+        frame: "Figmage - Icons",
+      },
+      output: {
+        fileName: "icons-frame",
+      },
     },
   ],
 });
