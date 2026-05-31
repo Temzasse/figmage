@@ -9,7 +9,14 @@ import type { ConsolaInstance } from "consola";
 import get from "lodash.get";
 import { FigmaAPI } from "./api";
 import { convertColor } from "./color";
-import { RESERVED_KEYWORDS } from "./constants";
+import {
+  RESERVED_KEYWORDS,
+  DEFAULT_BASE_FONT_SIZE,
+  DEFAULT_TEXT_FORMAT,
+  DEFAULT_COLOR_FORMAT,
+  DEFAULT_PROPERTY_FORMAT,
+  DEFAULT_IMAGE_FORMAT,
+} from "./constants";
 import { optimizeSvg } from "./svgo";
 import {
   renderTemplateJS,
@@ -17,14 +24,17 @@ import {
   renderTemplateTS,
 } from "./template";
 import type {
+  ColorFormat,
   ColorTokenConfig,
   ComponentPropertyTokenConfig,
   Config,
   DropShadowTokenConfig,
   ImageAssetTokenConfig,
-  OutputConfig,
+  PropertyFormat,
   SyncResult,
+  TextFormat,
   TextTokenConfig,
+  TokenCasing,
 } from "./types";
 import { roundToDecimal, toCase, toFixed } from "./utils";
 
@@ -122,21 +132,11 @@ export class Sync {
   private async syncColorStyle({ name, transform, output }: ColorTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
 
-    /*
-      [
-        { group: '_', name: 'Neutral 1', value: '#EEEEEE' },
-        { group: '_', name: 'Neutral 2', value: '#CCCCCC' },
-        { group: 'Primary', name: 'Primary Muted', value: '#F0F0F0' },
-        { group: 'Primary', name: 'Primary Contrast', value: '#000000' },
-        ...etc.
-      ]
-    */
     const tokens: SyncResult["tokens"] = [];
 
     Object.entries(styleNodes).forEach(([id, node]) => {
       const style = stylesById[id];
       const doc = node.document;
-      const format = transform?.format || "hex";
 
       if (
         style.type !== "FILL" ||
@@ -151,21 +151,27 @@ export class Sync {
       if (colorType === "SOLID") {
         // SOLID COLOR ---------------------------------------------------------
         const fill = doc.fills[0];
-        const r = Math.round(fill.color.r * 255);
-        const g = Math.round(fill.color.g * 255);
-        const b = Math.round(fill.color.b * 255);
-        const a = fill.opacity ? toFixed(fill.opacity, 2) : undefined;
-        const color = convertColor({ r, g, b, a }, format);
+
+        const color = this.toColorFormat(
+          {
+            r: Math.round(fill.color.r * 255),
+            g: Math.round(fill.color.g * 255),
+            b: Math.round(fill.color.b * 255),
+            a: fill.opacity ? toFixed(fill.opacity, 2) : undefined,
+          },
+          transform?.format,
+        );
 
         tokens.push({
-          group: style.group ? this.toCase(style.group, output) : "_",
-          name: this.toCase(style.name, output),
+          group: style.group
+            ? this.toCase(style.group, transform?.casing)
+            : "_",
+          name: this.toCase(style.name, transform?.casing),
           value: color,
         });
       } else if (colorType === "GRADIENT_LINEAR") {
         // LINEAR GRADIENTS ----------------------------------------------------
         const { gradientStops, gradientHandlePositions } = doc.fills[0];
-
         const start = gradientHandlePositions[0];
         const end = gradientHandlePositions[1];
         const dx = end.x - start.x;
@@ -177,14 +183,14 @@ export class Sync {
         const stops = gradientStops.map((stop) => {
           const { r, g, b, a } = stop.color;
 
-          const color = convertColor(
+          const color = this.toColorFormat(
             {
               r: Math.round(r * 255),
               g: Math.round(g * 255),
               b: Math.round(b * 255),
               a: toFixed(a, 2),
             },
-            format,
+            transform?.format,
           );
 
           return {
@@ -199,8 +205,10 @@ export class Sync {
           .join(", ")})`;
 
         tokens.push({
-          group: style.group ? this.toCase(style.group, output) : "_",
-          name: this.toCase(style.name, output),
+          group: style.group
+            ? this.toCase(style.group, transform?.casing)
+            : "_",
+          name: this.toCase(style.name, transform?.casing),
           value,
         });
       }
@@ -212,6 +220,9 @@ export class Sync {
   private async syncTextStyle({ name, transform, output }: TextTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
 
+    const textFormat =
+      transform?.format || this.config.transform?.defaultTextFormat || "px";
+
     const tokens: SyncResult["tokens"] = [];
 
     Object.entries(styleNodes).forEach(([id, node]) => {
@@ -219,11 +230,10 @@ export class Sync {
       const doc = node.document;
 
       if (style.type === "TEXT" && doc.type === "TEXT") {
-        const fontSizeBase = doc.style.fontSize || 16;
-        const fontSize =
-          transform?.format === "rem" && transform?.baseFontSize
-            ? `${toFixed(fontSizeBase / transform.baseFontSize, 2)}rem`
-            : `${toFixed(fontSizeBase, 2)}px`;
+        const fontSize = this.toTextFormat(
+          doc.style.fontSize || 16,
+          textFormat,
+        );
 
         const textStyle = {
           fontSize,
@@ -240,8 +250,10 @@ export class Sync {
         };
 
         tokens.push({
-          group: style.group ? this.toCase(style.group, output) : "_",
-          name: this.toCase(style.name, output),
+          group: style.group
+            ? this.toCase(style.group, transform?.casing)
+            : "_",
+          name: this.toCase(style.name, transform?.casing),
           value: textStyle,
         });
       }
@@ -268,24 +280,27 @@ export class Sync {
         "effects" in doc &&
         doc.effects.every((e) => e.type === "DROP_SHADOW")
       ) {
-        function getShadow(shadow: DropShadowEffect) {
-          const r = Math.round(shadow.color.r * 255);
-          const g = Math.round(shadow.color.g * 255);
-          const b = Math.round(shadow.color.b * 255);
-          const a = toFixed(shadow.color.a, 3);
-          const color = convertColor(
-            { r, g, b, a },
-            transform?.format || "rgba",
+        const getShadow = (shadow: DropShadowEffect) => {
+          const color = this.toColorFormat(
+            {
+              r: Math.round(shadow.color.r * 255),
+              g: Math.round(shadow.color.g * 255),
+              b: Math.round(shadow.color.b * 255),
+              a: toFixed(shadow.color.a, 3),
+            },
+            transform?.format,
           );
 
           return `${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px ${color}`;
-        }
+        };
 
         const boxShadow = doc.effects.map(getShadow).reverse().join(", ");
 
         tokens.push({
-          group: style.group ? this.toCase(style.group, output) : "_",
-          name: this.toCase(style.name, output),
+          group: style.group
+            ? this.toCase(style.group, transform?.casing)
+            : "_",
+          name: this.toCase(style.name, transform?.casing),
           value: boxShadow,
         });
       }
@@ -306,6 +321,7 @@ export class Sync {
   private async syncComponentFrameProperty({
     name,
     source,
+    transform,
     output,
   }: ComponentPropertyTokenConfig) {
     assert("frame" in source || "frameId" in source);
@@ -326,10 +342,15 @@ export class Sync {
         source.property,
       );
 
+      const formattedValue =
+        typeof propertyValue === "number"
+          ? this.toPropertyFormat(propertyValue, transform?.format)
+          : propertyValue;
+
       tokens.push({
         group: "_",
-        name: this.toCase(component.name, output),
-        value: propertyValue,
+        name: this.toCase(component.name, transform?.casing),
+        value: formattedValue,
       });
     });
 
@@ -339,6 +360,7 @@ export class Sync {
   private async syncComponentSetProperty({
     name,
     source,
+    transform,
     output,
   }: ComponentPropertyTokenConfig) {
     assert("componentSet" in source);
@@ -356,10 +378,15 @@ export class Sync {
       // Remove everything up to first `=` in the property name
       const valueName = component.name.replace(/^[^=]*=/, "").trim();
 
+      const formattedValue =
+        typeof propertyValue === "number"
+          ? this.toPropertyFormat(propertyValue, transform?.format)
+          : propertyValue;
+
       tokens.push({
         group: "_",
-        name: this.toCase(valueName, output),
-        value: propertyValue,
+        name: this.toCase(valueName, transform?.casing),
+        value: formattedValue,
       });
     });
 
@@ -394,6 +421,7 @@ export class Sync {
   private async syncImageAsset({
     name,
     source,
+    transform,
     output,
   }: ImageAssetTokenConfig) {
     const tokens: SyncResult["tokens"] = [];
@@ -423,11 +451,53 @@ export class Sync {
     return { name, output, tokens };
   }
 
-  private toCase(name: string, output?: OutputConfig) {
+  private toCase(name: string, customCasing?: TokenCasing) {
     const casing =
-      output?.tokenCasing ?? this.config.output?.tokenCasing ?? "camel";
+      customCasing ?? this.config.transform?.defaultCasing ?? "camel";
 
     return toCase(name, casing);
+  }
+
+  private toTextFormat(value: number, format?: TextFormat) {
+    const baseFontSize =
+      this.config.transform?.baseFontSize || DEFAULT_BASE_FONT_SIZE;
+    const textFormat =
+      format || this.config.transform?.defaultTextFormat || DEFAULT_TEXT_FORMAT;
+
+    if (textFormat === "rem") {
+      return `${toFixed(value / baseFontSize, 2)}rem`;
+    } else if (textFormat === "px") {
+      return `${toFixed(value, 2)}px`;
+    }
+    return toFixed(value, 2);
+  }
+
+  private toColorFormat(
+    { r, g, b, a }: { r: number; g: number; b: number; a?: number },
+    format?: ColorFormat,
+  ) {
+    const colorFormat =
+      format ||
+      this.config.transform?.defaultColorFormat ||
+      DEFAULT_COLOR_FORMAT;
+
+    return convertColor({ r, g, b, a }, colorFormat);
+  }
+
+  private toPropertyFormat(value: number, format?: PropertyFormat) {
+    const baseFontSize =
+      this.config.transform?.baseFontSize || DEFAULT_BASE_FONT_SIZE;
+    const propertyFormat =
+      format ||
+      this.config.transform?.defaultPropertyFormat ||
+      DEFAULT_PROPERTY_FORMAT;
+
+    if (propertyFormat === "rem") {
+      return `${toFixed(value / baseFontSize, 2)}rem`;
+    } else if (propertyFormat === "px") {
+      return `${toFixed(value, 2)}px`;
+    }
+    return toFixed(value, 2);
   }
 
   // Memoization cache for promises

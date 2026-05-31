@@ -18,30 +18,27 @@ export default defineConfig({
   output: {
     directory: "./tokens-v2",
     fileType: "ts",
-    tokenCasing: "camel",
+  },
+  transform: {
+    defaultCasing: "camel",
+    defaultColorFormat: "hsl",
+    defaultImageFormat: "svg",
+    defaultTextFormat: "rem",
+    defaultPropertyFormat: "px",
+    baseFontSize: 16,
   },
   tokens: [
     {
       name: "colors",
       type: "color",
-      transform: {
-        format: "hsl",
-      },
     },
     {
       name: "typography",
       type: "text",
-      transform: {
-        format: "rem",
-        baseFontSize: 16,
-      },
     },
     {
       name: "shadows",
       type: "dropShadow",
-      transform: {
-        format: "hsl",
-      },
     },
     {
       name: "spacing",
@@ -50,6 +47,9 @@ export default defineConfig({
         componentSet: "Spacing",
         property: "absoluteBoundingBox.width",
       },
+      transform: {
+        casing: "lower",
+      },
     },
     {
       name: "spacing2",
@@ -57,6 +57,12 @@ export default defineConfig({
       source: {
         frame: "Figmage - Spacing",
         property: "absoluteBoundingBox.width",
+      },
+      transform: {
+        casing: "lower",
+      },
+      output: {
+        fileType: "json",
       },
     },
     {

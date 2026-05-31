@@ -41,7 +41,10 @@ export interface OutputConfig {
    * If not specified, defaults to `"ts"`.
    * @default "ts"
    */
-  fileType?: string;
+  fileType?: "ts" | "js" | "json";
+}
+
+export interface TokenTransform {
   /**
    * Casing style for the token names.
    * Supported values: `"camel"`, `"kebab"`, `"snake"`, `"lower"`.
@@ -49,10 +52,10 @@ export interface OutputConfig {
    * If not specified, defaults to `"camel"`.
    * @default "camel"
    */
-  tokenCasing?: TokenCasing;
+  casing?: TokenCasing;
 }
 
-export interface ColorTransform {
+export interface ColorTransform extends TokenTransform {
   /**
    * The format in which the color token should be generated.
    * Supported values: `"hex"`, `"rgb"`, `"rgba"`, `"hsl"`, `"hwb"`, `"lab"`, `"lch"`.
@@ -63,7 +66,7 @@ export interface ColorTransform {
   format?: ColorFormat;
 }
 
-export interface ImageTransform {
+export interface ImageTransform extends TokenTransform {
   /**
    * The format of the image asset files to be generated.
    * Supported values: `"png"`, `"jpg"`, `"svg"`.
@@ -71,10 +74,10 @@ export interface ImageTransform {
    * If not specified, defaults to `"png"`.
    * @default "png"
    */
-  format: ImageFormat;
+  format?: ImageFormat;
 }
 
-export interface TextTransform {
+export interface TextTransform extends TokenTransform {
   /**
    * The format of the text token files to be generated.
    * Supported values: `"none"`, `"px"`, `"rem"`.
@@ -82,17 +85,10 @@ export interface TextTransform {
    * If not specified, defaults to `"none"`.
    * @default "none"
    */
-  format: TextFormat;
-  /**
-   * The base font size to use for rem calculations.
-   *
-   * If not specified, defaults to `16px`.
-   * @default 16
-   */
-  baseFontSize?: number;
+  format?: TextFormat;
 }
 
-export interface DropShadowTransform {
+export interface DropShadowTransform extends TokenTransform {
   /**
    * The format in which the color parts of the drop shadow token should be generated.
    * Supported values: `"hex"`, `"rgb"`, `"rgba"`, `"hsl"`, `"hwb"`, `"lab"`, `"lch"`.
@@ -103,7 +99,7 @@ export interface DropShadowTransform {
   format?: ColorFormat;
 }
 
-export interface ComponentPropertyTransform {
+export interface ComponentPropertyTransform extends TokenTransform {
   /**
    * The format in which the property token should be generated.
    * Supported values: `"none"` for unitless, `"px"` for pixels, `"rem"` for rem units.
@@ -187,6 +183,7 @@ type ImageQueryParams = Omit<
 
 export interface ImageAssetTokenConfig extends TokenConfig {
   type: TokenType["image"];
+  transform?: ImageTransform;
   source:
     | (ImageQueryParams & {
         /**
@@ -248,9 +245,58 @@ export type Config = {
    * If not specified, defaults to saving tokens in `./tokens` directory
    * with TypeScript files.
    *
-   * @default { directory: "./tokens", fileType: "ts", tokenCasing: "camel" }
+   * @default { directory: "./tokens", fileType: "ts", casing: "camel" }
    */
   output?: OutputConfig;
+  /**
+   * Default transformation options for all tokens. These can be overridden by
+   * individual token configurations.
+   */
+  transform?: {
+    /**
+     * Default casing style for token names when generating output files.
+     * Supported values: `"camel"`, `"kebab"`, `"snake"`, `"lower"`.
+     *
+     * If not specified, defaults to `"camel"`.
+     * @default "camel"
+     */
+    defaultCasing?: TokenCasing;
+    /**
+     * Default format for color tokens. Supported values: `"hex"`, `"rgb"`, `"rgba"`, `"hsl"`, `"hwb"`, `"lab"`, `"lch"`.
+     *
+     * If not specified, defaults to `"hex"`.
+     * @default "hex"
+     */
+    defaultColorFormat?: ColorFormat;
+    /**
+     * Default format for text tokens. Supported values: `"none"`, `"px"`, `"rem"`.
+     *
+     * If not specified, defaults to `"px"`.
+     * @default "px"
+     */
+    defaultTextFormat?: TextFormat;
+    /**
+     * The base font size to use for rem calculations in text tokens.
+     *
+     * If not specified, defaults to `16px`.
+     * @default 16
+     */
+    baseFontSize?: number;
+    /**
+     * Default format for property tokens. Supported values: `"none"`, `"px"`, `"rem"`.
+     *
+     * If not specified, defaults to `"px"`.
+     * @default "px"
+     */
+    defaultPropertyFormat?: PropertyFormat;
+    /**
+     * Default format for image tokens. Supported values: `"svg"`, `"jpg"`, `"png"`.
+     *
+     * If not specified, defaults to `"svg"`.
+     * @default "svg"
+     */
+    defaultImageFormat?: ImageFormat;
+  };
   /**
    * An array of token definitions to sync from the Figma file.
    */
@@ -263,6 +309,15 @@ export type Config = {
   )[];
 };
 
+/*
+  [
+    { group: '_', name: 'Neutral 1', value: '#EEEEEE' },
+    { group: '_', name: 'Neutral 2', value: '#CCCCCC' },
+    { group: 'Primary', name: 'Primary Muted', value: '#F0F0F0' },
+    { group: 'Primary', name: 'Primary Contrast', value: '#000000' },
+    ...etc.
+  ]
+*/
 export type SyncResult = {
   name: string;
   tokens: { group: string; name: string; value: string | number | object }[];
