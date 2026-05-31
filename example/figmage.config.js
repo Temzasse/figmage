@@ -50,9 +50,12 @@ export default defineConfig({
       transform: {
         casing: "lower",
       },
+      output: {
+        fileName: "spacing-component-set",
+      },
     },
     {
-      name: "spacing2",
+      name: "spacing",
       type: "property",
       source: {
         frame: "Figmage - Spacing",
@@ -62,6 +65,7 @@ export default defineConfig({
         casing: "lower",
       },
       output: {
+        fileName: "spacing-frame",
         fileType: "json",
       },
     },

@@ -101,8 +101,8 @@ export class Sync {
     await Promise.all(
       results.map(async (result) => {
         const fileType = result.output?.fileType || "ts";
-        const fileName = `${result.name}.${fileType}`;
-        const filePath = `${outputDir}/${fileName}`;
+        const fileName = result.output?.fileName || result.name;
+        const filePath = `${outputDir}/${fileName}.${fileType}`;
 
         if (fileType === "ts" || fileType === "js") {
           const filteredTokens = result.tokens.filter((t) => {
@@ -393,31 +393,6 @@ export class Sync {
     return { name, output, tokens };
   }
 
-  private readComponentProperty(
-    component: ComponentNode,
-    propertyPath: string,
-  ) {
-    const propertyValue = get(component, propertyPath);
-
-    if (propertyValue === undefined || propertyValue === null) {
-      throw new Error(
-        `Property "${propertyPath}" not found in component "${component.name}"`,
-      );
-    }
-
-    // TODO: can we support more types?
-    if (
-      typeof propertyValue !== "string" &&
-      typeof propertyValue !== "number"
-    ) {
-      throw new Error(
-        `Property "${propertyPath}" in component "${component.name}" is not a string or number, skipping token creation.`,
-      );
-    }
-
-    return propertyValue;
-  }
-
   private async syncImageAsset({
     name,
     source,
@@ -449,6 +424,33 @@ export class Sync {
     // }
 
     return { name, output, tokens };
+  }
+
+  // HELPERS ------------------------------------------------------------------
+
+  private readComponentProperty(
+    component: ComponentNode,
+    propertyPath: string,
+  ) {
+    const propertyValue = get(component, propertyPath);
+
+    if (propertyValue === undefined || propertyValue === null) {
+      throw new Error(
+        `Property "${propertyPath}" not found in component "${component.name}"`,
+      );
+    }
+
+    // TODO: can we support more types?
+    if (
+      typeof propertyValue !== "string" &&
+      typeof propertyValue !== "number"
+    ) {
+      throw new Error(
+        `Property "${propertyPath}" in component "${component.name}" is not a string or number, skipping token creation.`,
+      );
+    }
+
+    return propertyValue;
   }
 
   private toCase(name: string, customCasing?: TokenCasing) {

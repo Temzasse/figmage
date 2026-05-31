@@ -20,12 +20,6 @@ export type PropertyFormat = "none" | "px" | "rem";
 
 export type ImageFormat = "png" | "jpg" | "svg";
 
-export interface TokenConfig {
-  name: string;
-  type: TokenType[keyof TokenType];
-  output?: OutputConfig;
-}
-
 export interface OutputConfig {
   /**
    * Directory where the generated files will be saved.
@@ -42,6 +36,17 @@ export interface OutputConfig {
    * @default "ts"
    */
   fileType?: "ts" | "js" | "json";
+  /**
+   * Optional file name for the generated token file (without extension).
+   * If not specified, the file name will be derived from the token name.
+   */
+  fileName?: string;
+}
+
+export interface TokenConfig {
+  name: string;
+  type: TokenType[keyof TokenType];
+  output?: OutputConfig;
 }
 
 export interface TokenTransform {
@@ -247,7 +252,7 @@ export type Config = {
    *
    * @default { directory: "./tokens", fileType: "ts", casing: "camel" }
    */
-  output?: OutputConfig;
+  output?: Omit<OutputConfig, "fileName">;
   /**
    * Default transformation options for all tokens. These can be overridden by
    * individual token configurations.
