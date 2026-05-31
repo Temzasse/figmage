@@ -84,8 +84,7 @@ export class Sync {
     ) as PromiseRejectedResult[];
 
     if (rejected.length > 0) {
-      this.log.error("Errors occurred during sync:");
-      rejected.forEach((error) => this.log.info(error.reason));
+      rejected.forEach((error) => this.log.error(error.reason));
     }
 
     return fulfilled.map((r) => r.value);
@@ -375,8 +374,7 @@ export class Sync {
         source.property,
       );
 
-      // Remove everything up to first `=` in the property name
-      const valueName = component.name.replace(/^[^=]*=/, "").trim();
+      const componentName = this.cleanComponentSetName(component.name);
 
       const formattedValue =
         typeof propertyValue === "number"
@@ -385,7 +383,7 @@ export class Sync {
 
       tokens.push({
         group: "_",
-        name: this.toCase(valueName, transform?.casing),
+        name: this.toCase(componentName, transform?.casing),
         value: formattedValue,
       });
     });
@@ -401,27 +399,40 @@ export class Sync {
   }: ImageAssetTokenConfig) {
     const tokens: SyncResult["tokens"] = [];
 
-    // if ("componentSet" in source) {
-    //   const components = await this.api.fetchComponentSets(source.componentSet);
-    //   const images = await this.api.fetchImages(components.map((c) => c.id));
+    if ("componentSet" in source) {
+      const components = await this.api.fetchComponentSets(source.componentSet);
+      const images = await this.api.fetchImages(components.map((c) => c.id));
 
-    //   const imageContents = await Promise.all(
-    //     Object.values(images)
-    //       .filter(Boolean)
-    //       .map((url) => fetch(url).then((res) => res.text())),
-    //   );
+      const imageContents = await Promise.all(
+        Object.values(images)
+          .filter(Boolean)
+          .map((url) => fetch(url).then((res) => res.text())),
+      );
 
-    //   const svgOptions = {
-    //     convertColors: true,
-    //     // ...options,
-    //   };
+      const svgOptions = {
+        convertColors: true,
+        // TODO: allow configuring this via transform options?
+      };
 
-    //   const svgOptimized = imageContents.map((img) =>
-    //     optimizeSvg(img, svgOptions),
-    //   );
+      const svgOptimized = imageContents.map((img) =>
+        optimizeSvg(img, svgOptions),
+      );
 
-    //   // TODO
-    // }
+      svgOptimized.forEach((content, index) => {
+        const component = components[index];
+        const componentName = this.cleanComponentSetName(component.name);
+        const tokenName = this.toCase(componentName, transform?.casing);
+        this.log.debug(
+          `Names: original="${component.name}", cleaned="${componentName}", token="${tokenName}"`,
+        );
+
+        tokens.push({
+          group: "_",
+          name: tokenName,
+          value: content,
+        });
+      });
+    }
 
     return { name, output, tokens };
   }
@@ -500,6 +511,11 @@ export class Sync {
       return `${toFixed(value, 2)}px`;
     }
     return toFixed(value, 2);
+  }
+
+  private cleanComponentSetName(componentSetName: string) {
+    // Remove everything up to first `=` in the property name
+    return componentSetName.replace(/^[^=]*=/, "").trim();
   }
 
   // Memoization cache for promises

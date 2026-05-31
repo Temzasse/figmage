@@ -81,7 +81,7 @@ export default defineConfig({
       name: "icons",
       type: "image",
       source: {
-        componentSet: "Icons",
+        componentSet: "Icon",
       },
     },
   ],

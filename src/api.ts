@@ -49,12 +49,17 @@ export class FigmaAPI {
       });
     }
 
-    this.log.debug(`Fetching: ${url.toString()}`);
+    const urlString = url.toString();
 
-    const response = await fetch(url.toString(), { headers: this.headers });
+    this.log.debug(`Fetching: ${urlString}`);
+
+    const response = await fetch(urlString, { headers: this.headers });
 
     if (!response.ok) {
-      throw new Error(`HTTP request failed: ${response.status}`);
+      const message = await response.text();
+      throw new Error(
+        `HTTP request failed: ${response.status} ${response.statusText}. ${message}. URL: ${urlString}`,
+      );
     }
 
     return response.json() as T;
@@ -70,7 +75,10 @@ export class FigmaAPI {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP request failed: ${response.status}`);
+      const message = await response.text();
+      throw new Error(
+        `File download HTTP request failed: ${response.status} ${response.statusText}. ${message}. URL: ${url}`,
+      );
     }
 
     if (!response.body) {
@@ -111,7 +119,10 @@ export class FigmaAPI {
     );
 
     const set = res.meta.component_sets.find((s) => s.name === name);
-    if (!set) return [];
+
+    if (!set) {
+      throw new Error(`Component set with name "${name}" not found`);
+    }
 
     const nodes = await this.fetchNodeChildren(set.node_id);
     return nodes;
@@ -144,6 +155,9 @@ export class FigmaAPI {
   }
 
   async fetchImages(ids: string[], format = "svg") {
+    this.log.debug(
+      `Fetching images for IDs: [${ids.join(",")}] with format: ${format}`,
+    );
     const res = await this.fetchAPI<GetImagesResponse>(
       `images/${this.fileId}`,
       {
