@@ -5,14 +5,7 @@ export type TokenType = typeof TOKEN_TYPE;
 
 export type TokenCasing = "camel" | "kebab" | "snake" | "lower" | "pascal";
 
-export type ColorFormat =
-  | "hex"
-  | "rgb"
-  | "rgba"
-  | "hsl"
-  | "hwb"
-  | "lab"
-  | "lch";
+export type ColorFormat = "hex" | "rgb" | "rgba" | "hsl" | "hwb" | "lab" | "lch";
 
 export type TextFormat = "none" | "px" | "rem";
 
@@ -220,10 +213,7 @@ export interface ComponentPropertyTokenConfig extends TokenConfig {
       };
 }
 
-type ImageQueryParams = Omit<
-  CamelCaseKeys<GetImagesQueryParams>,
-  "ids" | "format"
->;
+type ImageQueryParams = Omit<CamelCaseKeys<GetImagesQueryParams>, "ids" | "format">;
 
 export interface ImageAssetTokenConfig extends TokenConfig {
   type: TokenType["image"];
@@ -380,20 +370,15 @@ export type DotPaths<T, Prefix extends string = ""> = {
 }[keyof T];
 
 export type NonNullableFields<T> = {
-  [K in keyof T]-?: T[K] extends object
-    ? NonNullableFields<T[K]>
-    : NonNullable<T[K]>;
+  [K in keyof T]-?: T[K] extends object ? NonNullableFields<T[K]> : NonNullable<T[K]>;
 };
 
-export type CamelCase<S extends string> =
-  S extends `${infer P1}_${infer P2}${infer P3}`
-    ? `${Lowercase<P1>}${Uppercase<P2>}${CamelCase<P3>}`
-    : Lowercase<S>;
+export type CamelCase<S extends string> = S extends `${infer P1}_${infer P2}${infer P3}`
+  ? `${Lowercase<P1>}${Uppercase<P2>}${CamelCase<P3>}`
+  : Lowercase<S>;
 
 export type CamelCaseKeys<T> = {
-  [K in keyof T as CamelCase<string & K>]: T[K] extends {}
-    ? CamelCaseKeys<T[K]>
-    : T[K];
+  [K in keyof T as CamelCase<string & K>]: T[K] extends {} ? CamelCaseKeys<T[K]> : T[K];
 };
 
 export type Prettify<T> = {

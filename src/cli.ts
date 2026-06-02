@@ -57,9 +57,7 @@ export async function cli(args: string[]) {
       }
 
       if (!config.accessToken || !config.fileId) {
-        log.error(
-          "Missing required configuration: `accessToken` and `fileId` must be set.",
-        );
+        log.error("Missing required configuration: `accessToken` and `fileId` must be set.");
         process.exit(1);
       }
 
@@ -111,12 +109,8 @@ export async function cli(args: string[]) {
         process.exit(1);
       }
 
-      if (
-        !["camel", "kebab", "snake", "lower", "pascal"].includes(spriteCase)
-      ) {
-        log.error(
-          "Invalid value for sprite case. Use one of: camel, kebab, snake, lower, pascal",
-        );
+      if (!["camel", "kebab", "snake", "lower", "pascal"].includes(spriteCase)) {
+        log.error("Invalid value for sprite case. Use one of: camel, kebab, snake, lower, pascal");
         process.exit(1);
       }
 

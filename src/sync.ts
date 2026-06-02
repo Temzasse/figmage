@@ -1,11 +1,7 @@
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import assert from "node:assert";
-import type {
-  ComponentNode,
-  DropShadowEffect,
-  StyleType,
-} from "@figma/rest-api-spec";
+import type { ComponentNode, DropShadowEffect, StyleType } from "@figma/rest-api-spec";
 import type { ConsolaInstance } from "consola";
 import { FigmaAPI } from "./api";
 import { convertColor } from "./color";
@@ -40,15 +36,7 @@ export class Sync {
   private readonly log: ConsolaInstance;
   private readonly only?: string[];
 
-  constructor({
-    config,
-    log,
-    only,
-  }: {
-    config: Config;
-    log: ConsolaInstance;
-    only?: string[];
-  }) {
+  constructor({ config, log, only }: { config: Config; log: ConsolaInstance; only?: string[] }) {
     this.config = config;
     this.log = log;
     this.only = only?.map((name) => name.trim()).filter(Boolean);
@@ -86,9 +74,7 @@ export class Sync {
       (r) => r.status === "fulfilled" && !!r.value,
     ) as PromiseFulfilledResult<SyncResult>[];
 
-    const rejected = result.filter(
-      (r) => r.status === "rejected",
-    ) as PromiseRejectedResult[];
+    const rejected = result.filter((r) => r.status === "rejected") as PromiseRejectedResult[];
 
     if (rejected.length > 0) {
       rejected.forEach((error) => this.log.error(error.reason));
@@ -108,14 +94,10 @@ export class Sync {
     const unknownNames = this.only.filter((name) => !allNames.has(name));
 
     if (unknownNames.length > 0) {
-      this.log.warn(
-        `Unknown token name(s) in --only: ${unknownNames.join(", ")}`,
-      );
+      this.log.warn(`Unknown token name(s) in --only: ${unknownNames.join(", ")}`);
     }
 
-    const selected = this.config.tokens.filter((token) =>
-      onlySet.has(token.name),
-    );
+    const selected = this.config.tokens.filter((token) => onlySet.has(token.name));
 
     if (selected.length === 0) {
       this.log.warn("No tokens matched --only filter.");
@@ -188,9 +170,7 @@ export class Sync {
               idsDir,
             });
 
-            this.log.debug(
-              `Spritesheet for ${result.name} generated successfully`,
-            );
+            this.log.debug(`Spritesheet for ${result.name} generated successfully`);
 
             return;
           }
@@ -208,9 +188,7 @@ export class Sync {
           });
 
           const content =
-            fileType === "ts"
-              ? renderTS(result.name, filteredTokens)
-              : renderJS(filteredTokens);
+            fileType === "ts" ? renderTS(result.name, filteredTokens) : renderJS(filteredTokens);
 
           await fs.writeFile(filePath, content, "utf-8");
         } else if (fileType === "json") {
@@ -230,11 +208,7 @@ export class Sync {
       const style = stylesById[id];
       const doc = node.document;
 
-      if (
-        style.type !== "FILL" ||
-        !("fills" in doc) ||
-        doc.fills.length === 0
-      ) {
+      if (style.type !== "FILL" || !("fills" in doc) || doc.fills.length === 0) {
         return; // Skip if not a fill style or no fills available
       }
 
@@ -255,9 +229,7 @@ export class Sync {
         );
 
         tokens.push({
-          group: style.group
-            ? this.toCase(style.group, transform?.casing)
-            : "_",
+          group: style.group ? this.toCase(style.group, transform?.casing) : "_",
           name: this.toCase(style.name, transform?.casing),
           value: color,
         });
@@ -268,9 +240,7 @@ export class Sync {
         const end = gradientHandlePositions[1];
         const dx = end.x - start.x;
         const dy = end.y - start.y;
-        const angle = roundToDecimal(
-          (90 - (Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360,
-        );
+        const angle = roundToDecimal((90 - (Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360);
 
         const stops = gradientStops.map((stop) => {
           const { r, g, b, a } = stop.color;
@@ -297,9 +267,7 @@ export class Sync {
           .join(", ")})`;
 
         tokens.push({
-          group: style.group
-            ? this.toCase(style.group, transform?.casing)
-            : "_",
+          group: style.group ? this.toCase(style.group, transform?.casing) : "_",
           name: this.toCase(style.name, transform?.casing),
           value,
         });
@@ -312,8 +280,7 @@ export class Sync {
   private async syncTextStyle({ name, transform, output }: TextTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
 
-    const textFormat =
-      transform?.format || this.config.transform?.defaultTextFormat || "px";
+    const textFormat = transform?.format || this.config.transform?.defaultTextFormat || "px";
 
     const tokens: SyncResult["tokens"] = [];
 
@@ -322,19 +289,14 @@ export class Sync {
       const doc = node.document;
 
       if (style.type === "TEXT" && doc.type === "TEXT") {
-        const fontSize = this.toTextFormat(
-          doc.style.fontSize || 16,
-          textFormat,
-        );
+        const fontSize = this.toTextFormat(doc.style.fontSize || 16, textFormat);
 
         const textStyle = {
           fontSize,
           fontFamily: doc.style.fontFamily,
           fontWeight: doc.style.fontWeight,
           textTransform: doc.style.textCase === "UPPER" ? "uppercase" : "none",
-          letterSpacing: doc.style.letterSpacing
-            ? toFixed(doc.style.letterSpacing, 2)
-            : undefined,
+          letterSpacing: doc.style.letterSpacing ? toFixed(doc.style.letterSpacing, 2) : undefined,
           lineHeight:
             doc.style.lineHeightPx && doc.style.fontSize
               ? toFixed(doc.style.lineHeightPx / doc.style.fontSize, 3)
@@ -342,9 +304,7 @@ export class Sync {
         };
 
         tokens.push({
-          group: style.group
-            ? this.toCase(style.group, transform?.casing)
-            : "_",
+          group: style.group ? this.toCase(style.group, transform?.casing) : "_",
           name: this.toCase(style.name, transform?.casing),
           value: textStyle,
         });
@@ -354,11 +314,7 @@ export class Sync {
     return { name, output, tokens };
   }
 
-  private async syncDropShadow({
-    name,
-    transform,
-    output,
-  }: DropShadowTokenConfig) {
+  private async syncDropShadow({ name, transform, output }: DropShadowTokenConfig) {
     const { stylesById, styleNodes } = await this.getStyles();
 
     const tokens: SyncResult["tokens"] = [];
@@ -389,9 +345,7 @@ export class Sync {
         const boxShadow = doc.effects.map(getShadow).reverse().join(", ");
 
         tokens.push({
-          group: style.group
-            ? this.toCase(style.group, transform?.casing)
-            : "_",
+          group: style.group ? this.toCase(style.group, transform?.casing) : "_",
           name: this.toCase(style.name, transform?.casing),
           value: boxShadow,
         });
@@ -429,10 +383,7 @@ export class Sync {
     const tokens: SyncResult["tokens"] = [];
 
     children.forEach((component) => {
-      const propertyValue = this.readComponentProperty(
-        component,
-        source.property,
-      );
+      const propertyValue = this.readComponentProperty(component, source.property);
 
       const formattedValue =
         typeof propertyValue === "number"
@@ -462,10 +413,7 @@ export class Sync {
     const tokens: SyncResult["tokens"] = [];
 
     components.forEach((component) => {
-      const propertyValue = this.readComponentProperty(
-        component,
-        source.property,
-      );
+      const propertyValue = this.readComponentProperty(component, source.property);
 
       const componentName = this.cleanComponentSetName(component.name);
 
@@ -484,16 +432,10 @@ export class Sync {
     return { name, output, tokens };
   }
 
-  private async syncImageAsset({
-    name,
-    source,
-    transform,
-    output,
-  }: ImageAssetTokenConfig) {
+  private async syncImageAsset({ name, source, transform, output }: ImageAssetTokenConfig) {
     const tokens: SyncResult["tokens"] = [];
 
-    const imageFormat =
-      transform?.format || this.config.transform?.defaultImageFormat || "svg";
+    const imageFormat = transform?.format || this.config.transform?.defaultImageFormat || "svg";
 
     let data: { url: string; component: ComponentNode }[] = [];
 
@@ -531,9 +473,7 @@ export class Sync {
     }
 
     if (data.length === 0) {
-      this.log.warn(
-        `No images found for token "${name}". Please check the source configuration.`,
-      );
+      this.log.warn(`No images found for token "${name}". Please check the source configuration.`);
       return { name, output, tokens };
     }
 
@@ -549,9 +489,7 @@ export class Sync {
       // TODO: allow configuring this via transform options?
     };
 
-    const svgOptimized = imageContents.map((img) =>
-      optimizeSvg(img, svgOptions),
-    );
+    const svgOptimized = imageContents.map((img) => optimizeSvg(img, svgOptions));
 
     svgOptimized.forEach((content, index) => {
       const component = data[index].component;
@@ -570,23 +508,15 @@ export class Sync {
 
   // HELPERS ------------------------------------------------------------------
 
-  private readComponentProperty(
-    component: ComponentNode,
-    propertyPath: string,
-  ) {
+  private readComponentProperty(component: ComponentNode, propertyPath: string) {
     const propertyValue = get(component, propertyPath);
 
     if (propertyValue === undefined || propertyValue === null) {
-      throw new Error(
-        `Property "${propertyPath}" not found in component "${component.name}"`,
-      );
+      throw new Error(`Property "${propertyPath}" not found in component "${component.name}"`);
     }
 
     // TODO: can we support more types?
-    if (
-      typeof propertyValue !== "string" &&
-      typeof propertyValue !== "number"
-    ) {
+    if (typeof propertyValue !== "string" && typeof propertyValue !== "number") {
       throw new Error(
         `Property "${propertyPath}" in component "${component.name}" is not a string or number, skipping token creation.`,
       );
@@ -596,17 +526,14 @@ export class Sync {
   }
 
   private toCase(name: string, customCasing?: TokenCasing) {
-    const casing =
-      customCasing ?? this.config.transform?.defaultCasing ?? "camel";
+    const casing = customCasing ?? this.config.transform?.defaultCasing ?? "camel";
 
     return toCase(name, casing);
   }
 
   private toTextFormat(value: number, format?: TextFormat) {
-    const baseFontSize =
-      this.config.transform?.baseFontSize || DEFAULT_BASE_FONT_SIZE;
-    const textFormat =
-      format || this.config.transform?.defaultTextFormat || DEFAULT_TEXT_FORMAT;
+    const baseFontSize = this.config.transform?.baseFontSize || DEFAULT_BASE_FONT_SIZE;
+    const textFormat = format || this.config.transform?.defaultTextFormat || DEFAULT_TEXT_FORMAT;
 
     if (textFormat === "rem") {
       return `${toFixed(value / baseFontSize, 2)}rem`;
@@ -620,21 +547,15 @@ export class Sync {
     { r, g, b, a }: { r: number; g: number; b: number; a?: number },
     format?: ColorFormat,
   ) {
-    const colorFormat =
-      format ||
-      this.config.transform?.defaultColorFormat ||
-      DEFAULT_COLOR_FORMAT;
+    const colorFormat = format || this.config.transform?.defaultColorFormat || DEFAULT_COLOR_FORMAT;
 
     return convertColor({ r, g, b, a }, colorFormat);
   }
 
   private toPropertyFormat(value: number, format?: PropertyFormat) {
-    const baseFontSize =
-      this.config.transform?.baseFontSize || DEFAULT_BASE_FONT_SIZE;
+    const baseFontSize = this.config.transform?.baseFontSize || DEFAULT_BASE_FONT_SIZE;
     const propertyFormat =
-      format ||
-      this.config.transform?.defaultPropertyFormat ||
-      DEFAULT_PROPERTY_FORMAT;
+      format || this.config.transform?.defaultPropertyFormat || DEFAULT_PROPERTY_FORMAT;
 
     if (propertyFormat === "rem") {
       return `${toFixed(value / baseFontSize, 2)}rem`;
@@ -661,10 +582,7 @@ export class Sync {
     const styles = await this.api.fetchStyles();
 
     const stylesById = styles.reduce<
-      Record<
-        string,
-        { id: string; name: string; group: string; type: StyleType }
-      >
+      Record<string, { id: string; name: string; group: string; type: StyleType }>
     >((acc, style) => {
       let name = style.name;
       let group = "";
@@ -689,8 +607,7 @@ export class Sync {
   }
 
   // Memoization cache for promises
-  private framesPromise: ReturnType<typeof this.api.fetchFrameIds> | null =
-    null;
+  private framesPromise: ReturnType<typeof this.api.fetchFrameIds> | null = null;
   private async getFrameIds() {
     if (this.framesPromise) return this.framesPromise;
     this.framesPromise = this.api.fetchFrameIds();

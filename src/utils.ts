@@ -11,10 +11,7 @@ export async function promiseAllInBatches<T, R>(
 
   while (cursor < items.length) {
     const batch = items.slice(cursor, cursor + batchSize);
-    results = [
-      ...results,
-      ...(await Promise.all(batch.map((item, i) => task(item, cursor + i)))),
-    ];
+    results = [...results, ...(await Promise.all(batch.map((item, i) => task(item, cursor + i))))];
     cursor += batchSize;
   }
 

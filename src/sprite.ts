@@ -16,18 +16,13 @@ export async function readSpritesheetInput({
     withFileTypes: true,
   });
 
-  const svgFiles = entries.filter(
-    (entry) => entry.isFile() && entry.name.endsWith(".svg"),
-  );
+  const svgFiles = entries.filter((entry) => entry.isFile() && entry.name.endsWith(".svg"));
 
   const tokens = await Promise.all(
     svgFiles.map(async (file) => {
       const source = await fs.readFile(`${input}/${file.name}`, "utf-8");
       const value = optimizeSvg(source, { convertColors });
-      const name = toCase(
-        file.name.replace(/\.svg$/i, ""),
-        nameCase || "kebab",
-      );
+      const name = toCase(file.name.replace(/\.svg$/i, ""), nameCase || "kebab");
 
       return { group: "_", name, value };
     }),
@@ -68,10 +63,7 @@ export async function generateSpritesheet({
   });
 
   const symbols = svgs
-    .map(
-      ([name, svgContent]) =>
-        `<symbol viewBox="0 0 24 24" id="${name}">${svgContent}</symbol>`,
-    )
+    .map(([name, svgContent]) => `<symbol viewBox="0 0 24 24" id="${name}">${svgContent}</symbol>`)
     .join("");
 
   const spritesheet =
@@ -79,11 +71,7 @@ export async function generateSpritesheet({
     symbols +
     "</defs></svg>";
 
-  await fs.writeFile(
-    `${spriteDir}/${spriteFilename}.svg`,
-    spritesheet,
-    "utf-8",
-  );
+  await fs.writeFile(`${spriteDir}/${spriteFilename}.svg`, spritesheet, "utf-8");
 
   if (!idsEnabled) return;
 
@@ -115,9 +103,5 @@ export async function generateSpritesheet({
     );
   }
 
-  await fs.writeFile(
-    `${idsDir}/${idsFilename}.${idsFileType}`,
-    idsFileContent,
-    "utf-8",
-  );
+  await fs.writeFile(`${idsDir}/${idsFilename}.${idsFileType}`, idsFileContent, "utf-8");
 }

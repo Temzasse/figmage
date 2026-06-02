@@ -13,9 +13,7 @@ export function renderTS(name: string, tokens: SyncResult["tokens"]) {
 
   const typeName = `${name.charAt(0).toUpperCase() + name.slice(1)}Token`;
 
-  const tokenNames = sortedTokens
-    .map((t) => JSON.stringify(t.name))
-    .join(" | ");
+  const tokenNames = sortedTokens.map((t) => JSON.stringify(t.name)).join(" | ");
 
   return `${ignoreComments}${exports}\n\nexport type ${typeName} = ${tokenNames};\n`;
 }

@@ -45,18 +45,20 @@
   },
   "scripts": {
     "test": "echo TODO",
-    "build": "tsdown --on-success \"npm run example:link\"",
-    "build:watch": "tsdown --watch ./src --on-success \"npm run example:update\"",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
+    "dev": "tsdown --watch ./src --on-success \"npm run example:update\"",
+    "build": "tsdown",
+    "release": "npm run verify && npm run build && np",
+    "verify": "run-p format:check lint:check typecheck",
+    "format:check": "oxfmt --check ./src",
+    "format:fix": "oxfmt ./src",
+    "lint:check": "oxlint ./src",
+    "lint:fix": "oxlint --fix ./src",
     "typecheck": "tsc --noEmit",
+    "example:link": "cd example && yalc add figmage && npm i",
     "example:update": "yalc push --replace",
     "example:sync": "cd example && npm run sync",
     "example:sprites": "cd example && npm run sprites:generate",
-    "example:sprites:serve": "cd example && npm run sprites:serve",
-    "release": "np --any-branch"
+    "example:sprites:serve": "cd example && npm run sprites:serve"
   },
   "dependencies": {
     "@figma/rest-api-spec": "0.40.0",
@@ -67,6 +69,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.3",
     "@types/node": "25.9.1",
+    "npm-run-all": "4.1.5",
     "oxfmt": "0.53.0",
     "oxlint": "1.68.0",
     "tsdown": "0.22.1",
