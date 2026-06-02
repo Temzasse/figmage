@@ -6,9 +6,11 @@ export async function parseCliArgs(rawArgs: string[]) {
     allowPositionals: true,
     options: {
       config: { type: "string", short: "c" },
+      only: { type: "string" },
       help: { type: "boolean", short: "h" },
       version: { type: "boolean", short: "v" },
       verbose: { type: "boolean", short: "V" },
+      // Spritesheet options
       "sprite-input": { type: "string" },
       "sprite-case": { type: "string" },
       "sprite-convert-colors": { type: "boolean" },

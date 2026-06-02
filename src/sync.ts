@@ -43,10 +43,20 @@ export class Sync {
   private readonly config: Config;
   private readonly api: FigmaAPI;
   private readonly log: ConsolaInstance;
+  private readonly only?: string[];
 
-  constructor({ config, log }: { config: Config; log: ConsolaInstance }) {
+  constructor({
+    config,
+    log,
+    only,
+  }: {
+    config: Config;
+    log: ConsolaInstance;
+    only?: string[];
+  }) {
     this.config = config;
     this.log = log;
+    this.only = only?.map((name) => name.trim()).filter(Boolean);
     this.api = new FigmaAPI({
       accessToken: config.accessToken,
       fileId: config.fileId,
@@ -57,8 +67,9 @@ export class Sync {
   async run() {
     const promises: Promise<SyncResult>[] = [];
 
-    // TODO: add partial sync via CLI flag
-    this.config.tokens.forEach((opts) => {
+    const tokensToSync = this.getTokensToSync();
+
+    tokensToSync.forEach((opts) => {
       if (opts.type === "color") {
         promises.push(this.syncColorStyle(opts));
       } else if (opts.type === "text") {
@@ -89,6 +100,38 @@ export class Sync {
     }
 
     return fulfilled.map((r) => r.value);
+  }
+
+  private getTokensToSync() {
+    if (!this.only || this.only.length === 0) {
+      return this.config.tokens;
+    }
+
+    const allNames = new Set(this.config.tokens.map((token) => token.name));
+    const onlySet = new Set(this.only);
+
+    const unknownNames = this.only.filter((name) => !allNames.has(name));
+
+    if (unknownNames.length > 0) {
+      this.log.warn(
+        `Unknown token name(s) in --only: ${unknownNames.join(", ")}`,
+      );
+    }
+
+    const selected = this.config.tokens.filter((token) =>
+      onlySet.has(token.name),
+    );
+
+    if (selected.length === 0) {
+      this.log.warn("No tokens matched --only filter.");
+      return [];
+    }
+
+    this.log.debug(
+      `Syncing only selected token(s): ${selected.map((token) => token.name).join(", ")}`,
+    );
+
+    return selected;
   }
 
   async write(results: SyncResult[]) {

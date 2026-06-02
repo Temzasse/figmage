@@ -35,6 +35,25 @@ export async function cli(args: string[]) {
     case "sync": {
       const configPath = values.config || "figmage.config.js";
       const config = await loadConfig(configPath);
+      const onlyArg = values.only;
+
+      const only = onlyArg
+        ? [
+            ...new Set(
+              onlyArg
+                .split(",")
+                .map((v) => v.trim())
+                .filter(Boolean),
+            ),
+          ]
+        : undefined;
+
+      if (onlyArg !== undefined && (!only || only.length === 0)) {
+        log.error(
+          "Invalid value for --only. Use comma-separated token names, e.g. --only=colors,typography",
+        );
+        process.exit(1);
+      }
 
       if (!config.accessToken || !config.fileId) {
         log.error(
@@ -43,7 +62,7 @@ export async function cli(args: string[]) {
         process.exit(1);
       }
 
-      const sync = new Sync({ config, log });
+      const sync = new Sync({ config, log, only });
 
       log.start("Syncing design tokens from Figma...");
 
