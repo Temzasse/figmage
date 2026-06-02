@@ -126,6 +126,27 @@ export function pascalCase(str: string): string {
 }
 
 /**
+ * Read a nested object value with dot notation path like "a.b.c".
+ * Array indexing and bracket syntax are intentionally not supported.
+ */
+export function get<T = unknown>(value: unknown, path: string): T | undefined {
+  if (!path) {
+    return value as T;
+  }
+
+  return path
+    .split(".")
+    .filter(Boolean)
+    .reduce<unknown>((acc, key) => {
+      if (acc === null || acc === undefined || typeof acc !== "object") {
+        return undefined;
+      }
+
+      return (acc as Record<string, unknown>)[key];
+    }, value) as T | undefined;
+}
+
+/**
  * Converts a string to a specific case.
  */
 export function toCase(str: string, casing: TokenCasing = "camel"): string {

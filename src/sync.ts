@@ -7,7 +7,6 @@ import type {
   StyleType,
 } from "@figma/rest-api-spec";
 import type { ConsolaInstance } from "consola";
-import get from "lodash.get";
 import { FigmaAPI } from "./api";
 import { convertColor } from "./color";
 import {
@@ -37,7 +36,7 @@ import type {
   TextTokenConfig,
   TokenCasing,
 } from "./types";
-import { roundToDecimal, toCase, toFixed } from "./utils";
+import { get, roundToDecimal, toCase, toFixed } from "./utils";
 
 export class Sync {
   private readonly config: Config;
