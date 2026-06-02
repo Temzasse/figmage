@@ -1,4 +1,5 @@
 /* eslint-disable */
+/* prettier-ignore */
 export const brand = {
   "brand": "hsl(148, 100%, 30%)",
   "brandContrast": "hsl(147, 89%, 21%)",

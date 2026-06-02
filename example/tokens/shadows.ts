@@ -1,4 +1,5 @@
 /* eslint-disable */
+/* prettier-ignore */
 export const shadowLarge = "0px 16px 32px hsla(0, 0%, 0%, 0.12)";
 export const shadowLayered = "0px 1px 2px hsla(0, 0%, 0%, 0.1), 0px 4px 8px hsla(0, 0%, 0%, 0.1), 0px 12px 24px hsla(0, 0%, 0%, 0.1)";
 export const shadowMedium = "0px 8px 24px hsla(0, 0%, 0%, 0.12)";

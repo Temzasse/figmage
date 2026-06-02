@@ -1,4 +1,5 @@
 /* eslint-disable */
+/* prettier-ignore */
 export const full = "999px";
 export const large = "32px";
 export const medium = "16px";

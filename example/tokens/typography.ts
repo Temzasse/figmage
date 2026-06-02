@@ -1,4 +1,5 @@
 /* eslint-disable */
+/* prettier-ignore */
 export const body = {
   "fontSize": "1rem",
   "fontFamily": "Inter",
