@@ -53,10 +53,9 @@
     "lint:fix": "oxlint --fix",
     "typecheck": "tsc --noEmit",
     "example:update": "yalc push --replace",
-    "example:tokenize": "cd example && npm run tokenize",
-    "example:codegen": "cd example && npm run codegen",
-    "example:spritesheet": "bin/figmage spritesheet --sprite-input ./example/spritesheet/icons --sprite-out-dir ./example/spritesheet/public --sprite-ids-out-dir ./example/spritesheet",
-    "example:spritesheet:serve": "npx serve ./example/spritesheet",
+    "example:sync": "cd example && npm run sync",
+    "example:sprites": "cd example && npm run sprites:generate",
+    "example:sprites:serve": "cd example && npm run sprites:serve",
     "release": "np --any-branch"
   },
   "dependencies": {
