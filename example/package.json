@@ -6,7 +6,8 @@
   "author": "Teemu Taskula",
   "type": "module",
   "scripts": {
-    "sync": "figmage sync"
+    "sync": "figmage sync",
+    "sprites:serve": "npx serve ./spritesheet"
   },
   "dependencies": {
     "figmage": "file:.yalc/figmage"

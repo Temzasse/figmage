@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
 import assert from "node:assert";
 import type {
   ComponentNode,
@@ -15,9 +16,9 @@ import {
   DEFAULT_TEXT_FORMAT,
   DEFAULT_COLOR_FORMAT,
   DEFAULT_PROPERTY_FORMAT,
-  DEFAULT_IMAGE_FORMAT,
 } from "./constants";
 import { optimizeSvg } from "./svgo";
+import { generateSpritesheet } from "./sprite";
 import {
   renderTemplateJS,
   renderTemplateJSON,
@@ -91,17 +92,72 @@ export class Sync {
   }
 
   async write(results: SyncResult[]) {
-    const outputDir = this.config.output?.directory || "./tokens";
+    const defaultOutputDir = this.config.output?.directory || "./tokens";
 
-    this.log.debug(`Writing tokens to ${outputDir}`);
-
-    await fs.mkdir(outputDir, { recursive: true });
+    if (!fsSync.existsSync(defaultOutputDir)) {
+      await fs.mkdir(defaultOutputDir, { recursive: true });
+    }
 
     await Promise.all(
       results.map(async (result) => {
+        const outputDir = result.output?.directory || defaultOutputDir;
+
+        if (!fsSync.existsSync(outputDir)) {
+          await fs.mkdir(outputDir, { recursive: true });
+        }
+
+        this.log.debug(`Writing token ${result.name} to ${outputDir}`);
+
         const fileType = result.output?.fileType || "ts";
         const fileName = result.output?.fileName || result.name;
         const filePath = `${outputDir}/${fileName}.${fileType}`;
+
+        if (result.output && "sprite" in result.output) {
+          const shouldGenerateSpritesheet = result.output?.sprite ?? false;
+
+          if (shouldGenerateSpritesheet) {
+            this.log.debug(`Generating spritesheet for ${result.name}...`);
+
+            let idsEnabled = true;
+            let idsDir = outputDir;
+            let idsFilename = `${fileName}-ids`;
+            let idsFileType: "ts" | "js" | "json" = "ts";
+
+            if (typeof result.output.sprite === "object") {
+              idsEnabled = result.output.sprite.idsEnabled ?? false;
+              idsDir = result.output.sprite.idsDirectory
+                ? result.output.sprite.idsDirectory
+                : outputDir;
+              idsFilename = result.output.sprite.idsFileName
+                ? result.output.sprite.idsFileName
+                : `${fileName}-ids`;
+              idsFileType = result.output.sprite.idsFileType
+                ? result.output.sprite.idsFileType
+                : "ts";
+
+              this.log.debug(
+                `Sprite IDs generation enabled: ${idsEnabled}, IDs directory: ${idsDir}, IDs filename: ${idsFilename}`,
+              );
+            }
+
+            await generateSpritesheet({
+              name: result.name,
+              tokens: result.tokens,
+              spriteFilename: fileName,
+              spriteDir: outputDir,
+              idsEnabled,
+              idsFilename,
+              idsFileType,
+              idsDir,
+            });
+
+            this.log.debug(
+              `Spritesheet for ${result.name} generated successfully`,
+            );
+
+            return;
+          }
+        }
 
         if (fileType === "ts" || fileType === "js") {
           const filteredTokens = result.tokens.filter((t) => {

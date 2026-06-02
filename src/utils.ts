@@ -121,6 +121,10 @@ export function lowerCase(str: string): string {
   return splitWords(str).join("");
 }
 
+export function pascalCase(str: string): string {
+  return splitWords(str).map(capitalize).join("");
+}
+
 /**
  * Converts a string to a specific case.
  */
@@ -128,5 +132,6 @@ export function toCase(str: string, casing: TokenCasing = "camel"): string {
   if (casing === "kebab") return kebabCase(str);
   if (casing === "snake") return snakeCase(str);
   if (casing === "lower") return lowerCase(str);
+  if (casing === "pascal") return pascalCase(str);
   return camelCase(str);
 }

@@ -1,6 +1,6 @@
 // @ts-check
 import "dotenv/config"; // read .env file for environment variables
-import { defineConfig, token } from "figmage";
+import { defineConfig } from "figmage";
 
 const accessToken = process.env.FIGMA_ACCESS_TOKEN;
 const fileId = process.env.FIGMA_FILE_ID;
@@ -94,7 +94,14 @@ export default defineConfig({
         frame: "Figmage - Icons",
       },
       output: {
-        fileName: "icons-frame",
+        fileName: "icon-sprite",
+        directory: "./tokens-v2/static",
+        sprite: {
+          idsEnabled: true,
+          idsDirectory: "./tokens-v2",
+          idsFileName: "icon-sprite-ids",
+          idsFileType: "ts",
+        },
       },
     },
   ],

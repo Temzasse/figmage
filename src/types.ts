@@ -3,7 +3,7 @@ import type { TOKEN_TYPE } from "./constants";
 
 export type TokenType = typeof TOKEN_TYPE;
 
-export type TokenCasing = "camel" | "kebab" | "snake" | "lower";
+export type TokenCasing = "camel" | "kebab" | "snake" | "lower" | "pascal";
 
 export type ColorFormat =
   | "hex"
@@ -43,6 +43,45 @@ export interface OutputConfig {
   fileName?: string;
 }
 
+export interface ImageOutputConfig extends OutputConfig {
+  /**
+   * Whether to generate a sprite sheet for image tokens.
+   * If set to `true`, all image tokens will be combined into a single SVG sprite sheet.
+   *
+   * If not specified, defaults to `false`.
+   * @default false
+   */
+  sprite?:
+    | boolean
+    | {
+        /**
+         * Whether to also generate TS file with all the IDs of the icons in the sprite.
+         * This is useful for type safety when using the icons in code.
+         *
+         * @default false
+         */
+        idsEnabled?: boolean;
+        /**
+         * Directory where the generated TS file with the IDs will be saved.
+         * If not specified, defaults to the same directory as the sprite.
+         */
+        idsDirectory?: string;
+        /**
+         * Optional file name for the generated file with the IDs (without extension).
+         * If not specified, the file name will be derived from the sprite file name.
+         */
+        idsFileName?: string;
+        /**
+         * The file type of the generated file with the IDs.
+         * Supported values: `"ts"`, `"js"`, `"json"`.
+         *
+         * If not specified, defaults to `"ts"`.
+         * @default "ts"
+         */
+        idsFileType?: "ts" | "js" | "json";
+      };
+}
+
 export interface TokenConfig {
   name: string;
   type: TokenType[keyof TokenType];
@@ -52,7 +91,7 @@ export interface TokenConfig {
 export interface TokenTransform {
   /**
    * Casing style for the token names.
-   * Supported values: `"camel"`, `"kebab"`, `"snake"`, `"lower"`.
+   * Supported values: `"camel"`, `"kebab"`, `"snake"`, `"lower"`, `"pascal"`.
    *
    * If not specified, defaults to `"camel"`.
    * @default "camel"
@@ -189,6 +228,7 @@ type ImageQueryParams = Omit<
 export interface ImageAssetTokenConfig extends TokenConfig {
   type: TokenType["image"];
   transform?: ImageTransform;
+  output?: ImageOutputConfig;
   source:
     | (ImageQueryParams & {
         /**
@@ -326,7 +366,7 @@ export type Config = {
 export type SyncResult = {
   name: string;
   tokens: { group: string; name: string; value: string | number | object }[];
-  output?: OutputConfig;
+  output?: OutputConfig | ImageOutputConfig;
 };
 
 // Helpers
