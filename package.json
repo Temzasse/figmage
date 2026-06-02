@@ -51,7 +51,7 @@
     "format:check": "oxfmt --check",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsc --noEmit",
     "example:update": "yalc push --replace",
     "example:tokenize": "cd example && npm run tokenize",
     "example:codegen": "cd example && npm run codegen",
@@ -64,14 +64,12 @@
     "color-convert": "3.1.0",
     "consola": "3.4.2",
     "lodash.get": "4.4.2",
-    "lodash.groupby": "4.6.0",
     "lodash.template": "4.5.0",
     "svgo": "4.0.1"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.2",
     "@types/lodash.get": "4.4.9",
-    "@types/lodash.groupby": "4.6.9",
     "@types/lodash.template": "4.5.3",
     "@types/node": "25.9.1",
     "oxfmt": "0.52.0",
