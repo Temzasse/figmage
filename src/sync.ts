@@ -141,7 +141,6 @@ export class Sync {
             }
 
             await generateSpritesheet({
-              name: result.name,
               tokens: result.tokens,
               spriteFilename: fileName,
               spriteDir: outputDir,

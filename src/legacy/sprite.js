@@ -13,14 +13,16 @@ import { optimizeSvg } from "./svgo.js";
  * @returns {Promise<string[][]>}
  */
 export async function readSpritesheetInput({ input, nameCase }) {
-  const svgFiles = fs.readdirSync(input).filter((file) => file.endsWith(".svg"));
+  const svgFiles = fs
+    .readdirSync(input)
+    .filter((file) => file.endsWith(".svg"));
 
   const spriteTokens = [];
 
   for (const file of svgFiles) {
     const name = toCase(file.replace(/\.svg$/, ""), nameCase || "kebab");
     const svg = fs.readFileSync(`${input}/${file}`, "utf8");
-    const optimizedSvg = await optimizeSvg(svg);
+    const optimizedSvg = optimizeSvg(svg);
     spriteTokens.push([name, optimizedSvg]);
   }
 

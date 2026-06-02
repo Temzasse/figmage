@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "sync": "figmage sync",
+    "sprites:generate": "figmage spritesheet --sprite-input ./spritesheet/icons --sprite-output ./spritesheet/public --sprite-filename icons-sprite --sprite-ids-output ./spritesheet --sprite-ids-filename icon-ids",
     "sprites:serve": "npx serve ./spritesheet"
   },
   "dependencies": {
