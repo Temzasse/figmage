@@ -14,7 +14,7 @@ export async function cli(args: string[]) {
   });
 
   if (values.help) {
-    log.info("Usage: figmage <command> [options]");
+    log.info(buildHelpText());
     process.exit(0);
   }
 
@@ -25,7 +25,8 @@ export async function cli(args: string[]) {
   }
 
   if (positionals.length === 0) {
-    log.error("No command provided. Use --help for usage information.");
+    log.error("No command provided.");
+    log.info(buildHelpText());
     process.exit(1);
   }
 
@@ -95,7 +96,7 @@ export async function cli(args: string[]) {
       }
 
       if (!spriteDir) {
-        log.error("Missing required argument: --sprite-dir");
+        log.error("Missing required argument: --sprite-output");
         process.exit(1);
       }
 
@@ -147,7 +148,44 @@ export async function cli(args: string[]) {
     }
     default: {
       log.error(`Unknown command: ${command}`);
+      log.info(buildHelpText());
       process.exit(1);
     }
   }
+}
+
+function buildHelpText() {
+  return `figmage - Sync Figma design tokens and generate spritesheets
+
+Usage:
+  figmage <command> [options]
+
+Commands:
+  sync              Sync design tokens from Figma
+  spritesheet       Generate a spritesheet from SVG files
+
+Global Options:
+  -h, --help                Show help
+  -v, --version             Show version
+  -V, --verbose             Enable verbose logging
+
+Sync Options:
+  -c, --config <path>       Path to config file (default: figmage.config.js)
+  --only <names>            Comma-separated token names to sync (e.g. colors,typography)
+
+Spritesheet Options:
+  --sprite-input <path>           Input SVG directory (required)
+  --sprite-output <path>          Output directory for spritesheet (required)
+  --sprite-filename <name>        Spritesheet filename without extension (required)
+  --sprite-case <case>            Name casing: camel, kebab, snake, lower, pascal (default: kebab)
+  --sprite-convert-colors         Convert colors in SVGs (default: true)
+  --sprite-ids-enabled            Generate IDs file
+  --sprite-ids-output <path>      Output directory for IDs file
+  --sprite-ids-filename <name>    IDs filename without extension
+  --sprite-ids-filetype <type>    IDs file type: ts, js, json (default: ts)
+
+Examples:
+  figmage sync
+  figmage sync --only=colors,typography
+  figmage spritesheet --sprite-input ./icons --sprite-output ./dist --sprite-filename icon-sprite`;
 }
