@@ -16,7 +16,7 @@ export default defineConfig({
   accessToken,
   fileId,
   output: {
-    directory: "./tokens-v2",
+    directory: "./tokens",
     fileType: "ts",
   },
   transform: {
@@ -95,10 +95,10 @@ export default defineConfig({
       },
       output: {
         fileName: "icon-sprite",
-        directory: "./tokens-v2/static",
+        directory: "./tokens/static",
         sprite: {
           idsEnabled: true,
-          idsDirectory: "./tokens-v2",
+          idsDirectory: "./tokens",
           idsFileName: "icon-sprite-ids",
           idsFileType: "ts",
         },

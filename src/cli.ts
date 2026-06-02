@@ -187,5 +187,5 @@ Spritesheet Options:
 Examples:
   figmage sync
   figmage sync --only=colors,typography
-  figmage spritesheet --sprite-input ./icons --sprite-output ./dist --sprite-filename icon-sprite`;
+  figmage spritesheet --sprite-input ./icons --sprite-output ./static --sprite-filename icon-sprite`;
 }
