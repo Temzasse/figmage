@@ -16,13 +16,9 @@ import {
   DEFAULT_COLOR_FORMAT,
   DEFAULT_PROPERTY_FORMAT,
 } from "./constants";
+import { renderJS, renderJSON, renderTS } from "./render";
 import { optimizeSvg } from "./svgo";
 import { generateSpritesheet } from "./sprite";
-import {
-  renderTemplateJS,
-  renderTemplateJSON,
-  renderTemplateTS,
-} from "./template";
 import type {
   ColorFormat,
   ColorTokenConfig,
@@ -213,12 +209,12 @@ export class Sync {
 
           const content =
             fileType === "ts"
-              ? renderTemplateTS(result.name, filteredTokens)
-              : renderTemplateJS(result.name, filteredTokens);
+              ? renderTS(result.name, filteredTokens)
+              : renderJS(filteredTokens);
 
           await fs.writeFile(filePath, content, "utf-8");
         } else if (fileType === "json") {
-          const content = renderTemplateJSON(result.tokens);
+          const content = renderJSON(result.tokens);
           await fs.writeFile(filePath, content, "utf-8");
         }
       }),
