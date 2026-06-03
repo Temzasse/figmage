@@ -486,12 +486,7 @@ export class Sync {
         .map((url) => fetch(url).then((res) => res.text())),
     );
 
-    const svgOptions = {
-      convertColors: true,
-      // TODO: allow configuring this via transform options?
-    };
-
-    const svgOptimized = imageContents.map((img) => optimizeSvg(img, svgOptions));
+    const svgOptimized = imageContents.map((img) => optimizeSvg(img, transform?.svgo));
 
     svgOptimized.forEach((content, index) => {
       const component = data[index].component;

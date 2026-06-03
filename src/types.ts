@@ -103,6 +103,8 @@ export interface ColorTransform extends TokenTransform {
   format?: ColorFormat;
 }
 
+export type OptimizeSvgOptions = Array<[string, boolean | Record<string, unknown>]>;
+
 export interface ImageTransform extends TokenTransform {
   /**
    * The format of the image asset files to be generated.
@@ -112,6 +114,50 @@ export interface ImageTransform extends TokenTransform {
    * @default "png"
    */
   format?: ImageFormat;
+  /**
+   * SVG optimization options when the image format is set to `"svg"`.
+   * These options will be ignored for other formats.
+   *
+   * By default the following SVGO plugins are applied to optimize the SVGs:
+   *
+   * ```ts
+   * [
+   *   "cleanupAttrs",
+   *   "removeDoctype",
+   *   "removeXMLProcInst",
+   *   "removeComments",
+   *   "removeMetadata",
+   *   "removeTitle",
+   *   "removeDesc",
+   *   "removeUselessDefs",
+   *   "removeEditorsNSData",
+   *   "removeEmptyAttrs",
+   *   "removeHiddenElems",
+   *   "removeEmptyText",
+   *   "removeEmptyContainers",
+   *   "convertTransform",
+   *   "removeUselessStrokeAndFill",
+   *   "cleanupIds",
+   *   "mergePaths",
+   *   "convertShapeToPath",
+   *   {
+   *     name: "convertColors",
+   *     params: { currentColor: true },
+   *   },
+   * ]
+   * ```
+   *
+   * See available plugins: https://svgo.dev/docs/plugins/
+   *
+   * @example
+   * ```ts
+   * [
+   *   ["removeRasterImages", true],
+   *   ["convertColors", false],
+   * ]
+   * ```
+   */
+  svgo?: OptimizeSvgOptions;
 }
 
 export interface TextTransform extends TokenTransform {

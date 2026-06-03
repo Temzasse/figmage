@@ -1,4 +1,5 @@
 import type { SyncResult } from "./types";
+import { pascalCase } from "./utils";
 
 const ignoreComments = "/* eslint-disable */\n" + "/* prettier-ignore */\n";
 
@@ -11,8 +12,7 @@ export function renderTS(name: string, tokens: SyncResult["tokens"]) {
     })
     .join("\n");
 
-  const typeName = `${name.charAt(0).toUpperCase() + name.slice(1)}Token`;
-
+  const typeName = `${pascalCase(name)}Token`;
   const tokenNames = sortedTokens.map((t) => JSON.stringify(t.name)).join(" | ");
 
   return `${ignoreComments}${exports}\n\nexport type ${typeName} = ${tokenNames};\n`;
@@ -40,7 +40,6 @@ export function renderJSON(tokens: SyncResult["tokens"]) {
 function prepareTemplateTokens(tokens: SyncResult["tokens"]) {
   const sortedTokens = [...tokens].sort((a, b) => a.name.localeCompare(b.name));
   const templateTokens: [string, unknown][] = [];
-
   const groupedTokens = Object.groupBy(sortedTokens, (t) => t.group ?? "_");
   const { _: groupless, ...groups } = groupedTokens;
 

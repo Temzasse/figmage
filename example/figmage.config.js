@@ -102,5 +102,18 @@ export default defineConfig({
         },
       },
     },
+    {
+      name: "icons-multicolor",
+      type: "image",
+      source: {
+        frame: "Figmage - Multicolor Icons",
+      },
+      output: {
+        directory: "./tokens/static",
+      },
+      transform: {
+        svgo: [["convertColors", false]],
+      },
+    },
   ],
 });
