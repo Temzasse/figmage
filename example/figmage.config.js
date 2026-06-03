@@ -6,9 +6,7 @@ const accessToken = process.env.FIGMA_ACCESS_TOKEN;
 const fileId = process.env.FIGMA_FILE_ID;
 
 if (!accessToken || !fileId) {
-  throw new Error(
-    "Please set `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` in your `.env` file.",
-  );
+  throw new Error("Please set `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` in your `.env` file.");
 }
 
 /** @type {import("figmage").Config} */

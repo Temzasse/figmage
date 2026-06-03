@@ -1,0 +1,32 @@
+---
+title: Figmage Documentation
+description: Documentation for developers using Figmage CLI and designers preparing Figma files for token sync.
+hero:
+  tagline: Generate design tokens from Figma with clear developer and designer workflows.
+  actions:
+    - text: Developer Docs
+      link: /developers/
+      icon: right-arrow
+    - text: Designer Docs
+      link: /designers/
+      icon: right-arrow
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+## Choose your track
+
+<CardGrid stagger>
+  <Card title="Developers" icon="seti:javascript">
+    Learn how to configure and run `figmage sync` and `figmage spritesheet`, define tokens, and
+    deploy docs.
+  </Card>
+  <Card title="Designers" icon="seti:figma">
+    Learn how to prepare Figma styles, components, frames, and naming so Figmage can extract
+    reliable token data.
+  </Card>
+  <Card title="Get Started" icon="rocket">
+    Start with [Developer quickstart](/developers/quickstart-sync/) or [Designer
+    setup](/designers/figma-api-access/).
+  </Card>
+</CardGrid>

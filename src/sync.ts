@@ -432,6 +432,8 @@ export class Sync {
     return { name, output, tokens };
   }
 
+  // TODO: handle multi-color svgs
+  // TODO: handle raster images (png, jpg)
   private async syncImageAsset({ name, source, transform, output }: ImageAssetTokenConfig) {
     const tokens: SyncResult["tokens"] = [];
 
