@@ -21,14 +21,24 @@ import type {
   ComponentPropertyTokenConfig,
   Config,
   DropShadowTokenConfig,
-  ImageAssetTokenConfig,
+  VectorImageTokenConfig,
+  RasterImageTokenConfig,
   PropertyFormat,
   SyncResult,
   TextFormat,
   TextTokenConfig,
   TokenCasing,
+  VectorImageSyncResult,
+  RasterImageSyncResult,
+  SpriteImageSyncResult,
+  ColorSyncResult,
+  TextSyncResult,
+  DropShadowSyncResult,
+  ComponentPropertySyncResult,
+  CodeSyncResult,
+  SpriteImageTokenConfig,
 } from "./types";
-import { get, roundToDecimal, toCase, toFixed } from "./utils";
+import { get, isObject, roundToDecimal, toCase, toFixed } from "./utils";
 
 export class Sync {
   private readonly config: Config;
@@ -61,10 +71,14 @@ export class Sync {
         promises.push(this.syncDropShadow(opts));
       } else if (opts.type === "property") {
         promises.push(this.syncComponentProperty(opts));
-      } else if (opts.type === "image") {
-        promises.push(this.syncImageAsset(opts));
+      } else if (opts.type === "imageVector") {
+        promises.push(this.syncVectorImageAsset(opts));
+      } else if (opts.type === "imageRaster") {
+        promises.push(this.syncRasterImageAsset(opts));
+      } else if (opts.type === "imageSprite") {
+        promises.push(this.syncSpriteImageAsset(opts));
       } else {
-        throw new Error("Unknown token");
+        this.log.error("Unsupported token type", opts);
       }
     });
 
@@ -111,98 +125,11 @@ export class Sync {
     return selected;
   }
 
-  async write(results: SyncResult[]) {
-    const defaultOutputDir = this.config.output?.directory || "./tokens";
-
-    if (!fsSync.existsSync(defaultOutputDir)) {
-      await fs.mkdir(defaultOutputDir, { recursive: true });
-    }
-
-    await Promise.all(
-      results.map(async (result) => {
-        const outputDir = result.output?.directory || defaultOutputDir;
-
-        if (!fsSync.existsSync(outputDir)) {
-          await fs.mkdir(outputDir, { recursive: true });
-        }
-
-        this.log.debug(`Writing token ${result.name} to ${outputDir}`);
-
-        const fileType = result.output?.fileType || "ts";
-        const fileName = result.output?.fileName || result.name;
-        const filePath = `${outputDir}/${fileName}.${fileType}`;
-
-        if (result.output && "sprite" in result.output) {
-          const shouldGenerateSpritesheet = result.output?.sprite ?? false;
-
-          if (shouldGenerateSpritesheet) {
-            this.log.debug(`Generating spritesheet for ${result.name}...`);
-
-            let idsEnabled = true;
-            let idsDir = outputDir;
-            let idsFilename = `${fileName}-ids`;
-            let idsFileType: "ts" | "js" | "json" = "ts";
-
-            if (typeof result.output.sprite === "object") {
-              idsEnabled = result.output.sprite.idsEnabled ?? false;
-              idsDir = result.output.sprite.idsDirectory
-                ? result.output.sprite.idsDirectory
-                : outputDir;
-              idsFilename = result.output.sprite.idsFileName
-                ? result.output.sprite.idsFileName
-                : `${fileName}-ids`;
-              idsFileType = result.output.sprite.idsFileType
-                ? result.output.sprite.idsFileType
-                : "ts";
-
-              this.log.debug(
-                `Sprite IDs generation enabled: ${idsEnabled}, IDs directory: ${idsDir}, IDs filename: ${idsFilename}`,
-              );
-            }
-
-            await generateSpritesheet({
-              tokens: result.tokens,
-              spriteFilename: fileName,
-              spriteDir: outputDir,
-              idsEnabled,
-              idsFilename,
-              idsFileType,
-              idsDir,
-            });
-
-            this.log.debug(`Spritesheet for ${result.name} generated successfully`);
-
-            return;
-          }
-        }
-
-        if (fileType === "ts" || fileType === "js") {
-          const filteredTokens = result.tokens.filter((t) => {
-            if (RESERVED_KEYWORDS.includes(t.name)) {
-              this.log.warn(
-                `Token name "${t.name}" is a reserved keyword in JavaScript and will be skipped.`,
-              );
-              return false;
-            }
-            return true;
-          });
-
-          const content =
-            fileType === "ts" ? renderTS(result.name, filteredTokens) : renderJS(filteredTokens);
-
-          await fs.writeFile(filePath, content, "utf-8");
-        } else if (fileType === "json") {
-          const content = renderJSON(result.tokens);
-          await fs.writeFile(filePath, content, "utf-8");
-        }
-      }),
-    );
-  }
-
-  private async syncColorStyle({ name, transform, output }: ColorTokenConfig) {
+  private async syncColorStyle(config: ColorTokenConfig): Promise<ColorSyncResult> {
+    const { transform } = config;
     const { stylesById, styleNodes } = await this.getStyles();
 
-    const tokens: SyncResult["tokens"] = [];
+    const tokens: ColorSyncResult["tokens"] = [];
 
     Object.entries(styleNodes).forEach(([id, node]) => {
       const style = stylesById[id];
@@ -274,15 +201,16 @@ export class Sync {
       }
     });
 
-    return { name, output, tokens };
+    return { config, tokens };
   }
 
-  private async syncTextStyle({ name, transform, output }: TextTokenConfig) {
+  private async syncTextStyle(config: TextTokenConfig): Promise<TextSyncResult> {
+    const { transform } = config;
     const { stylesById, styleNodes } = await this.getStyles();
 
     const textFormat = transform?.format || this.config.transform?.defaultTextFormat || "px";
 
-    const tokens: SyncResult["tokens"] = [];
+    const tokens: TextSyncResult["tokens"] = [];
 
     Object.entries(styleNodes).forEach(([id, node]) => {
       const style = stylesById[id];
@@ -311,13 +239,14 @@ export class Sync {
       }
     });
 
-    return { name, output, tokens };
+    return { config, tokens };
   }
 
-  private async syncDropShadow({ name, transform, output }: DropShadowTokenConfig) {
+  private async syncDropShadow(config: DropShadowTokenConfig): Promise<DropShadowSyncResult> {
+    const { transform } = config;
     const { stylesById, styleNodes } = await this.getStyles();
 
-    const tokens: SyncResult["tokens"] = [];
+    const tokens: DropShadowSyncResult["tokens"] = [];
 
     Object.entries(styleNodes).forEach(([id, node]) => {
       const style = stylesById[id];
@@ -352,10 +281,12 @@ export class Sync {
       }
     });
 
-    return { name, output, tokens };
+    return { config, tokens };
   }
 
-  private async syncComponentProperty(opts: ComponentPropertyTokenConfig) {
+  private async syncComponentProperty(
+    opts: ComponentPropertyTokenConfig,
+  ): Promise<ComponentPropertySyncResult> {
     if ("componentSet" in opts.source) {
       return this.syncComponentSetProperty(opts);
     } else if ("frame" in opts.source || "frameId" in opts.source) {
@@ -364,12 +295,10 @@ export class Sync {
     throw new Error("Unknown component property source type");
   }
 
-  private async syncComponentFrameProperty({
-    name,
-    source,
-    transform,
-    output,
-  }: ComponentPropertyTokenConfig) {
+  private async syncComponentFrameProperty(
+    config: ComponentPropertyTokenConfig,
+  ): Promise<ComponentPropertySyncResult> {
+    const { source, transform } = config;
     assert("frame" in source || "frameId" in source);
 
     let frameId = source.frameId;
@@ -380,7 +309,7 @@ export class Sync {
 
     const children = await this.api.fetchNodeChildren(frameId!);
 
-    const tokens: SyncResult["tokens"] = [];
+    const tokens: ComponentPropertySyncResult["tokens"] = [];
 
     children.forEach((component) => {
       const propertyValue = this.readComponentProperty(component, source.property);
@@ -397,20 +326,18 @@ export class Sync {
       });
     });
 
-    return { name, output, tokens };
+    return { config, tokens };
   }
 
-  private async syncComponentSetProperty({
-    name,
-    source,
-    transform,
-    output,
-  }: ComponentPropertyTokenConfig) {
+  private async syncComponentSetProperty(
+    config: ComponentPropertyTokenConfig,
+  ): Promise<ComponentPropertySyncResult> {
+    const { source, transform } = config;
     assert("componentSet" in source);
 
     const components = await this.api.fetchComponentSets(source.componentSet);
 
-    const tokens: SyncResult["tokens"] = [];
+    const tokens: ComponentPropertySyncResult["tokens"] = [];
 
     components.forEach((component) => {
       const propertyValue = this.readComponentProperty(component, source.property);
@@ -429,25 +356,24 @@ export class Sync {
       });
     });
 
-    return { name, output, tokens };
+    return { config, tokens };
   }
 
-  // TODO: handle multi-color svgs
-  // TODO: handle raster images (png, jpg)
-  private async syncImageAsset({ name, source, transform, output }: ImageAssetTokenConfig) {
-    const tokens: SyncResult["tokens"] = [];
-
-    const imageFormat = transform?.format || this.config.transform?.defaultImageFormat || "svg";
+  private async syncVectorImageAsset(
+    config: VectorImageTokenConfig,
+  ): Promise<VectorImageSyncResult> {
+    const { name, source, transform } = config;
+    const tokens: VectorImageSyncResult["tokens"] = [];
 
     let data: { url: string; component: ComponentNode }[] = [];
 
     if ("componentSet" in source) {
       const components = await this.api.fetchComponentSets(source.componentSet);
 
-      const images = await this.api.fetchImages(
-        components.map((c) => c.id),
-        imageFormat,
-      );
+      const images = await this.api.fetchImages({
+        ids: components.map((c) => c.id),
+        format: "svg",
+      });
 
       data = components.map((component, index) => ({
         url: images[index],
@@ -463,10 +389,10 @@ export class Sync {
       const children = await this.api.fetchNodeChildren(frameId!);
       const filteredChildren = children.filter((child) => child.name);
 
-      const images = await this.api.fetchImages(
-        filteredChildren.map((c) => c.id),
-        imageFormat,
-      );
+      const images = await this.api.fetchImages({
+        ids: filteredChildren.map((c) => c.id),
+        format: "svg",
+      });
 
       data = filteredChildren.map((component, index) => ({
         url: images[index],
@@ -476,7 +402,7 @@ export class Sync {
 
     if (data.length === 0) {
       this.log.warn(`No images found for token "${name}". Please check the source configuration.`);
-      return { name, output, tokens };
+      return { config, tokens };
     }
 
     const imageContents = await Promise.all(
@@ -486,21 +412,225 @@ export class Sync {
         .map((url) => fetch(url).then((res) => res.text())),
     );
 
-    const svgOptimized = imageContents.map((img) => optimizeSvg(img, transform?.svgo));
+    const svgOptimized = imageContents.map((img) => optimizeSvg(img, transform?.optimize));
 
     svgOptimized.forEach((content, index) => {
       const component = data[index].component;
       const componentName = this.cleanComponentSetName(component.name);
       const tokenName = this.toCase(componentName, transform?.casing);
 
-      tokens.push({
-        group: "_",
-        name: tokenName,
-        value: content,
-      });
+      tokens.push({ name: tokenName, value: content });
     });
 
-    return { name, output, tokens };
+    return { config, tokens };
+  }
+
+  private async syncSpriteImageAsset(
+    config: SpriteImageTokenConfig,
+  ): Promise<SpriteImageSyncResult> {
+    const { name, source, transform } = config;
+
+    const result = await this.syncVectorImageAsset({
+      type: "imageVector",
+      name,
+      source,
+      transform,
+    });
+
+    return { config, tokens: result.tokens };
+  }
+
+  private async syncRasterImageAsset(
+    config: RasterImageTokenConfig,
+  ): Promise<RasterImageSyncResult> {
+    const { source, transform } = config;
+    const tokens: RasterImageSyncResult["tokens"] = [];
+    const format = transform?.format || "png";
+
+    if ("componentSet" in source) {
+      const components = await this.api.fetchComponentSets(source.componentSet);
+
+      const images = await this.api.fetchImages({
+        ids: components.map((c) => c.id),
+        format,
+      });
+
+      components.forEach((component, index) => {
+        const imageUrl = images[index];
+
+        if (imageUrl) {
+          const componentName = this.cleanComponentSetName(component.name);
+          const tokenName = this.toCase(componentName, transform?.casing);
+
+          tokens.push({ name: tokenName, value: imageUrl });
+        }
+      });
+    } else if ("frame" in source || "frameId" in source) {
+      let frameId = source.frameId;
+
+      if (source.frame && !frameId) {
+        frameId = await this.getFrameIdByName(source.frame);
+      }
+
+      const children = await this.api.fetchNodeChildren(frameId!);
+      const filteredChildren = children.filter((child) => child.name);
+
+      const images = await this.api.fetchImages({
+        ids: filteredChildren.map((c) => c.id),
+        format,
+      });
+
+      filteredChildren.forEach((component, index) => {
+        const imageUrl = images[index];
+
+        if (imageUrl) {
+          const componentName = this.cleanComponentSetName(component.name);
+          const tokenName = this.toCase(componentName, transform?.casing);
+
+          tokens.push({ name: tokenName, value: imageUrl });
+        }
+      });
+    }
+
+    return { config, tokens };
+  }
+
+  async write(results: SyncResult[]) {
+    const defaultOutputDir = this.config.output?.directory || "./tokens";
+
+    if (!fsSync.existsSync(defaultOutputDir)) {
+      await fs.mkdir(defaultOutputDir, { recursive: true });
+    }
+
+    await Promise.all(
+      results.map(async (result) => {
+        const outputDir = result.config.output?.directory || defaultOutputDir;
+
+        if (!fsSync.existsSync(outputDir)) {
+          await fs.mkdir(outputDir, { recursive: true });
+        }
+
+        this.log.debug(`Writing token ${result.config.name} to ${outputDir}`);
+
+        switch (result.config.type) {
+          case "imageVector":
+            return this.writeVectorImage(result as VectorImageSyncResult, outputDir);
+          case "imageSprite":
+            return this.writeSpriteImage(result as SpriteImageSyncResult, outputDir);
+          case "imageRaster":
+            return this.writeRasterImage(result as RasterImageSyncResult, outputDir);
+          default:
+            return this.writeCode(result as CodeSyncResult, outputDir);
+        }
+      }),
+    );
+  }
+
+  async writeCode(result: CodeSyncResult, outputDir: string) {
+    const { config, tokens } = result;
+    const { name, output } = config;
+
+    const defaultOutputFileType = this.config.output?.fileType || "ts";
+    const fileType = output?.fileType ?? defaultOutputFileType;
+    const fileName = output?.fileName ?? name;
+    const filePath = `${outputDir}/${fileName}.${fileType}`;
+
+    if (fileType === "ts" || fileType === "js") {
+      const filteredTokens = tokens.filter((t) => {
+        if (RESERVED_KEYWORDS.includes(t.name)) {
+          this.log.warn(
+            `Token name "${t.name}" is a reserved keyword in JavaScript and will be skipped.`,
+          );
+          return false;
+        }
+        return true;
+      });
+
+      const content = fileType === "ts" ? renderTS(name, filteredTokens) : renderJS(filteredTokens);
+
+      await fs.writeFile(filePath, content, "utf-8");
+    } else if (fileType === "json") {
+      const content = renderJSON(tokens);
+      await fs.writeFile(filePath, content, "utf-8");
+    } else {
+      this.log.error(
+        `Unsupported file type "${fileType}" for token "${name}", skipping file write.`,
+      );
+    }
+  }
+
+  async writeVectorImage(result: VectorImageSyncResult, outputDir: string) {
+    const { output } = result.config;
+    const fileType = output?.fileType ?? "ts";
+
+    // For TS/JS/JSON output, write all tokens into a single file
+    if (fileType !== "svg") {
+      await this.writeCode(result as unknown as CodeSyncResult, outputDir);
+    } else {
+      // For SVG output, write each token as a separate SVG file
+      await Promise.all(
+        result.tokens.map(async (token) => {
+          const filePath = `${outputDir}/${token.name}.svg`;
+          await fs.writeFile(filePath, token.value, "utf-8");
+        }),
+      );
+    }
+  }
+
+  async writeSpriteImage(result: SpriteImageSyncResult, outputDir: string) {
+    const { config, tokens } = result;
+    const { name, output } = config;
+    const spriteFilename = output?.fileName ?? name;
+
+    let idsEnabled = true;
+    let idsDir = outputDir;
+    let idsFilename = `${spriteFilename}-ids`;
+    let idsFileType: "ts" | "js" | "json" = "ts";
+
+    if (output && isObject(output.ids)) {
+      idsEnabled = output.ids.enabled ?? false;
+      idsDir = output.ids.directory ?? outputDir;
+      idsFilename = output.ids.fileName ?? `${spriteFilename}-ids`;
+      idsFileType = output.ids.fileType ?? "ts";
+
+      this.log.debug(
+        `Sprite IDs generation enabled: ${idsEnabled}, IDs directory: ${idsDir}, IDs filename: ${idsFilename}`,
+      );
+    }
+
+    await generateSpritesheet({
+      tokens,
+      spriteFilename,
+      spriteDir: outputDir,
+      idsEnabled,
+      idsFilename,
+      idsFileType,
+      idsDir,
+    });
+  }
+
+  async writeRasterImage(result: RasterImageSyncResult, outputDir: string) {
+    const { config, tokens } = result;
+    const { transform } = config;
+    const defaultFormat = this.config.transform?.defaultImageRasterFormat || "png";
+
+    await Promise.all(
+      tokens.map(async (token) => {
+        try {
+          const url = new URL(token.value);
+          const format = transform?.format || defaultFormat;
+          const fileName = `${token.name}.${format}`;
+          const filePath = `${outputDir}/${fileName}`;
+
+          await this.api.downloadFile(url, filePath);
+          // oxlint-disable-next-line no-unused-vars
+        } catch (_) {
+          this.log.error(
+            `Invalid URL for token "${token.name}": ${token.value}. Skipping download.`,
+          );
+        }
+      }),
+    );
   }
 
   // HELPERS ------------------------------------------------------------------

@@ -37,12 +37,17 @@ export class FigmaAPI {
     };
   }
 
-  private async fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
+  private async fetchAPI<T>(
+    endpoint: string,
+    params?: Record<string, string | undefined>,
+  ): Promise<T> {
     const url = new URL(`${this.baseURL}/${endpoint}`);
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
+        if (value !== undefined) {
+          url.searchParams.append(key, value);
+        }
       });
     }
 
@@ -62,7 +67,7 @@ export class FigmaAPI {
     return response.json() as T;
   }
 
-  async downloadFile(url: string, outPath: string) {
+  async downloadFile(url: string | URL, outPath: string) {
     const writer = createWriteStream(outPath);
 
     this.log.debug(`Downloading file from: ${url}`);
@@ -141,11 +146,21 @@ export class FigmaAPI {
     return nodes;
   }
 
-  async fetchImages(ids: string[], format = "svg") {
+  async fetchImages({
+    ids,
+    format,
+    scale,
+  }: {
+    ids: string[];
+    format: "svg" | "png" | "jpg";
+    scale?: number;
+  }) {
     this.log.debug(`Fetching images for IDs: [${ids.join(",")}] with format: ${format}`);
+
     const res = await this.fetchAPI<GetImagesResponse>(`images/${this.fileId}`, {
       ids: ids.join(","),
       format,
+      scale: scale?.toString(),
     });
 
     return Object.values(res.images).filter(Boolean) as string[];

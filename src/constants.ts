@@ -5,11 +5,13 @@ export const DEFAULT_PROPERTY_FORMAT = "px";
 export const DEFAULT_IMAGE_FORMAT = "svg";
 
 export const TOKEN_TYPE = {
-  color: "color",
-  property: "property",
-  dropShadow: "dropShadow",
-  image: "image",
   text: "text",
+  color: "color",
+  dropShadow: "dropShadow",
+  property: "property",
+  imageVector: "imageVector",
+  imageSprite: "imageSprite",
+  imageRaster: "imageRaster",
 } as const;
 
 export const RESERVED_KEYWORDS = [

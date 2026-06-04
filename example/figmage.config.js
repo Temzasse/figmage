@@ -20,7 +20,7 @@ export default defineConfig({
   transform: {
     defaultCasing: "camel",
     defaultColorFormat: "hsl",
-    defaultImageFormat: "svg",
+    defaultImageRasterFormat: "png",
     defaultTextFormat: "rem",
     defaultPropertyFormat: "px",
     baseFontSize: 16,
@@ -77,42 +77,60 @@ export default defineConfig({
     },
     {
       name: "icons",
-      type: "image",
-      source: {
-        componentSet: "Icon",
-      },
-      output: {
-        fileName: "icons-component-set",
-      },
-    },
-    {
-      name: "icons",
-      type: "image",
+      type: "imageSprite",
       source: {
         frame: "Figmage - Icons",
       },
       output: {
         fileName: "icon-sprite",
         directory: "./tokens/static",
-        sprite: {
-          idsEnabled: true,
-          idsDirectory: "./tokens",
-          idsFileName: "icon-sprite-ids",
-          idsFileType: "ts",
+        ids: {
+          enabled: true,
+          directory: "./tokens",
+          fileName: "icon-sprite-ids",
+          fileType: "ts",
         },
       },
     },
     {
+      name: "icons",
+      type: "imageVector",
+      source: {
+        componentSet: "Icon",
+      },
+      output: {
+        fileType: "ts",
+        fileName: "icons-component-set",
+      },
+    },
+    {
       name: "icons-multicolor",
-      type: "image",
+      type: "imageVector",
       source: {
         frame: "Figmage - Multicolor Icons",
       },
+      transform: {
+        casing: "kebab",
+        optimize: [["convertColors", false]],
+      },
       output: {
+        fileType: "svg",
         directory: "./tokens/static",
       },
+    },
+    {
+      name: "image-assets",
+      type: "imageRaster",
+      source: {
+        frame: "Figmage - Image Assets",
+      },
       transform: {
-        svgo: [["convertColors", false]],
+        format: "jpg",
+        scale: 2,
+        casing: "kebab",
+      },
+      output: {
+        directory: "./tokens/static",
       },
     },
   ],

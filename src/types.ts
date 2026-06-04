@@ -11,9 +11,11 @@ export type TextFormat = "none" | "px" | "rem";
 
 export type PropertyFormat = "none" | "px" | "rem";
 
-export type ImageFormat = "png" | "jpg" | "svg";
+export type ImageRasterFormat = "png" | "jpg";
 
-export interface OutputConfig {
+export type ImageVectorFormat = "ts" | "js" | "json" | "svg";
+
+export interface CodeOutput {
   /**
    * Directory where the generated files will be saved.
    *
@@ -36,49 +38,86 @@ export interface OutputConfig {
   fileName?: string;
 }
 
-export interface ImageOutputConfig extends OutputConfig {
+export type VectorImageOutput =
+  | { directory?: string; fileType?: "svg" }
+  | {
+      /**
+       * Directory where the generated files will be saved.
+       *
+       * If not specified, defaults to `./tokens`.
+       * @default "./tokens"
+       */
+      directory?: string;
+      /**
+       * Type of the output files for vector image tokens. Supported values: `"ts"`, `"js"`, `"json"`, `"svg"`.
+       *
+       * If the file type is set to `"svg"`, each token will be saved as an individual SVG file.
+       * For other file types, all tokens will be saved in a single file.
+       *
+       * If not specified, defaults to `"ts"`.
+       * @default "ts"
+       */
+      fileType?: "ts" | "js" | "json";
+      /**
+       * Optional file name for the generated token file (without extension).
+       * If not specified, the file name will be derived from the token name.
+       */
+      fileName?: string;
+    };
+
+export interface SpriteImageOutput {
   /**
-   * Whether to generate a sprite sheet for image tokens.
-   * If set to `true`, all image tokens will be combined into a single SVG sprite sheet.
+   * Directory where the generated files will be saved.
    *
-   * If not specified, defaults to `false`.
-   * @default false
+   * If not specified, defaults to `./tokens`.
+   * @default "./tokens"
    */
-  sprite?:
-    | boolean
-    | {
-        /**
-         * Whether to also generate TS file with all the IDs of the icons in the sprite.
-         * This is useful for type safety when using the icons in code.
-         *
-         * @default false
-         */
-        idsEnabled?: boolean;
-        /**
-         * Directory where the generated TS file with the IDs will be saved.
-         * If not specified, defaults to the same directory as the sprite.
-         */
-        idsDirectory?: string;
-        /**
-         * Optional file name for the generated file with the IDs (without extension).
-         * If not specified, the file name will be derived from the sprite file name.
-         */
-        idsFileName?: string;
-        /**
-         * The file type of the generated file with the IDs.
-         * Supported values: `"ts"`, `"js"`, `"json"`.
-         *
-         * If not specified, defaults to `"ts"`.
-         * @default "ts"
-         */
-        idsFileType?: "ts" | "js" | "json";
-      };
+  directory?: string;
+  /**
+   * Optional file name for the generated token file (without extension).
+   * If not specified, the file name will be derived from the token name.
+   */
+  fileName?: string;
+  /**
+   * Options for sprite symbol IDs.
+   */
+  ids?: {
+    /**
+     * Whether to also generate TS file with all the IDs of the icons in the sprite.
+     * This is useful for type safety when using the icons in code.
+     *
+     * @default false
+     */
+    enabled?: boolean;
+    /**
+     * Directory where the generated TS file with the IDs will be saved.
+     * If not specified, defaults to the same directory as the sprite.
+     */
+    directory?: string;
+    /**
+     * Optional file name for the generated file with the IDs (without extension).
+     * If not specified, the file name will be derived from the sprite file name.
+     */
+    fileName?: string;
+    /**
+     * The file type of the generated file with the IDs.
+     * Supported values: `"ts"`, `"js"`, `"json"`.
+     *
+     * If not specified, defaults to `"ts"`.
+     * @default "ts"
+     */
+    fileType?: "ts" | "js" | "json";
+  };
 }
 
-export interface TokenConfig {
-  name: string;
-  type: TokenType[keyof TokenType];
-  output?: OutputConfig;
+export interface RasterImageOutput {
+  /**
+   * Directory where the generated files will be saved.
+   *
+   * If not specified, defaults to `./tokens`.
+   * @default "./tokens"
+   */
+  directory?: string;
 }
 
 export interface TokenTransform {
@@ -105,15 +144,7 @@ export interface ColorTransform extends TokenTransform {
 
 export type OptimizeSvgOptions = Array<[string, boolean | Record<string, unknown>]>;
 
-export interface ImageTransform extends TokenTransform {
-  /**
-   * The format of the image asset files to be generated.
-   * Supported values: `"png"`, `"jpg"`, `"svg"`.
-   *
-   * If not specified, defaults to `"png"`.
-   * @default "png"
-   */
-  format?: ImageFormat;
+export interface VectorImageTransform extends TokenTransform {
   /**
    * SVG optimization options when the image format is set to `"svg"`.
    * These options will be ignored for other formats.
@@ -157,7 +188,25 @@ export interface ImageTransform extends TokenTransform {
    * ]
    * ```
    */
-  svgo?: OptimizeSvgOptions;
+  optimize?: OptimizeSvgOptions;
+}
+
+export interface RasterImageTransform extends TokenTransform {
+  /**
+   * The format of the image asset files to be generated.
+   * Supported values: `"png"`, `"jpg"`
+   *
+   * If not specified, defaults to `"png"`.
+   * @default "png"
+   */
+  format?: ImageRasterFormat;
+  /**
+   * A number between 0.01 and 4, the image scaling factor.
+   * For example, a value of `2` will generate images at double the size of the original.
+   *
+   * If not specified, defaults to `1` (no scaling).
+   */
+  scale?: number;
 }
 
 export interface TextTransform extends TokenTransform {
@@ -193,22 +242,29 @@ export interface ComponentPropertyTransform extends TokenTransform {
   format?: PropertyFormat;
 }
 
-export interface ColorTokenConfig extends TokenConfig {
+export interface ColorTokenConfig {
+  name: string;
   type: TokenType["color"];
   transform?: ColorTransform;
+  output?: CodeOutput;
 }
 
-export interface TextTokenConfig extends TokenConfig {
+export interface TextTokenConfig {
+  name: string;
   type: TokenType["text"];
   transform?: TextTransform;
+  output?: CodeOutput;
 }
 
-export interface DropShadowTokenConfig extends TokenConfig {
+export interface DropShadowTokenConfig {
+  name: string;
   type: TokenType["dropShadow"];
   transform?: DropShadowTransform;
+  output?: CodeOutput;
 }
 
-export interface ComponentPropertyTokenConfig extends TokenConfig {
+export interface ComponentPropertyTokenConfig {
+  name: string;
   type: TokenType["property"];
   transform?: ComponentPropertyTransform;
   source:
@@ -257,52 +313,72 @@ export interface ComponentPropertyTokenConfig extends TokenConfig {
          */
         property: NonNullable<DotPaths<NonNullableFields<FrameTraits>>>;
       };
+  output?: CodeOutput;
 }
 
 type ImageQueryParams = Omit<CamelCaseKeys<GetImagesQueryParams>, "ids" | "format">;
 
-export interface ImageAssetTokenConfig extends TokenConfig {
-  type: TokenType["image"];
-  transform?: ImageTransform;
-  output?: ImageOutputConfig;
-  source:
-    | (ImageQueryParams & {
-        /**
-         * The name of the published component set to sync properties from.
-         * This is used to identify the component set in the Figma file.
-         * Example: "Spacing" or "Radii".
-         */
-        componentSet: string;
-        /**
-         * The property in dot notation to extract the value of the token from.
-         *
-         * For example, "absoluteBoundingBox.height" or "absoluteBoundingBox.width".
-         * See: https://www.figma.com/developers/api#frame-props
-         */
-      })
-    | (ImageQueryParams & {
-        /**
-         * The name of the parent frame where the components are located.
-         * Components within this frame will be used as the source for the property
-         * value token.
-         *
-         * For example: `"Spacing"` or `"Radii"`.
-         *
-         * Either `frame` or `frameId` must be specified.
-         */
-        frame?: string;
-        /**
-         * The ID of the parent frame where the components are located.
-         * Components within this frame will be used as the source for the property
-         * value token.
-         *
-         * The ID looks like `123:456` and can be found in the Figma file URL when
-         * selecting the frame.
-         *
-         * Either `frame` or `frameId` must be specified.
-         */
-        frameId?: string;
-      });
+type ImageSource =
+  | (ImageQueryParams & {
+      /**
+       * The name of the published component set to sync properties from.
+       * This is used to identify the component set in the Figma file.
+       * Example: "Spacing" or "Radii".
+       */
+      componentSet: string;
+      /**
+       * The property in dot notation to extract the value of the token from.
+       *
+       * For example, "absoluteBoundingBox.height" or "absoluteBoundingBox.width".
+       * See: https://www.figma.com/developers/api#frame-props
+       */
+    })
+  | (ImageQueryParams & {
+      /**
+       * The name of the parent frame where the components are located.
+       * Components within this frame will be used as the source for the property
+       * value token.
+       *
+       * For example: `"Spacing"` or `"Radii"`.
+       *
+       * Either `frame` or `frameId` must be specified.
+       */
+      frame?: string;
+      /**
+       * The ID of the parent frame where the components are located.
+       * Components within this frame will be used as the source for the property
+       * value token.
+       *
+       * The ID looks like `123:456` and can be found in the Figma file URL when
+       * selecting the frame.
+       *
+       * Either `frame` or `frameId` must be specified.
+       */
+      frameId?: string;
+    });
+
+export interface VectorImageTokenConfig {
+  name: string;
+  type: TokenType["imageVector"];
+  source: ImageSource;
+  transform?: VectorImageTransform;
+  output?: VectorImageOutput;
+}
+
+export interface SpriteImageTokenConfig {
+  name: string;
+  type: TokenType["imageSprite"];
+  source: ImageSource;
+  transform?: VectorImageTransform;
+  output?: SpriteImageOutput;
+}
+
+export interface RasterImageTokenConfig {
+  name: string;
+  type: TokenType["imageRaster"];
+  source: ImageSource;
+  transform?: RasterImageTransform;
+  output?: RasterImageOutput;
 }
 
 export type Config = {
@@ -328,7 +404,7 @@ export type Config = {
    *
    * @default { directory: "./tokens", fileType: "ts", casing: "camel" }
    */
-  output?: Omit<OutputConfig, "fileName">;
+  output?: Omit<CodeOutput, "fileName">;
   /**
    * Default transformation options for all tokens. These can be overridden by
    * individual token configurations.
@@ -371,12 +447,12 @@ export type Config = {
      */
     defaultPropertyFormat?: PropertyFormat;
     /**
-     * Default format for image tokens. Supported values: `"svg"`, `"jpg"`, `"png"`.
+     * Default format for raster image tokens. Supported values: `"jpg"`, `"png"`.
      *
-     * If not specified, defaults to `"svg"`.
-     * @default "svg"
+     * If not specified, defaults to `"png"`.
+     * @default "png"
      */
-    defaultImageFormat?: ImageFormat;
+    defaultImageRasterFormat?: ImageRasterFormat;
   };
   /**
    * An array of token definitions to sync from the Figma file.
@@ -386,7 +462,9 @@ export type Config = {
     | TextTokenConfig
     | DropShadowTokenConfig
     | ComponentPropertyTokenConfig
-    | ImageAssetTokenConfig
+    | VectorImageTokenConfig
+    | SpriteImageTokenConfig
+    | RasterImageTokenConfig
   )[];
 };
 
@@ -399,11 +477,61 @@ export type Config = {
     ...etc.
   ]
 */
-export type SyncResult = {
-  name: string;
-  tokens: { group: string; name: string; value: string | number | object }[];
-  output?: OutputConfig | ImageOutputConfig;
+export type VectorImageSyncResult = {
+  config: VectorImageTokenConfig;
+  tokens: { name: string; value: string }[];
 };
+
+export type SpriteImageSyncResult = {
+  config: SpriteImageTokenConfig;
+  tokens: { name: string; value: string }[];
+};
+
+export type RasterImageSyncResult = {
+  config: RasterImageTokenConfig;
+  tokens: { name: string; value: string }[];
+};
+
+type DefaultTokenResult = {
+  group: string;
+  name: string;
+  value: string | number | object;
+}[];
+
+export type ColorSyncResult = {
+  config: ColorTokenConfig;
+  tokens: DefaultTokenResult;
+};
+
+export type DropShadowSyncResult = {
+  config: DropShadowTokenConfig;
+  tokens: DefaultTokenResult;
+};
+
+export type TextSyncResult = {
+  config: TextTokenConfig;
+  tokens: DefaultTokenResult;
+};
+
+export type ComponentPropertySyncResult = {
+  config: ComponentPropertyTokenConfig;
+  tokens: DefaultTokenResult;
+};
+
+export type CodeSyncResult =
+  | ColorSyncResult
+  | DropShadowSyncResult
+  | TextSyncResult
+  | ComponentPropertySyncResult;
+
+export type SyncResult =
+  | VectorImageSyncResult
+  | SpriteImageSyncResult
+  | RasterImageSyncResult
+  | ColorSyncResult
+  | DropShadowSyncResult
+  | TextSyncResult
+  | ComponentPropertySyncResult;
 
 // Helpers
 
