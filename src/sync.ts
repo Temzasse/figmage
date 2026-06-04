@@ -12,6 +12,7 @@ import {
   DEFAULT_COLOR_FORMAT,
   DEFAULT_PROPERTY_FORMAT,
 } from "./constants";
+import { createProgressLogger } from "./progress";
 import { renderJS, renderJSON, renderTS } from "./render";
 import { optimizeSvg } from "./svgo";
 import { generateSpritesheet } from "./sprite";
@@ -42,45 +43,44 @@ import { get, isObject, roundToDecimal, toCase, toFixed } from "./utils";
 
 export class Sync {
   private readonly config: Config;
+  private readonly tokensToSync: Config["tokens"];
   private readonly api: FigmaAPI;
   private readonly log: ConsolaInstance;
+  private readonly progress: ReturnType<typeof createProgressLogger>;
   private readonly only?: string[];
+
+  private progressTotal = 0;
+  private progressCompleted = 0;
 
   constructor({ config, log, only }: { config: Config; log: ConsolaInstance; only?: string[] }) {
     this.config = config;
     this.log = log;
     this.only = only?.map((name) => name.trim()).filter(Boolean);
-    this.api = new FigmaAPI({
-      accessToken: config.accessToken,
-      fileId: config.fileId,
-      log,
-    });
+    this.progress = createProgressLogger(log);
+    this.api = new FigmaAPI({ accessToken: config.accessToken, fileId: config.fileId, log });
+    this.tokensToSync = this.getTokensToSync();
+    this.progressTotal = this.tokensToSync.length + 1;
+    this.progressCompleted = 0;
   }
 
   async run() {
-    const promises: Promise<SyncResult>[] = [];
+    const total = this.tokensToSync.length;
+    if (total === 0) return [];
 
-    const tokensToSync = this.getTokensToSync();
-
-    tokensToSync.forEach((opts) => {
-      if (opts.type === "color") {
-        promises.push(this.syncColorStyle(opts));
-      } else if (opts.type === "text") {
-        promises.push(this.syncTextStyle(opts));
-      } else if (opts.type === "dropShadow") {
-        promises.push(this.syncDropShadow(opts));
-      } else if (opts.type === "property") {
-        promises.push(this.syncComponentProperty(opts));
-      } else if (opts.type === "imageVector") {
-        promises.push(this.syncVectorImageAsset(opts));
-      } else if (opts.type === "imageRaster") {
-        promises.push(this.syncRasterImageAsset(opts));
-      } else if (opts.type === "imageSprite") {
-        promises.push(this.syncSpriteImageAsset(opts));
-      } else {
-        this.log.error("Unsupported token type", opts);
-      }
+    this.progress("syncing", {
+      current: this.progressCompleted,
+      total: this.progressTotal,
     });
+
+    const promises = this.tokensToSync.map((tokenConfig) =>
+      this.syncToken(tokenConfig).finally(() => {
+        this.incrementProgress();
+        this.progress(`synced ${tokenConfig.name}`, {
+          current: this.progressCompleted,
+          total: this.progressTotal,
+        });
+      }),
+    );
 
     const result = await Promise.allSettled(promises);
 
@@ -95,6 +95,76 @@ export class Sync {
     }
 
     return fulfilled.map((r) => r.value);
+  }
+
+  async write(results: SyncResult[]) {
+    if (results.length === 0) return;
+
+    this.incrementProgress();
+    this.progress("writing files", {
+      current: this.progressCompleted,
+      total: this.progressTotal,
+    });
+
+    const defaultOutputDir = this.config.output?.directory || "./tokens";
+
+    if (!fsSync.existsSync(defaultOutputDir)) {
+      await fs.mkdir(defaultOutputDir, { recursive: true });
+    }
+
+    await Promise.all(
+      results.map(async (result) => {
+        const outputDir = result.config.output?.directory || defaultOutputDir;
+
+        if (!fsSync.existsSync(outputDir)) {
+          await fs.mkdir(outputDir, { recursive: true });
+        }
+
+        this.log.debug(`Writing token ${result.config.name} to ${outputDir}`);
+
+        switch (result.config.type) {
+          case "imageVector":
+            await this.writeVectorImage(result as VectorImageSyncResult, outputDir);
+            break;
+          case "imageSprite":
+            await this.writeSpriteImage(result as SpriteImageSyncResult, outputDir);
+            break;
+          case "imageRaster":
+            await this.writeRasterImage(result as RasterImageSyncResult, outputDir);
+            break;
+          default:
+            await this.writeCode(result as CodeSyncResult, outputDir);
+            break;
+        }
+      }),
+    );
+
+    this.progress("done", {
+      current: this.progressCompleted,
+      total: this.progressTotal,
+      done: true,
+    });
+  }
+
+  private syncToken(tokenConfig: Config["tokens"][number]) {
+    if (tokenConfig.type === "color") {
+      return this.syncColorStyle(tokenConfig);
+    } else if (tokenConfig.type === "text") {
+      return this.syncTextStyle(tokenConfig);
+    } else if (tokenConfig.type === "dropShadow") {
+      return this.syncDropShadow(tokenConfig);
+    } else if (tokenConfig.type === "property") {
+      return this.syncComponentProperty(tokenConfig);
+    } else if (tokenConfig.type === "imageVector") {
+      return this.syncVectorImageAsset(tokenConfig);
+    } else if (tokenConfig.type === "imageRaster") {
+      return this.syncRasterImageAsset(tokenConfig);
+    } else if (tokenConfig.type === "imageSprite") {
+      return this.syncSpriteImageAsset(tokenConfig);
+    }
+
+    this.log.error("Unsupported token type", tokenConfig);
+    throw new Error("Unsupported token type");
   }
 
   private getTokensToSync() {
@@ -495,37 +565,6 @@ export class Sync {
     return { config, tokens };
   }
 
-  async write(results: SyncResult[]) {
-    const defaultOutputDir = this.config.output?.directory || "./tokens";
-
-    if (!fsSync.existsSync(defaultOutputDir)) {
-      await fs.mkdir(defaultOutputDir, { recursive: true });
-    }
-
-    await Promise.all(
-      results.map(async (result) => {
-        const outputDir = result.config.output?.directory || defaultOutputDir;
-
-        if (!fsSync.existsSync(outputDir)) {
-          await fs.mkdir(outputDir, { recursive: true });
-        }
-
-        this.log.debug(`Writing token ${result.config.name} to ${outputDir}`);
-
-        switch (result.config.type) {
-          case "imageVector":
-            return this.writeVectorImage(result as VectorImageSyncResult, outputDir);
-          case "imageSprite":
-            return this.writeSpriteImage(result as SpriteImageSyncResult, outputDir);
-          case "imageRaster":
-            return this.writeRasterImage(result as RasterImageSyncResult, outputDir);
-          default:
-            return this.writeCode(result as CodeSyncResult, outputDir);
-        }
-      }),
-    );
-  }
-
   async writeCode(result: CodeSyncResult, outputDir: string) {
     const { config, tokens } = result;
     const { name, output } = config;
@@ -633,7 +672,9 @@ export class Sync {
     );
   }
 
-  // HELPERS ------------------------------------------------------------------
+  private incrementProgress() {
+    this.progressCompleted = Math.min(this.progressCompleted + 1, this.progressTotal);
+  }
 
   private readComponentProperty(component: ComponentNode, propertyPath: string) {
     const propertyValue = get(component, propertyPath);

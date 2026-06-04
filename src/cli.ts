@@ -1,6 +1,7 @@
 import { createConsola } from "consola";
 import { parseCliArgs } from "./args";
 import { loadConfig } from "./config";
+import { createProgressLogger } from "./progress";
 import { generateSpritesheet, readSpritesheetInput } from "./sprite";
 import { Sync } from "./sync";
 import { getVersion } from "./version";
