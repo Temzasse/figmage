@@ -29,6 +29,11 @@ export default defineConfig({
     {
       name: "colors",
       type: "color",
+      filter: ({ name, group }) => {
+        if (group === "visualization") return false;
+        if (name.startsWith("env")) return false;
+        return true;
+      },
     },
     {
       name: "typography",

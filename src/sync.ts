@@ -38,6 +38,7 @@ import type {
   ComponentPropertySyncResult,
   CodeSyncResult,
   SpriteImageTokenConfig,
+  TokenFilterFn,
 } from "./types";
 import { get, isObject, roundToDecimal, toCase, toFixed } from "./utils";
 
@@ -75,6 +76,8 @@ export class Sync {
     this.progressCompleted = 0;
   }
 
+  // Public methods ------------------------------------------------------------
+
   async run() {
     const total = this.tokensToSync.length;
     if (total === 0) return [];
@@ -106,7 +109,17 @@ export class Sync {
       rejected.forEach((error) => this.log.error(error.reason));
     }
 
-    return fulfilled.map((r) => r.value);
+    return fulfilled
+      .map((result) => this.applyTokenFilter(result.value))
+      .filter((result) => {
+        if (result.tokens.length === 0) {
+          this.log.debug(
+            `No tokens left after applying config filter for token set "${result.config.name}".`,
+          );
+          return false;
+        }
+        return true;
+      });
   }
 
   async write(results: SyncResult[]) {
@@ -158,6 +171,8 @@ export class Sync {
     });
   }
 
+  // Private methods ----------------------------------------------------------
+
   private syncToken(tokenConfig: Config["tokens"][number]) {
     if (tokenConfig.type === "color") {
       return this.syncColorStyle(tokenConfig);
@@ -177,57 +192,6 @@ export class Sync {
 
     this.log.error("Unsupported token type", tokenConfig);
     throw new Error("Unsupported token type");
-  }
-
-  private getTokensToSync() {
-    const allNames = new Set(this.config.tokens.map((token) => token.name));
-
-    let selected = this.config.tokens;
-
-    if (this.only && this.only.length > 0) {
-      const unknownOnlyNames = this.only.filter((name) => !allNames.has(name));
-
-      if (unknownOnlyNames.length > 0) {
-        this.log.warn(`Unknown token name(s) in --only: ${unknownOnlyNames.join(", ")}`);
-      }
-
-      const onlySet = new Set(this.only);
-      selected = selected.filter((token) => onlySet.has(token.name));
-
-      if (selected.length === 0) {
-        this.log.warn("No tokens matched --only filter.");
-        return [];
-      }
-
-      this.log.debug(
-        `Syncing only selected token(s): ${selected.map((token) => token.name).join(", ")}`,
-      );
-    }
-
-    if (this.skip && this.skip.length > 0) {
-      const unknownSkipNames = this.skip.filter((name) => !allNames.has(name));
-
-      if (unknownSkipNames.length > 0) {
-        this.log.warn(`Unknown token name(s) in --skip: ${unknownSkipNames.join(", ")}`);
-      }
-
-      const skipSet = new Set(this.skip);
-      const before = selected.length;
-      selected = selected.filter((token) => !skipSet.has(token.name));
-
-      if (selected.length === 0) {
-        this.log.warn("No tokens left to sync after applying --skip filter.");
-        return [];
-      }
-
-      if (before !== selected.length) {
-        this.log.debug(
-          `Skipping token(s): ${this.skip.filter((name) => allNames.has(name)).join(", ")}`,
-        );
-      }
-    }
-
-    return selected;
   }
 
   private async syncColorStyle(config: ColorTokenConfig): Promise<ColorSyncResult> {
@@ -600,7 +564,90 @@ export class Sync {
     return { config, tokens };
   }
 
-  async writeCode(result: CodeSyncResult, outputDir: string) {
+  private getTokensToSync() {
+    const allNames = new Set(this.config.tokens.map((token) => token.name));
+
+    let selected = this.config.tokens;
+
+    if (this.only && this.only.length > 0) {
+      const unknownOnlyNames = this.only.filter((name) => !allNames.has(name));
+
+      if (unknownOnlyNames.length > 0) {
+        this.log.warn(`Unknown token name(s) in --only: ${unknownOnlyNames.join(", ")}`);
+      }
+
+      const onlySet = new Set(this.only);
+      selected = selected.filter((token) => onlySet.has(token.name));
+
+      if (selected.length === 0) {
+        this.log.warn("No tokens matched --only filter.");
+        return [];
+      }
+
+      this.log.debug(
+        `Syncing only selected token(s): ${selected.map((token) => token.name).join(", ")}`,
+      );
+    }
+
+    if (this.skip && this.skip.length > 0) {
+      const unknownSkipNames = this.skip.filter((name) => !allNames.has(name));
+
+      if (unknownSkipNames.length > 0) {
+        this.log.warn(`Unknown token name(s) in --skip: ${unknownSkipNames.join(", ")}`);
+      }
+
+      const skipSet = new Set(this.skip);
+      const before = selected.length;
+      selected = selected.filter((token) => !skipSet.has(token.name));
+
+      if (selected.length === 0) {
+        this.log.warn("No tokens left to sync after applying --skip filter.");
+        return [];
+      }
+
+      if (before !== selected.length) {
+        this.log.debug(
+          `Skipping token(s): ${this.skip.filter((name) => allNames.has(name)).join(", ")}`,
+        );
+      }
+    }
+
+    return selected;
+  }
+
+  private applyTokenFilter(result: SyncResult): SyncResult {
+    const { config, tokens } = result;
+    const filterFn = config.filter;
+
+    if (!filterFn || typeof filterFn !== "function") {
+      return result;
+    }
+
+    const filteredTokens = tokens.filter((token) => {
+      try {
+        return filterFn({
+          name: token.name,
+          value: token.value,
+          group: "group" in token ? token.group : undefined,
+        });
+      } catch (error) {
+        throw new Error(
+          `Error in filter for token "${token.name}" from token set "${config.name}".`,
+          { cause: error },
+        );
+      }
+    });
+
+    if (filteredTokens.length !== tokens.length) {
+      this.log.debug(
+        `Filtered out ${tokens.length - filteredTokens.length} token(s) from token set "${config.name}".`,
+      );
+    }
+
+    return { config, tokens: filteredTokens } as SyncResult;
+  }
+
+  private async writeCode(result: CodeSyncResult, outputDir: string) {
     const { config, tokens } = result;
     const { name, output } = config;
 
@@ -633,7 +680,7 @@ export class Sync {
     }
   }
 
-  async writeVectorImage(result: VectorImageSyncResult, outputDir: string) {
+  private async writeVectorImage(result: VectorImageSyncResult, outputDir: string) {
     const { output } = result.config;
     const fileType = output?.fileType ?? "ts";
 
@@ -651,7 +698,7 @@ export class Sync {
     }
   }
 
-  async writeSpriteImage(result: SpriteImageSyncResult, outputDir: string) {
+  private async writeSpriteImage(result: SpriteImageSyncResult, outputDir: string) {
     const { config, tokens } = result;
     const { name, output } = config;
     const spriteFilename = output?.fileName ?? name;
@@ -683,7 +730,7 @@ export class Sync {
     });
   }
 
-  async writeRasterImage(result: RasterImageSyncResult, outputDir: string) {
+  private async writeRasterImage(result: RasterImageSyncResult, outputDir: string) {
     const { config, tokens } = result;
     const { transform } = config;
     const defaultFormat = this.config.transform?.defaultImageRasterFormat || "png";

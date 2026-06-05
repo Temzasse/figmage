@@ -242,29 +242,37 @@ export interface ComponentPropertyTransform extends TokenTransform {
   format?: PropertyFormat;
 }
 
-export interface ColorTokenConfig {
+export type TokenFilterFn = (context: { name: string; value: unknown; group?: string }) => boolean;
+
+export interface TokenConfigBase {
   name: string;
+  /**
+   * Optional predicate to include or exclude generated design tokens for this token set.
+   *
+   * Return `true` to keep a token, `false` to exclude it from the final output.
+   */
+  filter?: TokenFilterFn;
+}
+
+export interface ColorTokenConfig extends TokenConfigBase {
   type: TokenType["color"];
   transform?: ColorTransform;
   output?: CodeOutput;
 }
 
-export interface TextTokenConfig {
-  name: string;
+export interface TextTokenConfig extends TokenConfigBase {
   type: TokenType["text"];
   transform?: TextTransform;
   output?: CodeOutput;
 }
 
-export interface DropShadowTokenConfig {
-  name: string;
+export interface DropShadowTokenConfig extends TokenConfigBase {
   type: TokenType["dropShadow"];
   transform?: DropShadowTransform;
   output?: CodeOutput;
 }
 
-export interface ComponentPropertyTokenConfig {
-  name: string;
+export interface ComponentPropertyTokenConfig extends TokenConfigBase {
   type: TokenType["property"];
   transform?: ComponentPropertyTransform;
   source:
@@ -357,29 +365,35 @@ type ImageSource =
       frameId?: string;
     });
 
-export interface VectorImageTokenConfig {
-  name: string;
+export interface VectorImageTokenConfig extends TokenConfigBase {
   type: TokenType["imageVector"];
   source: ImageSource;
   transform?: VectorImageTransform;
   output?: VectorImageOutput;
 }
 
-export interface SpriteImageTokenConfig {
-  name: string;
+export interface SpriteImageTokenConfig extends TokenConfigBase {
   type: TokenType["imageSprite"];
   source: ImageSource;
   transform?: VectorImageTransform;
   output?: SpriteImageOutput;
 }
 
-export interface RasterImageTokenConfig {
-  name: string;
+export interface RasterImageTokenConfig extends TokenConfigBase {
   type: TokenType["imageRaster"];
   source: ImageSource;
   transform?: RasterImageTransform;
   output?: RasterImageOutput;
 }
+
+export type TokenConfig =
+  | ColorTokenConfig
+  | TextTokenConfig
+  | DropShadowTokenConfig
+  | ComponentPropertyTokenConfig
+  | VectorImageTokenConfig
+  | SpriteImageTokenConfig
+  | RasterImageTokenConfig;
 
 export type Config = {
   /**
@@ -457,15 +471,7 @@ export type Config = {
   /**
    * An array of token definitions to sync from the Figma file.
    */
-  tokens: (
-    | ColorTokenConfig
-    | TextTokenConfig
-    | DropShadowTokenConfig
-    | ComponentPropertyTokenConfig
-    | VectorImageTokenConfig
-    | SpriteImageTokenConfig
-    | RasterImageTokenConfig
-  )[];
+  tokens: TokenConfig[];
 };
 
 /*

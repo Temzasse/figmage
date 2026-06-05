@@ -8,12 +8,6 @@ export const brand = {
   "brandMuted": "hsl(147, 43%, 91%)",
   "brandMutedHover": "hsl(146, 37%, 87%)"
 };
-export const environment = {
-  "envDev": "hsl(194, 100%, 61%)",
-  "envProd": "hsl(148, 100%, 30%)",
-  "envStag": "hsl(306, 100%, 30%)",
-  "envTest": "hsl(180, 100%, 30%)"
-};
 export const error = {
   "error": "hsl(0, 58%, 49%)",
   "errorContrast": "hsl(0, 82%, 29%)",
@@ -28,12 +22,6 @@ export const line = {
   "line1": "hsla(0, 0%, 0%, 0.5)",
   "line2": "hsla(0, 0%, 0%, 0.25)",
   "line3": "hsla(0, 0%, 0%, 0.1)"
-};
-export const visualization = {
-  "gradient": "linear-gradient(90deg, hsla(0, 100%, 50%, 1) 0%, hsla(300, 87%, 27%, 1) 50%, hsla(236, 100%, 50%, 1) 100%)",
-  "mint": "hsl(166, 68%, 47%)",
-  "pink": "hsl(338, 70%, 59%)",
-  "purple": "hsl(310, 64%, 38%)"
 };
 export const info = {
   "info": "hsl(217, 75%, 53%)",
@@ -85,4 +73,4 @@ export const warn = {
   "warnMutedHover": "hsl(44, 57%, 84%)"
 };
 
-export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "envDev" | "envProd" | "envStag" | "envTest" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "errorMutedPressed" | "focusRing" | "gradient" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "mint" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "pink" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedHover" | "primaryMutedPressed" | "purple" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "successMutedPressed" | "surface" | "surfaceHover" | "text" | "textDisabled" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";
+export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "errorMutedPressed" | "focusRing" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedHover" | "primaryMutedPressed" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "successMutedPressed" | "surface" | "surfaceHover" | "text" | "textDisabled" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";
