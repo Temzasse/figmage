@@ -1,7 +1,6 @@
 import { createConsola } from "consola";
 import { parseCliArgs } from "./args";
 import { loadConfig } from "./config";
-import { createProgressLogger } from "./progress";
 import { generateSpritesheet, readSpritesheetInput } from "./sprite";
 import { Sync } from "./sync";
 import { getVersion } from "./version";
@@ -37,18 +36,11 @@ export async function cli(args: string[]) {
     case "sync": {
       const configPath = values.config || "figmage.config.js";
       const config = await loadConfig(configPath);
-      const onlyArg = values.only;
 
-      const only = onlyArg
-        ? [
-            ...new Set(
-              onlyArg
-                .split(",")
-                .map((v) => v.trim())
-                .filter(Boolean),
-            ),
-          ]
-        : undefined;
+      const onlyArg = values.only;
+      const skipArg = values.skip;
+      const only = getCommaSeparatedValues(onlyArg);
+      const skip = getCommaSeparatedValues(skipArg);
 
       if (onlyArg !== undefined && (!only || only.length === 0)) {
         log.error(
@@ -57,12 +49,24 @@ export async function cli(args: string[]) {
         process.exit(1);
       }
 
+      if (skipArg !== undefined && (!skip || skip.length === 0)) {
+        log.error(
+          "Invalid value for --skip. Use comma-separated token names, e.g. --skip=colors,typography",
+        );
+        process.exit(1);
+      }
+
+      if (onlyArg !== undefined && skipArg !== undefined) {
+        log.error("--only and --skip cannot be used together. Please choose one.");
+        process.exit(1);
+      }
+
       if (!config.accessToken || !config.fileId) {
         log.error("Missing required configuration: `accessToken` and `fileId` must be set.");
         process.exit(1);
       }
 
-      const sync = new Sync({ config, log, only });
+      const sync = new Sync({ config, log, only, skip });
 
       log.start("Syncing design tokens from Figma...");
 
@@ -105,6 +109,7 @@ export async function cli(args: string[]) {
       }
 
       const idsFileTypeRaw = idsFileTypeValue || "ts";
+
       if (!["ts", "js", "json"].includes(idsFileTypeRaw)) {
         log.error("Invalid value for ids file type. Use one of: ts, js, json");
         process.exit(1);
@@ -149,6 +154,18 @@ export async function cli(args: string[]) {
   }
 }
 
+function getCommaSeparatedValues(value: string | undefined): string[] | undefined {
+  if (!value) return undefined;
+  return [
+    ...new Set(
+      value
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean),
+    ),
+  ];
+}
+
 function buildHelpText() {
   return `figmage - Sync Figma design tokens and generate spritesheets
 
@@ -167,6 +184,7 @@ Global Options:
 Sync Options:
   -c, --config <path>       Path to config file (default: figmage.config.js)
   --only <names>            Comma-separated token names to sync (e.g. colors,typography)
+  --skip <names>            Comma-separated token names to skip (e.g. colors,typography)
 
 Spritesheet Options:
   --sprite-input <path>           Input SVG directory (required)
@@ -182,5 +200,6 @@ Spritesheet Options:
 Examples:
   figmage sync
   figmage sync --only=colors,typography
+  figmage sync --skip=colors,typography
   figmage spritesheet --sprite-input ./icons --sprite-output ./static --sprite-filename icon-sprite`;
 }

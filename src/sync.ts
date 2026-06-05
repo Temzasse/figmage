@@ -48,14 +48,26 @@ export class Sync {
   private readonly log: ConsolaInstance;
   private readonly progress: ReturnType<typeof createProgressLogger>;
   private readonly only?: string[];
+  private readonly skip?: string[];
 
   private progressTotal = 0;
   private progressCompleted = 0;
 
-  constructor({ config, log, only }: { config: Config; log: ConsolaInstance; only?: string[] }) {
+  constructor({
+    config,
+    log,
+    only,
+    skip,
+  }: {
+    config: Config;
+    log: ConsolaInstance;
+    only?: string[];
+    skip?: string[];
+  }) {
     this.config = config;
     this.log = log;
-    this.only = only?.map((name) => name.trim()).filter(Boolean);
+    this.only = only;
+    this.skip = skip;
     this.progress = createProgressLogger(log);
     this.api = new FigmaAPI({ accessToken: config.accessToken, fileId: config.fileId, log });
     this.tokensToSync = this.getTokensToSync();
@@ -168,29 +180,52 @@ export class Sync {
   }
 
   private getTokensToSync() {
-    if (!this.only || this.only.length === 0) {
-      return this.config.tokens;
-    }
-
     const allNames = new Set(this.config.tokens.map((token) => token.name));
-    const onlySet = new Set(this.only);
 
-    const unknownNames = this.only.filter((name) => !allNames.has(name));
+    let selected = this.config.tokens;
 
-    if (unknownNames.length > 0) {
-      this.log.warn(`Unknown token name(s) in --only: ${unknownNames.join(", ")}`);
+    if (this.only && this.only.length > 0) {
+      const unknownOnlyNames = this.only.filter((name) => !allNames.has(name));
+
+      if (unknownOnlyNames.length > 0) {
+        this.log.warn(`Unknown token name(s) in --only: ${unknownOnlyNames.join(", ")}`);
+      }
+
+      const onlySet = new Set(this.only);
+      selected = selected.filter((token) => onlySet.has(token.name));
+
+      if (selected.length === 0) {
+        this.log.warn("No tokens matched --only filter.");
+        return [];
+      }
+
+      this.log.debug(
+        `Syncing only selected token(s): ${selected.map((token) => token.name).join(", ")}`,
+      );
     }
 
-    const selected = this.config.tokens.filter((token) => onlySet.has(token.name));
+    if (this.skip && this.skip.length > 0) {
+      const unknownSkipNames = this.skip.filter((name) => !allNames.has(name));
 
-    if (selected.length === 0) {
-      this.log.warn("No tokens matched --only filter.");
-      return [];
+      if (unknownSkipNames.length > 0) {
+        this.log.warn(`Unknown token name(s) in --skip: ${unknownSkipNames.join(", ")}`);
+      }
+
+      const skipSet = new Set(this.skip);
+      const before = selected.length;
+      selected = selected.filter((token) => !skipSet.has(token.name));
+
+      if (selected.length === 0) {
+        this.log.warn("No tokens left to sync after applying --skip filter.");
+        return [];
+      }
+
+      if (before !== selected.length) {
+        this.log.debug(
+          `Skipping token(s): ${this.skip.filter((name) => allNames.has(name)).join(", ")}`,
+        );
+      }
     }
-
-    this.log.debug(
-      `Syncing only selected token(s): ${selected.map((token) => token.name).join(", ")}`,
-    );
 
     return selected;
   }
