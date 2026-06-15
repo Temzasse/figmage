@@ -11,13 +11,33 @@ permissions:
   id-token: write
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@v6
+      - name: Detect changes in the docs directory
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - '.github/workflows/docs-deploy.yml'
+
   build:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v6
       - name: Install, build, and upload your site
         uses: withastro/action@v6
+        with:
+          path: ./docs
 
   deploy:
     needs: build
