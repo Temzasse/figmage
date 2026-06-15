@@ -2,7 +2,7 @@
 title: CLI
 description: Reference for the Figmage command line interface — sync and spritesheet.
 sidebar:
-  order: 6
+  order: 7
 ---
 
 Figmage ships a single command line tool, `figmage`, with two commands:

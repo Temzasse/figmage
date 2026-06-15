@@ -2,7 +2,7 @@
 title: Migrating from v1
 description: Move from Figmage v1's tokenize/codegen flow and JSON config to the v2 single sync command and figmage.config.js.
 sidebar:
-  order: 7
+  order: 8
 ---
 
 Figmage v2 is a substantial rewrite of how you configure and run the tool. The core idea is
