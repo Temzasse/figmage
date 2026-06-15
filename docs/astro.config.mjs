@@ -4,14 +4,11 @@ import starlight from "@astrojs/starlight";
 import mermaid from "astro-mermaid";
 import remarkBasePath from "./remark-base-path.mjs";
 
-const repositoryOwner = process.env.GITHUB_REPOSITORY_OWNER || "Temzasse";
-const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1] || "figmage";
-
-const base = `/${repositoryName}`;
+const base = `/figmage`;
 
 // https://astro.build/config
 export default defineConfig({
-  site: `https://${repositoryOwner}.github.io`,
+  site: `https://temzasse.github.io`,
   base,
   markdown: {
     remarkPlugins: [[remarkBasePath, { base }]],
