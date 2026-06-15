@@ -40,7 +40,9 @@ export function renderJSON(tokens: SyncResult["tokens"]) {
 function prepareTemplateTokens(tokens: SyncResult["tokens"]) {
   const sortedTokens = [...tokens].sort((a, b) => a.name.localeCompare(b.name));
   const templateTokens: [string, unknown][] = [];
-  const groupedTokens = Object.groupBy(sortedTokens, (t) => t.group ?? "_");
+  const groupedTokens = Object.groupBy(sortedTokens, (t) =>
+    "group" in t && t.group ? t.group : "_",
+  );
   const { _: groupless, ...groups } = groupedTokens;
 
   if (groupless) {

@@ -38,7 +38,6 @@ import type {
   ComponentPropertySyncResult,
   CodeSyncResult,
   SpriteImageTokenConfig,
-  TokenFilterFn,
 } from "./types";
 import { get, isObject, roundToDecimal, toCase, toFixed } from "./utils";
 

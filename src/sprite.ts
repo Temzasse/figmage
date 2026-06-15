@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import type { SyncResult } from "./types";
+import type { OptimizeSvgOptions, SyncResult } from "./types";
 import { optimizeSvg } from "./svgo";
 import { toCase } from "./utils";
 
@@ -18,10 +18,13 @@ export async function readSpritesheetInput({
 
   const svgFiles = entries.filter((entry) => entry.isFile() && entry.name.endsWith(".svg"));
 
+  const optimizeOptions: OptimizeSvgOptions | undefined =
+    convertColors === false ? [["convertColors", false]] : undefined;
+
   const tokens = await Promise.all(
     svgFiles.map(async (file) => {
       const source = await fs.readFile(`${input}/${file.name}`, "utf-8");
-      const value = optimizeSvg(source, { convertColors });
+      const value = optimizeSvg(source, optimizeOptions);
       const name = toCase(file.name.replace(/\.svg$/i, ""), nameCase || "kebab");
 
       return { group: "_", name, value };
