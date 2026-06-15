@@ -13,7 +13,7 @@
     "system",
     "token"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "author": {
     "name": "Teemu Taskula",
     "email": "taskuteemu@gmail.com",
