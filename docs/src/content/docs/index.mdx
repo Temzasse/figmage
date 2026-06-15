@@ -8,6 +8,7 @@ hero:
 ---
 
 import { Card, CardGrid, LinkCard, LinkButton } from "@astrojs/starlight/components";
+import Flow from "../../components/Flow.astro";
 
 export const withBase = (path) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}${path}`;
 
@@ -74,13 +75,15 @@ file, one command, and your design decisions land in your codebase as typed, rea
 
 ## How it works
 
-```mermaid
-flowchart LR
-    A[🎨 Designer<br/>publishes library] --> B[Figma REST API]
-    B --> C[⚙️ figmage sync]
-    C --> D[📦 Tokens in code]
-    D --> E[🚀 Your app]
-```
+<Flow
+  steps={[
+    { icon: "🎨", lines: ["Designer", "publishes library"] },
+    { icon: "🔌", lines: ["Figma REST API"] },
+    { icon: "⚙️", lines: ["Figmage sync"] },
+    { icon: "📦", lines: ["Design tokens in code"] },
+    { icon: "🚀", lines: ["Up-to-date app"] },
+  ]}
+/>
 
 A designer publishes the library, Figmage reads it through the API, and `figmage sync` writes fresh
 token files into your repo. Re-run it whenever the design system changes — your code stays in step

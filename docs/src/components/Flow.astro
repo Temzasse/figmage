@@ -1,0 +1,190 @@
+---
+/**
+ * A minimal, animated top-to-bottom flow chart rendered with HTML + CSS.
+ * Replaces client-side Mermaid diagrams for simple step flows.
+ *
+ * Each step is a card with an optional emoji icon and one or more text lines.
+ * Steps are joined by animated downward connectors that can carry an optional
+ * label. The connecting rail touches both boxes; accent dashes flow downward.
+ */
+interface FlowStep {
+  icon?: string;
+  lines: string[];
+}
+
+interface Props {
+  steps: FlowStep[];
+}
+
+const { steps } = Astro.props;
+
+const ariaLabel = steps.map((step) => step.lines.join(" ")).join(" → ");
+---
+
+<figure class="flow" role="img" aria-label={ariaLabel}>
+  {
+    steps.map((step, i) => (
+      <>
+        <div class="flow__node" style={`--i:${i}`}>
+          {step.icon && (
+            <span class="flow__icon" aria-hidden="true">
+              {step.icon}
+            </span>
+          )}
+          <span class="flow__text">
+            {step.lines.map((line, j) => (
+              <span class:list={["flow__line", { "flow__line--muted": j > 0 }]}>{line}</span>
+            ))}
+          </span>
+        </div>
+
+        {i < steps.length - 1 && (
+          <div class="flow__connector" style={`--i:${i}`} aria-hidden="true">
+            <span class="flow__rail" />
+            <span class="flow__tip" />
+          </div>
+        )}
+      </>
+    ))
+  }
+</figure>
+
+<style>
+  .flow {
+    --flow-accent: var(--sl-color-accent, #4f46e5);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 1.75rem 0;
+    padding: 0;
+  }
+
+  .flow__node {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 18rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.95rem 1rem;
+    text-align: center;
+
+    border: 1px solid transparent;
+    border-radius: 0.85rem;
+    background:
+      linear-gradient(var(--sl-color-bg), var(--sl-color-bg)) padding-box,
+      linear-gradient(150deg, var(--flow-accent), var(--sl-color-gray-4) 70%) border-box;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+    opacity: 0;
+    transform: translateY(0.5rem);
+    animation: flow-node-in 0.5s ease forwards;
+    animation-delay: calc(var(--i) * 0.12s);
+  }
+
+  .flow__icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .flow__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .flow__line {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--sl-color-white);
+  }
+
+  .flow__line--muted {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--sl-color-gray-3);
+  }
+
+  .flow__connector {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 2.4rem;
+    /* Overlap the boxes slightly so the rail visually merges with them. */
+    margin-block: -2px;
+
+    opacity: 0;
+    animation: flow-connector-in 0.4s ease forwards;
+    animation-delay: calc(var(--i) * 0.12s + 0.18s);
+  }
+
+  .flow__rail {
+    position: absolute;
+    top: 0;
+    bottom: 0.4rem;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    border-radius: 2px;
+
+    background-color: var(--sl-color-gray-4);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--flow-accent) 0 6px,
+      transparent 6px 16px
+    );
+    background-size: 100% 16px;
+    background-repeat: repeat-y;
+    animation: flow-dash 1.1s linear infinite;
+  }
+
+  .flow__tip {
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--flow-accent);
+  }
+
+  @keyframes flow-node-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes flow-connector-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes flow-dash {
+    to {
+      background-position-y: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flow__node,
+    .flow__connector {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+    .flow__rail {
+      animation: none;
+    }
+  }
+</style>

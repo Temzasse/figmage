@@ -5,10 +5,12 @@ sidebar:
   order: 1
 ---
 
+import Flow from "../../../components/Flow.astro";
+
 Welcome! This section is for designers and design system maintainers. Your job here isn't to write
 code — it's to organize your Figma file so a tool called **Figmage** can read it and hand developers
-the exact colors, type, spacing, and icons you designed. Do it well and the product will *look like
-your designs*, automatically, every time you publish a change.
+the exact colors, type, spacing, and icons you designed. Do it well and the product will _look like
+your designs_, automatically, every time you publish a change.
 
 No engineering background required. If you can create a color style and a component in Figma, you can
 prepare a design system Figmage will love.
@@ -18,17 +20,19 @@ prepare a design system Figmage will love.
 You design in Figma as usual. When your work is ready, you **publish** it as a library. A developer
 runs one command, and your styles and components become code in the product.
 
-```mermaid
-flowchart LR
-    A["🎨 You design &amp; name<br/>styles + components"] --> B["📤 You publish<br/>the library"]
-    B --> C["⚙️ Developer runs<br/>figmage sync"]
-    C --> D["🚀 Your design<br/>ships as code"]
-```
+<Flow
+  steps={[
+    { icon: "🎨", lines: ["Build a design system", "styles + components"] },
+    { icon: "📤", lines: ["Publish the library"] },
+    { icon: "⚙️", lines: ["Developer runs", "figmage sync"] },
+    { icon: "🚀", lines: ["Design and development", "in perfect sync"] },
+  ]}
+/>
 
 Three habits make this work beautifully, and they're the thread through every page in this section:
 
-- **Make reusable values real.** Anything you reuse should be a Figma *style*, *variable*, or
-  *component* — never a one-off.
+- **Make reusable values real.** Anything you reuse should be a Figma _style_, _variable_, or
+  _component_ — never a one-off.
 - **Name things like an API.** Your names become the names developers type in code.
 - **Publish when it's ready.** Nothing reaches developers until you publish.
 

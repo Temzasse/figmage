@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import mermaid from "astro-mermaid";
 import remarkBasePath from "./remark-base-path.mjs";
 
 const base = `/figmage`;
@@ -14,14 +13,6 @@ export default defineConfig({
     remarkPlugins: [[remarkBasePath, { base }]],
   },
   integrations: [
-    // `mermaid` must come before `starlight` so it can transform code blocks first.
-    mermaid({
-      theme: "default",
-      autoTheme: true,
-      mermaidConfig: {
-        flowchart: { curve: "basis" },
-      },
-    }),
     starlight({
       title: "Figmage",
       social: [{ icon: "github", label: "GitHub", href: "https://github.com/Temzasse/figmage" }],

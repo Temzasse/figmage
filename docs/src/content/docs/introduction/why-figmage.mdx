@@ -5,13 +5,15 @@ sidebar:
   order: 2
 ---
 
+import Flow from "../../../components/Flow.astro";
+
 ## The problem: design and code drift apart
 
 A **design system** is the shared language between design and engineering — the colors, type styles,
 spacing, shadows, and icons that make a product feel like one coherent thing. In Figma, designers
 already capture that language as **styles, variables, and components**.
 
-The hard part is keeping the *code* side in sync. Traditionally a developer reads values off the
+The hard part is keeping the _code_ side in sync. Traditionally a developer reads values off the
 Figma canvas and re-types them into the codebase: a hex code here, a font size there. Every manual
 copy is a chance to introduce a typo, and every design change has to be hunted down and re-applied by
 hand. Over time the two sources drift, and "the button is the wrong green" bugs creep in.
@@ -22,12 +24,14 @@ Figmage makes Figma the **single source of truth** and generates the code automa
 own the values; developers consume them as code. When a value changes in Figma and the library is
 re-published, a single `figmage sync` flows the change into the product.
 
-```mermaid
-flowchart LR
-    A["🎨 Designer updates<br/>Figma library"] --> B["⚙️ figmage sync"]
-    B --> C["📦 Tokens regenerate<br/>in code"]
-    C --> D["🚀 Product updates"]
-```
+<Flow
+  steps={[
+    { icon: "🎨", lines: ["Designer updates", "Figma library"] },
+    { icon: "⚙️", lines: ["Figmage sync"] },
+    { icon: "📦", lines: ["Design tokens", "refresh in code"] },
+    { icon: "🚀", lines: ["Product updates", "after deployment"] },
+  ]}
+/>
 
 ## What you gain
 

@@ -9,16 +9,9 @@ Figmage turns a **published Figma library** into **design tokens as code**. A de
 styles and components in Figma; a developer runs one command and gets typed, ready-to-import token
 files that stay in sync with the design source of truth.
 
-```mermaid
-flowchart LR
-    A["🎨 Figma library<br/>styles + components"] -->|Figma REST API| B["⚙️ figmage sync"]
-    B --> C["📦 Token files<br/>ts · js · json · svg"]
-    C --> D["🚀 Your app &<br/>component library"]
-```
-
 The docs are split into two tracks. Pick the one that matches your role — most teams will use both.
 
-## I build in code
+## I'm a developer
 
 If you configure and run Figmage, install it from your terminal and connect it to Figma:
 
@@ -28,7 +21,7 @@ If you configure and run Figmage, install it from your terminal and connect it t
 
 Then explore [the developer docs](/developers/) for config, transforms, and every token type.
 
-## I design in Figma
+## I'm a designer
 
 If you prepare the design system in Figma, set up your styles and components so Figmage can read them
 reliably:
