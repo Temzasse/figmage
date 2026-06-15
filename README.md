@@ -2,7 +2,7 @@
   <img src="media/figmage.png" alt="Figmage logo" style="border-radius: 10px" />
 <p/>
 
-# 🧙‍♂️ Figmage 🧙
+# 🧙‍♂️ Figmage
 
 A CLI tool that helps you generate design tokens as code from your Figma project.
 
@@ -35,6 +35,9 @@ Full documentation lives on the **[Figmage docs website](https://temzasse.github
 - [Naming & Grouping](https://temzasse.github.io/figmage/designers/naming-and-grouping/)
 - [Publish & Share](https://temzasse.github.io/figmage/designers/publish-and-share/)
 - [Handoff & Limitations](https://temzasse.github.io/figmage/designers/handoff-and-limitations/)
+
+> [!NOTE]
+> For legacy documentation see the [v1 README](https://github.com/Temzasse/figmage/blob/11fd931148b6698f8a1ccf81cc4f75a0dadc9e9e/README.md).
 
 ## License
 
