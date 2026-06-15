@@ -1,0 +1,49 @@
+---
+title: Why Figmage
+description: How a single source of truth for design tokens keeps design and code in sync.
+sidebar:
+  order: 2
+---
+
+## The problem: design and code drift apart
+
+A **design system** is the shared language between design and engineering — the colors, type styles,
+spacing, shadows, and icons that make a product feel like one coherent thing. In Figma, designers
+already capture that language as **styles, variables, and components**.
+
+The hard part is keeping the *code* side in sync. Traditionally a developer reads values off the
+Figma canvas and re-types them into the codebase: a hex code here, a font size there. Every manual
+copy is a chance to introduce a typo, and every design change has to be hunted down and re-applied by
+hand. Over time the two sources drift, and "the button is the wrong green" bugs creep in.
+
+## The fix: one source of truth
+
+Figmage makes Figma the **single source of truth** and generates the code automatically. Designers
+own the values; developers consume them as code. When a value changes in Figma and the library is
+re-published, a single `figmage sync` flows the change into the product.
+
+```mermaid
+flowchart LR
+    A["🎨 Designer updates<br/>Figma library"] --> B["⚙️ figmage sync"]
+    B --> C["📦 Tokens regenerate<br/>in code"]
+    C --> D["🚀 Product updates"]
+```
+
+## What you gain
+
+- **No manual translation.** Color formats, units, casing, and file types are handled for you.
+- **No drift.** The code reflects the latest published Figma values, every time you sync.
+- **A type-safe foundation.** Generate TypeScript so token names and values are autocompleted and
+  checked at build time.
+- **Repeatable everywhere.** `figmage sync` is deterministic, so it runs the same locally or in CI.
+- **Clear ownership.** Designers shape the system's names and structure; developers build on top of
+  them.
+
+## What Figmage is — and isn't
+
+Figmage gives you the **foundation** of a design system in code: the primitive tokens (colors, type,
+shadows, spacing, radii, icons, images). It does **not** generate your components — it generates the
+values your components are built from, so your component library has a stable, design-driven base.
+
+Ready to see the specifics? Head to [Features](/introduction/features/) or jump straight to
+[Getting Started](/introduction/getting-started/).

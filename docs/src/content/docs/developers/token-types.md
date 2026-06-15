@@ -1,0 +1,304 @@
+---
+title: Token Types
+description: Every kind of token Figmage can generate — colors, type, shadows, scales, and images.
+sidebar:
+  order: 5
+---
+
+A **token** is a single named design decision — a color, a font size, a spacing step — turned into
+code. Each entry in your config's `tokens` array describes one set of them. Every entry shares two
+fields:
+
+- **`name`** — used for the output file name and for [`--only`/`--skip`](/developers/cli/#sync).
+- **`type`** — what kind of token to generate (the subject of this page).
+
+Token types come in two families, depending on where the value lives in Figma:
+
+1. **Style-based** types read directly from your published Figma **styles**. They just work — no
+   pointing required.
+2. **Source-based** types read from Figma **components**, so they need a `source` that tells Figmage
+   where to look.
+
+## Quick reference
+
+| Type           | Family       | Reads from                         | Needs `source` |
+| -------------- | ------------ | ---------------------------------- | -------------- |
+| `color`        | Style-based  | Color (fill) styles                | No             |
+| `text`         | Style-based  | Text styles                        | No             |
+| `dropShadow`   | Style-based  | Drop-shadow effect styles          | No             |
+| `property`     | Source-based | A measured component property      | Yes            |
+| `imageVector`  | Source-based | Components exported as vectors      | Yes            |
+| `imageSprite`  | Source-based | Components bundled into an SVG sprite | Yes         |
+| `imageRaster`  | Source-based | Components exported as raster images | Yes          |
+
+Every token also accepts an optional [`transform`](/developers/configuration/#per-token-overrides)
+and [`output`](/developers/configuration/#per-token-overrides), plus a `filter` predicate to drop
+individual tokens (covered at the end).
+
+---
+
+## Style-based tokens
+
+These types match Figma styles by kind across the whole library. You don't need a node ID or frame —
+publish the styles and Figmage finds them.
+
+### color
+
+Reads Figma **color (fill) styles** and emits color tokens in the format of your choice.
+
+```js
+{ name: "colors", type: "color" }
+```
+
+Options (via `transform`):
+
+- `format` — `hex` `rgb` `rgba` `hsl` `hwb` `lab` `lch` (default `hsl`).
+- `casing` — token name casing (default `camel`).
+
+```js
+{ name: "colors", type: "color", transform: { format: "hex", casing: "kebab" } }
+```
+
+> **Figma tip:** create a color style for every reusable color instead of typing hex values onto
+> layers. Group them with `/` in the name (`Light/Surface`, `Dark/Surface`) to control grouping.
+
+### text
+
+Reads Figma **text styles** and produces typography tokens carrying font family, weight, size, line
+height, letter spacing, and text transform.
+
+```js
+{ name: "typography", type: "text" }
+```
+
+Options (via `transform`):
+
+- `format` — `none` `px` `rem` for size-based values (default `rem`). `rem` divides by
+  [`baseFontSize`](/developers/configuration/#transform).
+- `casing` — token name casing.
+
+```js
+{ name: "typography", type: "text", transform: { format: "rem" } }
+```
+
+### dropShadow
+
+Reads Figma **effect styles** that are drop shadows and emits shadow tokens (offset, blur, color, and
+a ready-to-use `boxShadow` string).
+
+```js
+{ name: "shadows", type: "dropShadow" }
+```
+
+Options (via `transform`):
+
+- `format` — color format for the shadow color (default `rgba`).
+
+> **Heads up:** only **drop shadows** are extracted. Other effects — inner shadows, layer blurs,
+> background blurs — are ignored.
+
+---
+
+## Source-based tokens
+
+Not everything in a design system is a Figma style. Spacing scales, corner radii, and icons live as
+**components**. Source-based tokens point Figmage at those components and either *measure* them or
+*export* their graphics.
+
+### Pointing at a source
+
+Every source-based token needs a `source`. There are two ways to specify where the components are:
+
+```js
+// 1. By published component set
+source: { componentSet: "Spacing", /* ... */ }
+
+// 2. By frame — choose name or ID
+source: { frame: "Spacing", /* ... */ }
+source: { frameId: "123:456", /* ... */ }
+```
+
+> Copy a frame's `frameId` (it looks like `123:456`) from the `node-id` query parameter in the Figma
+> URL when the frame is selected.
+
+Only **components** inside the source are considered. Plain shapes, text, and groups are skipped — so
+the frame can contain helper layers without polluting your tokens.
+
+### property
+
+`property` tokens **measure** a numeric property from each source component and turn it into a token.
+This is how you produce scales that Figma has no native "style" for — spacing, sizing, and radii.
+
+```js
+{
+  name: "spacing",
+  type: "property",
+  source: {
+    componentSet: "Spacing",
+    property: "absoluteBoundingBox.width",
+  },
+  transform: { format: "px" }, // none | px | rem
+}
+```
+
+The `property` is a dot path into the component's node data. The most useful ones:
+
+| Property                      | Typical use            |
+| ----------------------------- | ---------------------- |
+| `absoluteBoundingBox.width`   | Spacing, widths        |
+| `absoluteBoundingBox.height`  | Vertical sizes         |
+| `cornerRadius`                | Border radii           |
+
+See the [Figma frame properties](https://www.figma.com/developers/api#frame-props) for the full list.
+
+> **Figma tip:** make the measured dimension equal the value — a `16px` spacing step should be a
+> `16px`-wide component. Name each one for the step, e.g. `Spacing/Small`, `Spacing/Medium`.
+
+### Image tokens
+
+Image tokens export the actual graphics of components. Which type you pick depends on the output you
+want: many files, one sprite, or raster assets.
+
+#### imageVector
+
+Exports each component as a vector. With `fileType: "svg"` you get **one SVG file per icon**; with
+`ts`/`js`/`json` you get a **single file** containing every icon as a string.
+
+```js
+{
+  name: "icons",
+  type: "imageVector",
+  source: { frame: "Icons" },
+  output: { directory: "./tokens/icons", fileType: "svg" },
+  transform: {
+    // Optional SVGO overrides — see below
+    optimize: [["removeRasterImages", true]],
+  },
+}
+```
+
+By default Figmage **optimizes** SVGs with SVGO and converts hard-coded colors to `currentColor`, so
+you can recolor an icon from code. Keep multicolor icons in a separate token and disable color
+conversion for them:
+
+```js
+{
+  name: "icons-multicolor",
+  type: "imageVector",
+  source: { frame: "Icons Multicolor" },
+  transform: { optimize: [["convertColors", false]] },
+}
+```
+
+#### imageSprite
+
+Bundles all of the component vectors into a **single SVG sprite sheet**, so icons don't bloat your JS
+bundle. Optionally emit a typed file of sprite IDs for type-safe lookups.
+
+```js
+{
+  name: "icons",
+  type: "imageSprite",
+  source: { frame: "Icons" },
+  output: {
+    fileName: "icon-sprite",
+    directory: "./tokens/static",
+    ids: {
+      enabled: true,
+      directory: "./tokens",
+      fileName: "icon-sprite-ids",
+      fileType: "ts",
+    },
+  },
+}
+```
+
+This writes `icon-sprite.svg` plus, when `ids.enabled` is set, an `icon-sprite-ids.ts` listing every
+symbol ID in the sprite.
+
+> Already have SVGs as files in your repo rather than in Figma? The
+> [`figmage spritesheet`](/developers/cli/#spritesheet) command builds a sprite without a sync.
+
+#### imageRaster
+
+Exports components as raster images (`png` or `jpg`), optionally scaled — handy for illustrations,
+logos, and artwork that isn't a clean vector.
+
+```js
+{
+  name: "assets",
+  type: "imageRaster",
+  source: { frame: "Assets" },
+  output: { directory: "./public/assets" },
+  transform: { format: "png", scale: 2 }, // 2x export
+}
+```
+
+Options (via `transform`):
+
+- `format` — `png` `jpg` (default `png`).
+- `scale` — a number between `0.01` and `4`; `2` renders at double size.
+
+---
+
+## Grouping
+
+Figmage groups tokens by the **top-level folder** in the Figma name, using `/` as the separator.
+This applies to *every* token type:
+
+- `Light/Surface` and `Dark/Surface` → `light` and `dark` color groups.
+- `Web/Body` and `Native/Body` → `web` and `native` typography groups.
+- `Spacing/Small`, `Spacing/Medium` → a grouped spacing scale.
+
+The structure you give your Figma names directly shapes how tokens are organized in code. See the
+designer guide on [naming and grouping](/designers/naming-and-grouping/).
+
+## Filtering individual tokens
+
+Beyond `--only`/`--skip` (which operate on whole token sets), each token config accepts a `filter`
+predicate to include or exclude **individual** values. Return `true` to keep a token, `false` to drop
+it:
+
+```js
+{
+  name: "colors",
+  type: "color",
+  // Drop any color whose name starts with "Figma"
+  filter: ({ name }) => !name.startsWith("Figma"),
+}
+```
+
+The predicate receives `{ name, value, group }`, so you can filter on the token's name, its value, or
+its group.
+
+## Putting it together
+
+```js
+tokens: [
+  // Style-based
+  { name: "colors", type: "color", transform: { format: "hsl" } },
+  { name: "typography", type: "text", transform: { format: "rem" } },
+  { name: "shadows", type: "dropShadow" },
+
+  // Source-based
+  {
+    name: "radii",
+    type: "property",
+    source: { componentSet: "Radii", property: "cornerRadius" },
+  },
+  {
+    name: "icons",
+    type: "imageSprite",
+    source: { frameId: "123:456" },
+    output: { fileName: "icon-sprite", ids: { enabled: true } },
+  },
+];
+```
+
+## Where to go next
+
+- Shape the output with [Configuration](/developers/configuration/).
+- Run a sync with the [CLI](/developers/cli/).
+- Designers: prepare the Figma side with
+  [Styles & Variables](/designers/styles-and-variables/) and
+  [Components](/designers/components/).
