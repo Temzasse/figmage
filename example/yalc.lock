@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "figmage": {
+      "signature": "d2631068f32497e2e48fb33625fd09c5",
+      "file": true
+    }
+  }
+}

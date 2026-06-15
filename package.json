@@ -2,60 +2,80 @@
   "name": "figmage",
   "version": "1.1.0",
   "description": "Flexibly generate design tokens from your Figma files",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/Temzasse/figmage.git"
-  },
-  "scripts": {
-    "test": "echo TODO",
-    "example:sync": "npm run example:tokenize && npm run example:codegen",
-    "example:tokenize": "bin/figmage tokenize --config ./example/.figmage.json --env ./example/.env",
-    "example:codegen": "bin/figmage codegen --config ./example/.figmage.json --env ./example/.env",
-    "example:spritesheet": "bin/figmage spritesheet --sprite-input ./example/spritesheet/icons --sprite-out-dir ./example/spritesheet/public --sprite-ids-out-dir ./example/spritesheet",
-    "example:spritesheet:serve": "npx serve ./example/spritesheet",
-    "release": "np --any-branch"
-  },
-  "bin": {
-    "figmage": "bin/figmage"
-  },
-  "type": "module",
-  "main": "src/main.js",
-  "sideEffects": false,
-  "files": [
-    "bin/",
-    "src/"
-  ],
   "keywords": [
     "cli",
+    "design",
+    "design system",
+    "design tokens",
     "figma",
     "figma api",
-    "token",
-    "tokenizer",
-    "design",
+    "sync",
     "system",
-    "design system",
-    "design tokens"
+    "token"
   ],
+  "license": "MIT",
   "author": {
     "name": "Teemu Taskula",
     "email": "taskuteemu@gmail.com",
     "url": "https://github.com/Temzasse"
   },
-  "engines": {
-    "node": ">=18"
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Temzasse/figmage.git"
+  },
+  "bin": {
+    "figmage": "bin/figmage"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "echo TODO",
+    "dev": "tsdown --watch ./src --on-success \"npm run example:update\"",
+    "build": "tsdown",
+    "release": "npm run verify && npm run build && np",
+    "verify": "run-p format:check lint:check typecheck",
+    "format:check": "oxfmt --check ./src",
+    "format:fix": "oxfmt ./src",
+    "lint:check": "oxlint ./src",
+    "lint:fix": "oxlint --fix ./src",
+    "typecheck": "tsc --noEmit",
+    "example:link": "cd example && yalc add figmage && npm i",
+    "example:update": "yalc push --replace",
+    "example:sync": "cd example && npm run sync",
+    "example:sprites": "cd example && npm run sprites:generate",
+    "example:sprites:serve": "cd example && npm run sprites:serve"
   },
   "dependencies": {
-    "arg": "5.0.2",
-    "axios": "1.7.7",
-    "dotenv": "16.4.5",
-    "kleur": "4.1.5",
-    "lodash.camelcase": "4.3.0",
-    "lodash.get": "4.4.2",
-    "lodash.kebabcase": "4.1.1",
-    "lodash.snakecase": "4.1.1",
-    "lodash.template": "4.5.0",
-    "ora": "8.1.1",
-    "svgo": "3.3.2"
+    "@figma/rest-api-spec": "0.40.0",
+    "color-convert": "3.1.3",
+    "consola": "3.4.2",
+    "svgo": "4.0.1"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "0.18.3",
+    "@types/node": "25.9.1",
+    "npm-run-all": "4.1.5",
+    "oxfmt": "0.53.0",
+    "oxlint": "1.68.0",
+    "tsdown": "0.22.1",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

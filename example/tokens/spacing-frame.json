@@ -1,0 +1,13 @@
+{
+  "2xl": "48px",
+  "3xl": "56px",
+  "4xl": "72px",
+  "5xl": "144px",
+  "large": "32px",
+  "medium": "24px",
+  "regular": "16px",
+  "small": "12px",
+  "xl": "40px",
+  "xs": "8px",
+  "xxs": "4px"
+}

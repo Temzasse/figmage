@@ -1,0 +1,97 @@
+---
+title: Components
+description: Turn spacing and sizing scales, icons, and images into tokens using Figma components.
+sidebar:
+  order: 3
+---
+
+Styles cover colors, type, and shadows — but a design system is more than that. You also have
+**spacing scales**, **corner radii**, **icons**, and **images**. Figma has no "spacing style" or
+"icon style" for these, so Figmage reads them from **components** instead.
+
+There are two things Figmage does with components:
+
+- **Measures** them — to produce number-based scales like spacing, sizing, and radii.
+- **Exports** them — to pull out the actual graphics for icons and images.
+
+One rule applies to everything on this page:
+
+> **It has to be a component.** Figmage only looks at components inside a frame — plain shapes, text,
+> and groups are ignored. Turn a layer into a component with **Create component** (right-click, or
+> `⌥⌘K` on Mac / `Ctrl+Alt+K` on Windows).
+
+## Measured scales: spacing, sizing, radii
+
+The idea is delightfully simple: you draw one small component for each step of a scale, and Figmage
+**measures** it. A spacing scale becomes a row of boxes — one 4px wide, one 8px, one 16px — and
+Figmage reads each width to produce your `spacing` tokens. The same trick gives you sizing (width or
+height) and radii (corner radius).
+
+### Setting it up
+
+1. Create a dedicated frame for the scale, e.g. named **Spacing** or **Radii**.
+2. Inside it, draw one element per step.
+3. **Turn each element into a component.**
+4. Make the measured dimension *equal the value* — a 16px spacing step should be a **16px-wide**
+   component. (For radii, set the component's corner radius to the value.)
+5. Name each component for its step: `Spacing/Xsmall`, `Spacing/Small`, `Spacing/Medium`.
+6. Keep **one value per component** so the meaning stays unambiguous.
+
+### What developers read
+
+Developers point Figmage at your frame (by name or ID) or at a published component set and choose
+which property to measure:
+
+| What you're modeling | Property developers read |
+| -------------------- | ------------------------ |
+| Spacing, widths      | Width                    |
+| Vertical sizes       | Height                   |
+| Corner radii         | Corner radius            |
+
+> **Tip:** keep each scale in its own frame. That lets developers sync, say, spacing without touching
+> radii.
+
+## Icons and images
+
+Figmage can export the real graphics from your file — icons as crisp SVGs, artwork as images — so
+developers get pixel-perfect assets straight from the source. Again, each one must be a **component**
+in a clearly named frame.
+
+### SVG icons
+
+1. Gather your icons in a frame, e.g. **Icons**.
+2. **Turn each icon into a component.**
+3. Keep a consistent canvas size across a family (for example, everything on a 24×24 grid).
+4. Name each icon for how it'll be used in code — `arrow-left`, `check-circle` — not `Icon 23`.
+
+**Single-color vs. multicolor icons.** By default Figmage makes single-color icons inherit their
+color from code, so one icon can appear in any color the app needs. If you also have **multicolor**
+icons that must keep their exact colors, put them in a **separate frame** — that lets developers
+export them as their own group with color conversion turned off. Mixing the two in one frame leads to
+icons that lose their colors unexpectedly.
+
+### Raster images
+
+For artwork that isn't a clean vector — illustrations, logos, photos:
+
+1. Keep exportable images as components in their own frame, e.g. **Assets**.
+2. Name them for code usage, not presentation — `empty-state`, `logo-full`.
+
+### A note on sprite sheets
+
+Developers can optionally bundle all your icons into a single **sprite sheet** for performance. You
+don't need to do anything special — just keep icons as clean, consistently named components, and the
+developer picks the output format on their end.
+
+## Readiness checklist
+
+Before you publish, give your components a quick once-over:
+
+- [ ] Every scale step, icon, and image is a **component**.
+- [ ] Each measured component's dimension equals the value it represents.
+- [ ] Names are unique and code-friendly.
+- [ ] Single-color and multicolor icons live in separate frames.
+- [ ] Each scale lives in its own frame.
+
+Next, lock in the names that tie all of this to code in
+[Naming & Grouping](/designers/naming-and-grouping/).

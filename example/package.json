@@ -1,0 +1,19 @@
+{
+  "name": "figmage-example",
+  "version": "1.0.0",
+  "description": "Figmage example project",
+  "license": "ISC",
+  "author": "Teemu Taskula",
+  "type": "module",
+  "scripts": {
+    "sync": "figmage sync",
+    "sprites:generate": "figmage spritesheet --sprite-input ./spritesheet/icons --sprite-output ./spritesheet/public --sprite-filename icons-sprite --sprite-ids-output ./spritesheet --sprite-ids-filename icon-ids",
+    "sprites:serve": "npx serve ./spritesheet"
+  },
+  "dependencies": {
+    "figmage": "file:.yalc/figmage"
+  },
+  "devDependencies": {
+    "dotenv": "17.4.2"
+  }
+}

@@ -1,78 +1,76 @@
 /* eslint-disable */
+/* prettier-ignore */
 export const brand = {
-  "brand": "#009a48",
-  "brandContrast": "#066531",
-  "brandContrastHover": "#035827",
-  "brandHover": "#00813c",
-  "brandMuted": "#def2e7",
-  "brandMutedHover": "#d1eadc"
+  "brand": "hsl(148, 100%, 30%)",
+  "brandContrast": "hsl(147, 89%, 21%)",
+  "brandContrastHover": "hsl(145, 93%, 18%)",
+  "brandHover": "hsl(148, 100%, 25%)",
+  "brandMuted": "hsl(147, 43%, 91%)",
+  "brandMutedHover": "hsl(146, 37%, 87%)"
 };
 export const error = {
-  "error": "#c53535",
-  "errorContrast": "#870d0d",
-  "errorContrastHover": "#750a0a",
-  "errorHover": "#b93131",
-  "errorMuted": "#f9e2e3",
-  "errorMutedHover": "#f4c6c8"
-};
-export const info = {
-  "info": "#2e72e1",
-  "infoContrast": "#0c47a7",
-  "infoContrastHover": "#0b4199",
-  "infoHover": "#2063d2",
-  "infoMuted": "#e7effd",
-  "infoMutedHover": "#dae7fd"
+  "error": "hsl(0, 58%, 49%)",
+  "errorContrast": "hsl(0, 82%, 29%)",
+  "errorContrastHover": "hsl(0, 84%, 25%)",
+  "errorHover": "hsl(0, 58%, 46%)",
+  "errorMuted": "hsl(357, 66%, 93%)",
+  "errorMutedHover": "hsl(357, 68%, 87%)",
+  "errorMutedPressed": "hsl(358, 56%, 81%)"
 };
 export const line = {
-  "focusRing": "#296bd7",
-  "line1": "rgba(0, 0, 0, 0.5)",
-  "line2": "rgba(0, 0, 0, 0.25)",
-  "line3": "rgba(0, 0, 0, 0.1)"
+  "focusRing": "hsl(217, 69%, 50%)",
+  "line1": "hsla(0, 0%, 0%, 0.5)",
+  "line2": "hsla(0, 0%, 0%, 0.25)",
+  "line3": "hsla(0, 0%, 0%, 0.1)"
+};
+export const info = {
+  "info": "hsl(217, 75%, 53%)",
+  "infoContrast": "hsl(217, 87%, 35%)",
+  "infoContrastHover": "hsl(217, 87%, 32%)",
+  "infoHover": "hsl(217, 74%, 47%)",
+  "infoMuted": "hsl(218, 85%, 95%)",
+  "infoMutedHover": "hsl(218, 90%, 92%)"
 };
 export const neutral = {
-  "neutral1": "#55575e",
-  "neutral2": "#92969d",
-  "neutral3": "#d4d6db",
-  "neutral4": "#e4e5e9",
-  "neutral5": "#f5f5f5",
-  "surface": "#ffffff",
-  "surfaceHover": "#f5f6fa"
+  "neutral1": "hsl(227, 5%, 35%)",
+  "neutral2": "hsl(218, 5%, 59%)",
+  "neutral3": "hsl(223, 9%, 85%)",
+  "neutral4": "hsl(228, 10%, 90%)",
+  "neutral5": "hsl(0, 0%, 96%)",
+  "surface": "hsl(0, 0%, 100%)",
+  "surfaceHover": "hsl(228, 33%, 97%)"
 };
 export const primary = {
-  "primary": "#296bd7",
-  "primaryContrast": "#124598",
-  "primaryContrastHover": "#08357f",
-  "primaryHover": "#1857be",
-  "primaryMuted": "#ebf3ff",
-  "primaryMutedDarker": "#cedef8",
-  "primaryMutedHover": "#dee9fd"
+  "primary": "hsl(217, 69%, 50%)",
+  "primaryContrast": "hsl(217, 79%, 33%)",
+  "primaryContrastHover": "hsl(217, 88%, 26%)",
+  "primaryHover": "hsl(217, 78%, 42%)",
+  "primaryMuted": "hsl(216, 100%, 96%)",
+  "primaryMutedHover": "hsl(219, 89%, 93%)",
+  "primaryMutedPressed": "hsl(217, 75%, 89%)"
 };
 export const success = {
-  "success": "#099566",
-  "successContrast": "#00573a",
-  "successContrastHover": "#004d34",
-  "successHover": "#05865c",
-  "successMuted": "#ddf1ea",
-  "successMutedHover": "#c1e6d9"
+  "success": "hsl(160, 89%, 31%)",
+  "successContrast": "hsl(160, 100%, 17%)",
+  "successContrastHover": "hsl(161, 100%, 15%)",
+  "successHover": "hsl(160, 93%, 27%)",
+  "successMuted": "hsl(159, 42%, 91%)",
+  "successMutedHover": "hsl(159, 43%, 83%)",
+  "successMutedPressed": "hsl(159, 40%, 76%)"
 };
 export const text = {
-  "text": "#1a1a1a",
-  "textDisabled": "#7d7f85",
-  "textMuted": "#55575e",
-  "textOnContrastingBg": "#ffffff"
-};
-export const visualization = {
-  "mint": "#27caa3",
-  "pink": "#e04f83",
-  "purple": "#9d2389"
+  "text": "hsl(0, 0%, 10%)",
+  "textDisabled": "hsl(225, 3%, 51%)",
+  "textMuted": "hsl(227, 5%, 35%)",
+  "textOnContrastingBg": "hsl(0, 0%, 100%)"
 };
 export const warn = {
-  "warn": "#b98604",
-  "warnContrast": "#614500",
-  "warnContrastHover": "#573d00",
-  "warnHover": "#a07403",
-  "warnMuted": "#f3ead1",
-  "warnMutedHover": "#ede0bd"
+  "warn": "hsl(43, 96%, 37%)",
+  "warnContrast": "hsl(43, 100%, 19%)",
+  "warnContrastHover": "hsl(42, 100%, 17%)",
+  "warnHover": "hsl(43, 96%, 32%)",
+  "warnMuted": "hsl(44, 59%, 89%)",
+  "warnMutedHover": "hsl(44, 57%, 84%)"
 };
 
-export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "focusRing" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "mint" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "pink" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedDarker" | "primaryMutedHover" | "purple" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "surface" | "surfaceHover" | "text" | "textDisabled" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";
+export type ColorsToken = "brand" | "brandContrast" | "brandContrastHover" | "brandHover" | "brandMuted" | "brandMutedHover" | "error" | "errorContrast" | "errorContrastHover" | "errorHover" | "errorMuted" | "errorMutedHover" | "errorMutedPressed" | "focusRing" | "info" | "infoContrast" | "infoContrastHover" | "infoHover" | "infoMuted" | "infoMutedHover" | "line1" | "line2" | "line3" | "neutral1" | "neutral2" | "neutral3" | "neutral4" | "neutral5" | "primary" | "primaryContrast" | "primaryContrastHover" | "primaryHover" | "primaryMuted" | "primaryMutedHover" | "primaryMutedPressed" | "success" | "successContrast" | "successContrastHover" | "successHover" | "successMuted" | "successMutedHover" | "successMutedPressed" | "surface" | "surfaceHover" | "text" | "textDisabled" | "textMuted" | "textOnContrastingBg" | "warn" | "warnContrast" | "warnContrastHover" | "warnHover" | "warnMuted" | "warnMutedHover";
