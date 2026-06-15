@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { unified } from "@astrojs/markdown-remark";
 import remarkBasePath from "./remark-base-path.mjs";
 
 const base = `/figmage`;
@@ -10,7 +11,9 @@ export default defineConfig({
   site: `https://temzasse.github.io`,
   base,
   markdown: {
-    remarkPlugins: [[remarkBasePath, { base }]],
+    processor: unified({
+      remarkPlugins: [[remarkBasePath, { base }]],
+    }),
   },
   integrations: [
     starlight({
