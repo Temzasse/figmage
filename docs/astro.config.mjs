@@ -18,7 +18,16 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Figmage",
-      social: [{ icon: "github", label: "GitHub", href: "https://github.com/Temzasse/figmage" }],
+      logo: {
+        src: "./src/assets/figmage.png",
+      },
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/Temzasse/figmage",
+        },
+      ],
       sidebar: [
         {
           label: "Introduction",
