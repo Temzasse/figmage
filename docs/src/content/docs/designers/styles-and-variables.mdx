@@ -5,18 +5,18 @@ sidebar:
   order: 2
 ---
 
-import { Aside } from "@astrojs/starlight/components";
+import { Aside, Steps } from "@astrojs/starlight/components";
 
 Every design system starts with a handful of reusable decisions: _this_ is our brand color, _this_
 is our body text, _this_ is our card shadow. In Figma you capture those decisions as **styles** (and,
 on supported plans, **variables**). Figmage reads them directly and turns each one into a named token
 that developers import.
 
-Here's the golden rule, and honestly it's most of the job:
-
-> **If a value should be reused, make it a style or variable — never a one-off.** A color typed
-> straight onto a single shape is invisible to Figmage. The same color saved as a style becomes a
-> token the whole product can use.
+<Aside type="note" title="Golden rule:">
+  **If a value should be reused, make it a style or variable — never a one-off.** A color typed
+  straight onto a single shape is invisible to Figmage. The same color saved as a style becomes a
+  token the whole product can use.
+</Aside>
 
 The three style types below map straight to Figmage's core token types.
 
@@ -25,9 +25,15 @@ The three style types below map straight to Figmage's core token types.
 Create a **color style** for every meaningful color — brand colors, backgrounds, text colors, borders,
 states.
 
+<Steps>
+
 1. Select a shape and set its fill to the color you want.
+
 2. In the **Fill** section of the right panel, click the **style** icon (the four dots).
+
 3. Click **+ Create style** and give it a clear, purpose-based name like `Primary` or `Surface`.
+
+</Steps>
 
 Each color style becomes a `color` token. Want light and dark variants grouped separately in code?
 Prefix the names with a folder, like `Light/Surface` and `Dark/Surface` — see
@@ -38,9 +44,15 @@ Prefix the names with a folder, like `Light/Surface` and `Dark/Surface` — see
 Create a **text style** for each _role_ in your type system — not for each individual size, but for
 the jobs text does: titles, subtitles, body, captions, overlines.
 
+<Steps>
+
 1. Select a text layer and set its font, size, weight, line height, and letter spacing.
+
 2. In the **Text** section, click the **style** icon, then **+ Create style**.
+
 3. Name it by role — `Title 1`, `Body`, `Caption` — never by appearance like `Bold 24`.
+
+</Steps>
 
 Each text style becomes a `text` token carrying the full recipe: font family, size, weight, line
 height, letter spacing, and text transform.
@@ -49,14 +61,24 @@ height, letter spacing, and text transform.
 
 Create an **effect style** for each elevation level in your system.
 
+<Steps>
+
 1. Add a **Drop shadow** effect to a layer and tune its offset, blur, and color.
+
+   You can add multiple shadows to the same layer to create more complex effects - Figmage captures them all.
+
 2. In the **Effects** section, click the **style** icon, then **+ Create style**.
+
 3. Name it by intent — `Shadow Small`, `Shadow Medium`, `Shadow Large`.
+
+</Steps>
 
 Each one becomes a `dropShadow` token.
 
-> **Good to know:** Figmage currently extracts **drop shadows** only. Inner shadows and layer/
-> background blurs are skipped, so don't rely on them for tokens.
+<Aside type="note" title="Good to know">
+  Figmage currently extracts **drop shadows** only. Inner shadows and layer/ background blurs are
+  skipped, so don't rely on them for tokens.
+</Aside>
 
 ## A note on variables
 

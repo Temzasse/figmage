@@ -16,11 +16,11 @@ There are two things Figmage does with components:
 - **Measures** them — to produce number-based scales like spacing, sizing, and radii.
 - **Exports** them — to pull out the actual graphics for icons and images.
 
-One rule applies to everything on this page:
-
-> **It has to be a component.** Figmage only looks at components inside a frame — plain shapes, text,
-> and groups are ignored. Turn a layer into a component with **Create component** (right-click, or
-> `⌥⌘K` on Mac / `Ctrl+Alt+K` on Windows).
+<Aside type="note" title="One rule applies to everything on this page:">
+  **It has to be a component.** Figmage only looks at components inside a frame — plain shapes,
+  text, and groups are ignored. Turn a layer into a component with **Create component**
+  (right-click, or `⌥⌘K` on Mac / `Ctrl+Alt+K` on Windows).
+</Aside>
 
 ## Measured scales: spacing, sizing, radii
 
@@ -72,10 +72,17 @@ in a clearly named frame.
 
 ### SVG icons
 
+<Steps>
+    
 1. Gather your icons in a top-level frame, e.g. **Icons**.
+
 2. **Turn each icon into a component.**
+
 3. Keep a consistent container size across a family (for example, everything on a 24×24 grid).
+
 4. Name each icon for how it'll be used in code — `arrow-left`, `check-circle` — not `Icon 23`.
+
+</Steps>
 
 **Single-color vs. multicolor icons.** By default Figmage makes single-color icons inherit their
 color from code, so one icon can appear in any color the app needs. If you also have **multicolor**
@@ -87,8 +94,13 @@ icons that lose their colors unexpectedly.
 
 For artwork that isn't a clean vector — illustrations, logos, photos:
 
-1. Keep exportable images as components in their own frame, e.g. **Assets**.
+<Steps>
+
+1. Keep exportable images as components in their own top-level frame, e.g. **Assets**.
+
 2. Name them for code usage, not presentation — `empty-state`, `logo-full`.
+
+</Steps>
 
 ### A note on sprite sheets
 
@@ -103,8 +115,8 @@ Before you publish, give your components a quick once-over:
 - [ ] Every scale step, icon, and image is a **component**.
 - [ ] Each measured component's dimension equals the value it represents.
 - [ ] Names are unique and code-friendly.
-- [ ] Single-color and multicolor icons live in separate frames.
-- [ ] Each scale lives in its own frame.
+- [ ] Single-color and multicolor icons live in separate top-level frames.
+- [ ] Each scale lives in its own top-level frame.
 
 Next, lock in the names that tie all of this to code in
 [Naming & Grouping](/designers/naming-and-grouping/).
