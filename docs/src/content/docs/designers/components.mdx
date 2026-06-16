@@ -5,6 +5,8 @@ sidebar:
   order: 3
 ---
 
+import { Aside, Steps } from "@astrojs/starlight/components";
+
 Styles cover colors, type, and shadows — but a design system is more than that. You also have
 **spacing scales**, **corner radii**, **icons**, and **images**. Figma has no "spacing style" or
 "icon style" for these, so Figmage reads them from **components** instead.
@@ -29,13 +31,23 @@ height) and radii (corner radius).
 
 ### Setting it up
 
+<Steps>
+
 1. Create a dedicated frame for the scale, e.g. named **Spacing** or **Radii**.
+
 2. Inside it, draw one element per step.
+
 3. **Turn each element into a component.**
-4. Make the measured dimension *equal the value* — a 16px spacing step should be a **16px-wide**
-   component. (For radii, set the component's corner radius to the value.)
+
+4. Make the measured dimension _equal the value_:
+
+   Eg. a 16px spacing step should be a **16px-wide** component. (For radii, set the component's corner radius to the value.)
+
 5. Name each component for its step: `Spacing/Xsmall`, `Spacing/Small`, `Spacing/Medium`.
+
 6. Keep **one value per component** so the meaning stays unambiguous.
+
+</Steps>
 
 ### What developers read
 
@@ -48,8 +60,9 @@ which property to measure:
 | Vertical sizes       | Height                   |
 | Corner radii         | Corner radius            |
 
-> **Tip:** keep each scale in its own frame. That lets developers sync, say, spacing without touching
-> radii.
+<Aside type="tip">
+  Keep each scale in its own frame. That lets developers sync, say, spacing without touching radii.
+</Aside>
 
 ## Icons and images
 
@@ -59,9 +72,9 @@ in a clearly named frame.
 
 ### SVG icons
 
-1. Gather your icons in a frame, e.g. **Icons**.
+1. Gather your icons in a top-level frame, e.g. **Icons**.
 2. **Turn each icon into a component.**
-3. Keep a consistent canvas size across a family (for example, everything on a 24×24 grid).
+3. Keep a consistent container size across a family (for example, everything on a 24×24 grid).
 4. Name each icon for how it'll be used in code — `arrow-left`, `check-circle` — not `Icon 23`.
 
 **Single-color vs. multicolor icons.** By default Figmage makes single-color icons inherit their

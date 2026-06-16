@@ -5,6 +5,8 @@ sidebar:
   order: 5
 ---
 
+import { Aside } from "@astrojs/starlight/components";
+
 You've built styles, components, and clean names. Now make them **real** to the outside world.
 Figmage reads your file through Figma's API, and that API only sees what you've **published as a
 library**. This page covers the two parts of going live: publishing, and sharing the details
@@ -24,11 +26,13 @@ When you publish a file as a library, you make all of this available to Figmage:
 - **Variables** (on supported plans) → reusable values.
 - **Components and component sets** → measured scales (spacing, radii) and exported icons/images.
 
-> **You'll need a paid plan.** Libraries are only available on Figma's paid plans. On the free
-> Starter plan you can still create styles, components, and variables — you just can't publish them
-> as a library for Figmage to read. The file also has to live in a **project**, not your drafts, and
-> the library inherits its name from the source file, so give the file a clear name like
-> "Habitz design system".
+<Aside>
+  **You'll need a paid plan.** Libraries are only available on Figma's paid plans. On the free
+  Starter plan you can still create styles, components, and variables — you just can't publish them
+  as a library for Figmage to read. The file also has to live in a **project**, not your drafts, and
+  the library inherits its name from the source file, so give the file a clear name like "Habitz
+  design system".
+</Aside>
 
 ### How to publish
 
@@ -40,10 +44,12 @@ When you publish a file as a library, you make all of this available to Figmage:
    don't want to share.
 6. Click **Publish**.
 
-> **Tip:** To keep a work-in-progress style or component out of the library for good, right-click it
-> in the publish dialog and choose **Hide when publishing**. If the **Publish** button is greyed out,
-> it usually means there are no publishable changes since last time, or the file has no styles,
-> components, or variables yet.
+<Aside type="tip">
+  To keep a work-in-progress style or component out of the library for good, right-click it in the
+  publish dialog and choose **Hide when publishing**. If the **Publish** button is greyed out, it
+  usually means there are no publishable changes since last time, or the file has no styles,
+  components, or variables yet.
+</Aside>
 
 For the full walkthrough and plan-specific options, see Figma's official guide:
 [Publish a library](https://help.figma.com/hc/en-us/articles/360025508373-Publish-a-library).
@@ -79,10 +85,12 @@ If you're generating it:
    **read-only file access**.
 4. Copy the token — Figma shows it only once.
 
-> The token is a secret, like a password. Share it only through a secure channel your team trusts —
-> a password manager or your CI secret store — never in chat, comments, or design files. A personal
-> access token can reach **all** of your Figma files and can't be scoped to a single one, so treat it
-> carefully and **revoke** it from the same Security tab if it's ever no longer needed.
+<Aside type="caution">
+  The token is a secret, like a password. Share it only through a secure channel your team trusts —
+  a password manager or your CI secret store — never in chat, comments, or design files. A personal
+  access token can reach **all** of your Figma files and can't be scoped to a single one, so treat
+  it carefully and **revoke** it from the same Security tab if it's ever no longer needed.
+</Aside>
 
 For step-by-step help generating, managing, or revoking tokens, see Figma's guide:
 [Manage personal access tokens](https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens).

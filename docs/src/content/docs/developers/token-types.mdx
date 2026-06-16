@@ -5,6 +5,8 @@ sidebar:
   order: 5
 ---
 
+import { Aside } from "@astrojs/starlight/components";
+
 A **token** is a single named design decision — a color, a font size, a spacing step — turned into
 code. Each entry in your config's `tokens` array describes one set of them. Every entry shares two
 fields:
@@ -21,15 +23,15 @@ Token types come in two families, depending on where the value lives in Figma:
 
 ## Quick reference
 
-| Type           | Family       | Reads from                         | Needs `source` |
-| -------------- | ------------ | ---------------------------------- | -------------- |
-| `color`        | Style-based  | Color (fill) styles                | No             |
-| `text`         | Style-based  | Text styles                        | No             |
-| `dropShadow`   | Style-based  | Drop-shadow effect styles          | No             |
-| `property`     | Source-based | A measured component property      | Yes            |
-| `imageVector`  | Source-based | Components exported as vectors      | Yes            |
-| `imageSprite`  | Source-based | Components bundled into an SVG sprite | Yes         |
-| `imageRaster`  | Source-based | Components exported as raster images | Yes          |
+| Type          | Family       | Reads from                            | Needs `source` |
+| ------------- | ------------ | ------------------------------------- | -------------- |
+| `color`       | Style-based  | Color (fill) styles                   | No             |
+| `text`        | Style-based  | Text styles                           | No             |
+| `dropShadow`  | Style-based  | Drop-shadow effect styles             | No             |
+| `property`    | Source-based | A measured component property         | Yes            |
+| `imageVector` | Source-based | Components exported as vectors        | Yes            |
+| `imageSprite` | Source-based | Components bundled into an SVG sprite | Yes            |
+| `imageRaster` | Source-based | Components exported as raster images  | Yes            |
 
 Every token also accepts an optional [`transform`](/developers/configuration/#per-token-overrides)
 and [`output`](/developers/configuration/#per-token-overrides), plus a `filter` predicate to drop
@@ -42,7 +44,7 @@ individual tokens (covered at the end).
 These types match Figma styles by kind across the whole library. You don't need a node ID or frame —
 publish the styles and Figmage finds them.
 
-### color
+### `color`
 
 Reads Figma **color (fill) styles** and emits color tokens in the format of your choice.
 
@@ -59,10 +61,12 @@ Options (via `transform`):
 { name: "colors", type: "color", transform: { format: "hex", casing: "kebab" } }
 ```
 
-> **Figma tip:** create a color style for every reusable color instead of typing hex values onto
-> layers. Group them with `/` in the name (`Light/Surface`, `Dark/Surface`) to control grouping.
+<Aside type="tip">
+  Create a color style for every reusable color instead of typing hex values onto layers. Group them
+  with `/` in the name (`Light/Surface`, `Dark/Surface`) to control grouping.
+</Aside>
 
-### text
+### `text`
 
 Reads Figma **text styles** and produces typography tokens carrying font family, weight, size, line
 height, letter spacing, and text transform.
@@ -81,7 +85,7 @@ Options (via `transform`):
 { name: "typography", type: "text", transform: { format: "rem" } }
 ```
 
-### dropShadow
+### `dropShadow`
 
 Reads Figma **effect styles** that are drop shadows and emits shadow tokens (offset, blur, color, and
 a ready-to-use `boxShadow` string).
@@ -102,8 +106,8 @@ Options (via `transform`):
 ## Source-based tokens
 
 Not everything in a design system is a Figma style. Spacing scales, corner radii, and icons live as
-**components**. Source-based tokens point Figmage at those components and either *measure* them or
-*export* their graphics.
+**components**. Source-based tokens point Figmage at those components and either _measure_ them or
+_export_ their graphics.
 
 ### Pointing at a source
 
@@ -124,7 +128,7 @@ source: { frameId: "123:456", /* ... */ }
 Only **components** inside the source are considered. Plain shapes, text, and groups are skipped — so
 the frame can contain helper layers without polluting your tokens.
 
-### property
+### `property`
 
 `property` tokens **measure** a numeric property from each source component and turn it into a token.
 This is how you produce scales that Figma has no native "style" for — spacing, sizing, and radii.
@@ -143,23 +147,25 @@ This is how you produce scales that Figma has no native "style" for — spacing,
 
 The `property` is a dot path into the component's node data. The most useful ones:
 
-| Property                      | Typical use            |
-| ----------------------------- | ---------------------- |
-| `absoluteBoundingBox.width`   | Spacing, widths        |
-| `absoluteBoundingBox.height`  | Vertical sizes         |
-| `cornerRadius`                | Border radii           |
+| Property                     | Typical use     |
+| ---------------------------- | --------------- |
+| `absoluteBoundingBox.width`  | Spacing, widths |
+| `absoluteBoundingBox.height` | Vertical sizes  |
+| `cornerRadius`               | Border radii    |
 
 See the [Figma frame properties](https://www.figma.com/developers/api#frame-props) for the full list.
 
-> **Figma tip:** make the measured dimension equal the value — a `16px` spacing step should be a
-> `16px`-wide component. Name each one for the step, e.g. `Spacing/Small`, `Spacing/Medium`.
+<Aside type="tip">
+  Make the measured dimension equal the value — a `16px` spacing step should be a `16px`-wide
+  component. Name each one for the step, e.g. `Spacing/Small`, `Spacing/Medium`.
+</Aside>
 
 ### Image tokens
 
 Image tokens export the actual graphics of components. Which type you pick depends on the output you
 want: many files, one sprite, or raster assets.
 
-#### imageVector
+#### `imageVector`
 
 Exports each component as a vector. With `fileType: "svg"` you get **one SVG file per icon**; with
 `ts`/`js`/`json` you get a **single file** containing every icon as a string.
@@ -190,7 +196,7 @@ conversion for them:
 }
 ```
 
-#### imageSprite
+#### `imageSprite`
 
 Bundles all of the component vectors into a **single SVG sprite sheet**, so icons don't bloat your JS
 bundle. Optionally emit a typed file of sprite IDs for type-safe lookups.
@@ -219,7 +225,7 @@ symbol ID in the sprite.
 > Already have SVGs as files in your repo rather than in Figma? The
 > [`figmage spritesheet`](/developers/cli/#spritesheet) command builds a sprite without a sync.
 
-#### imageRaster
+#### `imageRaster`
 
 Exports components as raster images (`png` or `jpg`), optionally scaled — handy for illustrations,
 logos, and artwork that isn't a clean vector.
@@ -244,7 +250,7 @@ Options (via `transform`):
 ## Grouping
 
 Figmage groups tokens by the **top-level folder** in the Figma name, using `/` as the separator.
-This applies to *every* token type:
+This applies to _every_ token type:
 
 - `Light/Surface` and `Dark/Surface` → `light` and `dark` color groups.
 - `Web/Body` and `Native/Body` → `web` and `native` typography groups.

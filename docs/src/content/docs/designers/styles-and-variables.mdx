@@ -5,8 +5,10 @@ sidebar:
   order: 2
 ---
 
-Every design system starts with a handful of reusable decisions: *this* is our brand color, *this*
-is our body text, *this* is our card shadow. In Figma you capture those decisions as **styles** (and,
+import { Aside } from "@astrojs/starlight/components";
+
+Every design system starts with a handful of reusable decisions: _this_ is our brand color, _this_
+is our body text, _this_ is our card shadow. In Figma you capture those decisions as **styles** (and,
 on supported plans, **variables**). Figmage reads them directly and turns each one into a named token
 that developers import.
 
@@ -33,7 +35,7 @@ Prefix the names with a folder, like `Light/Surface` and `Dark/Surface` — see
 
 ## 🔤 Typography
 
-Create a **text style** for each *role* in your type system — not for each individual size, but for
+Create a **text style** for each _role_ in your type system — not for each individual size, but for
 the jobs text does: titles, subtitles, body, captions, overlines.
 
 1. Select a text layer and set its font, size, weight, line height, and letter spacing.
@@ -62,12 +64,14 @@ Each one becomes a `dropShadow` token.
 are a newer, more powerful way to store reusable values — and they shine for things like light/dark
 modes. Modeling your system with variables is great, future-friendly practice.
 
-> **Heads up: Figmage doesn't read variables yet.** Today Figmage builds tokens from **styles**
-> (color, text, and effect styles) and from components — not from variables. The reason is on Figma's
-> side: the [Variables REST API](https://developers.figma.com/docs/rest-api/variables/) is gated to
-> Enterprise customers ("you must have a Full seat in an Enterprise org"), so Figmage can't reach
-> variables on most plans. **If you want a value to become a token today, capture it as a style** (or
-> as a component, for things like spacing and sizing).
+<Aside type="caution">
+  **Figmage doesn't read variables yet.** Today Figmage builds tokens from **styles** (color, text,
+  and effect styles) and from components — not from variables. The reason is on Figma's side: the
+  [Variables REST API](https://developers.figma.com/docs/rest-api/variables/) is gated to Enterprise
+  customers ("you must have a Full seat in an Enterprise org"), so Figmage can't reach variables on
+  most plans. **If you want a value to become a token today, capture it as a style** (or as a
+  component, for things like spacing and sizing).
+</Aside>
 
 It's still perfectly fine to use variables in your design work — just make sure anything Figmage
 should generate also exists as a published style or component.

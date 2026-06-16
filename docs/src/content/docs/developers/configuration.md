@@ -39,21 +39,22 @@ figmage sync --config ./configs/figmage.config.js
 type Config = {
   // Required ---------------------------------------------------------------
   accessToken: string; // Figma personal access token
-  fileId: string;      // ID of the published Figma file
+  fileId: string; // ID of the published Figma file
   tokens: TokenConfig[]; // What to generate
 
   // Optional ---------------------------------------------------------------
   output?: {
-    directory?: string;            // default: "./tokens"
+    directory?: string; // default: "./tokens"
     fileType?: "ts" | "js" | "json"; // default: "ts"
   };
+
   transform?: {
     defaultCasing?: "camel" | "kebab" | "snake" | "lower" | "pascal";
     defaultColorFormat?: "hex" | "rgb" | "rgba" | "hsl" | "hwb" | "lab" | "lch";
     defaultTextFormat?: "none" | "px" | "rem";
     defaultPropertyFormat?: "none" | "px" | "rem";
     defaultImageRasterFormat?: "png" | "jpg";
-    baseFontSize?: number;         // used for rem conversion
+    baseFontSize?: number; // used for rem conversion
   };
 };
 ```
@@ -61,7 +62,7 @@ type Config = {
 There are only **three required fields** — `accessToken`, `fileId`, and `tokens`. Everything else has
 sensible defaults, so a minimal config is genuinely minimal.
 
-### accessToken and fileId
+### `accessToken` and `fileId`
 
 These connect Figmage to Figma. Keep the token out of source control by loading it from the
 environment — see [Install and Auth](/developers/install-and-auth/) for how to create a token and
@@ -75,7 +76,7 @@ fileId: process.env.FIGMA_FILE_ID,
 If either value is missing when you run `figmage sync`, the command stops with a clear error before
 making any API calls.
 
-### tokens
+### `tokens`
 
 The heart of the config: an array describing each set of tokens to generate. Every entry has a
 `name` (used for the output file and for `--only`/`--skip`) and a `type`. Style-based types work on
@@ -84,9 +85,22 @@ their own; component-based types need a `source`. The full catalog lives in
 
 ```js
 tokens: [
-  { name: "colors", type: "color" },
-  { name: "typography", type: "text" },
-  { name: "spacing", type: "property", source: { componentSet: "Spacing", property: "absoluteBoundingBox.width" } },
+  {
+    name: "colors",
+    type: "color",
+  },
+  {
+    name: "typography",
+    type: "text",
+  },
+  {
+    name: "spacing",
+    type: "property",
+    source: {
+      componentSet: "Spacing",
+      property: "absoluteBoundingBox.width",
+    },
+  },
 ];
 ```
 
@@ -106,7 +120,7 @@ once and override only the exceptions.
 
 ## Global defaults
 
-### output
+### `output`
 
 Controls where files go and their default type.
 
@@ -117,12 +131,12 @@ output: {
 }
 ```
 
-| Field       | Values              | Default      |
-| ----------- | ------------------- | ------------ |
-| `directory` | any path            | `./tokens`   |
-| `fileType`  | `ts` `js` `json`    | `ts`         |
+| Field       | Values           | Default    |
+| ----------- | ---------------- | ---------- |
+| `directory` | any path         | `./tokens` |
+| `fileType`  | `ts` `js` `json` | `ts`       |
 
-### transform
+### `transform`
 
 Sets the default formatting applied to every token (unless a token overrides it).
 
@@ -137,14 +151,14 @@ transform: {
 }
 ```
 
-| Field                      | Values                                          | Default |
-| -------------------------- | ----------------------------------------------- | ------- |
-| `defaultCasing`            | `camel` `kebab` `snake` `lower` `pascal`        | `camel` |
-| `defaultColorFormat`       | `hex` `rgb` `rgba` `hsl` `hwb` `lab` `lch`      | `hsl`   |
-| `defaultTextFormat`        | `none` `px` `rem`                               | `rem`   |
-| `defaultPropertyFormat`    | `none` `px` `rem`                               | `px`    |
-| `defaultImageRasterFormat` | `png` `jpg`                                     | `png`   |
-| `baseFontSize`             | number                                          | `16`    |
+| Field                      | Values                                     | Default |
+| -------------------------- | ------------------------------------------ | ------- |
+| `defaultCasing`            | `camel` `kebab` `snake` `lower` `pascal`   | `camel` |
+| `defaultColorFormat`       | `hex` `rgb` `rgba` `hsl` `hwb` `lab` `lch` | `hsl`   |
+| `defaultTextFormat`        | `none` `px` `rem`                          | `rem`   |
+| `defaultPropertyFormat`    | `none` `px` `rem`                          | `px`    |
+| `defaultImageRasterFormat` | `png` `jpg`                                | `png`   |
+| `baseFontSize`             | number                                     | `16`    |
 
 > **About `baseFontSize`:** when a text or property value is emitted as `rem`, Figmage divides the
 > pixel value by this number. With the default of `16`, a `24px` value becomes `1.5rem`.
@@ -157,16 +171,27 @@ available `transform` fields depend on the token type:
 ```js
 tokens: [
   // Color: casing + color format
-  { name: "colors", type: "color", transform: { casing: "kebab", format: "rgba" } },
+  {
+    name: "colors",
+    type: "color",
+    transform: { casing: "kebab", format: "rgba" },
+  },
 
   // Text: casing + unit format
-  { name: "typography", type: "text", transform: { format: "rem" } },
+  {
+    name: "typography",
+    type: "text",
+    transform: { format: "rem" },
+  },
 
   // Property: casing + unit format
   {
     name: "spacing",
     type: "property",
-    source: { componentSet: "Spacing", property: "absoluteBoundingBox.width" },
+    source: {
+      componentSet: "Spacing",
+      property: "absoluteBoundingBox.width",
+    },
     transform: { format: "px" },
   },
 ];
@@ -181,7 +206,10 @@ per-token `fileName` on top of `directory` and `fileType`:
 {
   name: "spacing",
   type: "property",
-  source: { componentSet: "Spacing", property: "absoluteBoundingBox.width" },
+  source: {
+    componentSet: "Spacing",
+    property: "absoluteBoundingBox.width"
+  },
   output: {
     directory: "./tokens",
     fileType: "json",
@@ -207,8 +235,11 @@ export default defineConfig({
   accessToken: process.env.FIGMA_ACCESS_TOKEN,
   fileId: process.env.FIGMA_FILE_ID,
 
-  // House style for every token...
-  output: { directory: "./src/tokens", fileType: "ts" },
+  output: {
+    directory: "./src/tokens",
+    fileType: "ts",
+  },
+
   transform: {
     defaultCasing: "camel",
     defaultColorFormat: "hsl",
@@ -218,23 +249,44 @@ export default defineConfig({
 
   tokens: [
     // ...inherit all defaults
-    { name: "colors", type: "color" },
-    { name: "typography", type: "text" },
-    { name: "shadows", type: "dropShadow" },
+    {
+      name: "colors",
+      type: "color",
+    },
+    {
+      name: "typography",
+      type: "text",
+    },
+    {
+      name: "shadows",
+      type: "dropShadow",
+    },
 
     // ...override just what's different
     {
       name: "spacing",
       type: "property",
-      source: { componentSet: "Spacing", property: "absoluteBoundingBox.width" },
-      transform: { format: "px" },
-      output: { fileType: "json" },
+      source: {
+        componentSet: "Spacing",
+        property: "absoluteBoundingBox.width",
+      },
+      transform: {
+        format: "px",
+      },
+      output: {
+        fileType: "json",
+      },
     },
     {
       name: "icons",
       type: "imageSprite",
-      source: { frame: "Icons" },
-      output: { fileName: "icon-sprite", ids: { enabled: true } },
+      source: {
+        frame: "Icons",
+      },
+      output: {
+        fileName: "icon-sprite",
+        ids: { enabled: true },
+      },
     },
   ],
 });

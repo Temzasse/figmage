@@ -11,26 +11,25 @@ files that stay in sync with the design source of truth.
 
 The docs are split into two tracks. Pick the one that matches your role — most teams will use both.
 
-## I'm a developer
+## 👨‍💻 I'm a developer
 
-If you configure and run Figmage, install it from your terminal and connect it to Figma:
+If you are a developer who uses Figmage to pull design tokens from Figma, you can start with the introduction to the [developer docs](/developers/) to get started, or jump right in with:
 
-1. [Install and Auth](/developers/install-and-auth/) — install the CLI and create a Figma access token.
-2. [Quickstart](/developers/quickstart/) — run your first token sync.
-3. [CLI](/developers/cli/) — the full command reference.
+- [Quickstart](/developers/quickstart/) — install, configure, and run your first sync.
+- [Install and Auth](/developers/install-and-auth/) — the full setup, tokens, and CI.
+- [Configuration](/developers/configuration/) — every `figmage.config.js` option.
+- [Token Types](/developers/token-types/) — everything Figmage can generate.
+- [CLI](/developers/cli/) — the complete command reference.
 
-Then explore [the developer docs](/developers/) for config, transforms, and every token type.
+## 🎨 I'm a designer
 
-## I'm a designer
+If your role includes creating and managing a design system in Figma, you can start with the introduction to the [designer docs](/designers/) to get started, or jump right in with:
 
-If you prepare the design system in Figma, set up your styles and components so Figmage can read them
-reliably:
-
-1. [Publish & Share](/designers/publish-and-share/) — make your work visible to Figmage.
-2. [Styles & Variables](/designers/styles-and-variables/) — colors, type, and effects.
-3. [Naming & Grouping](/designers/naming-and-grouping/) — your contract with developers.
-
-Then explore [the designer docs](/designers/) for components, icons, and the handoff checklist.
+- [Styles & Variables](/designers/styles-and-variables/) — colors, type, and shadows.
+- [Components](/designers/components/) — spacing/sizing scales, icons, and images.
+- [Naming & Grouping](/designers/naming-and-grouping/) — your contract with developers.
+- [Publish & Share](/designers/publish-and-share/) — make your work available to Figmage.
+- [Handoff & Limitations](/designers/handoff-and-limitations/) — a final checklist and what to know.
 
 ## Next
 

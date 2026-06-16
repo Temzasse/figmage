@@ -15,4 +15,5 @@ for the bigger picture.
 2. [Install and Auth](/developers/install-and-auth/) — the full setup, tokens, and CI.
 3. [Configuration](/developers/configuration/) — every `figmage.config.js` option.
 4. [Token Types](/developers/token-types/) — everything Figmage can generate.
-5. [CLI](/developers/cli/) — the complete command reference.
+5. [Spritesheets](/developers/spritesheets/) — why and how to generate SVG sprite sheets for your icons
+6. [CLI](/developers/cli/) — the complete command reference.

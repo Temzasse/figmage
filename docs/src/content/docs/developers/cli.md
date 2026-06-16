@@ -22,7 +22,7 @@ These flags work with any command:
 - `-v, --version` Show the installed Figmage version.
 - `-V, --verbose` Enable verbose logging (useful for debugging API or config issues).
 
-## sync
+## `sync`
 
 Reads your published Figma library and writes design token files to disk based on your config.
 
@@ -59,7 +59,7 @@ figmage sync --skip=assets
 figmage sync --verbose
 ```
 
-### Filtering with --only and --skip
+### Filtering with `--only` and `--skip`
 
 By default `figmage sync` processes every token in your config. When you only need to refresh part
 of your design system, use `--only` or `--skip` to narrow the run. Both accept a comma-separated
@@ -84,7 +84,7 @@ Good practices:
 - Fails if `--only` or `--skip` is provided but contains no valid names.
 - Fails if both `--only` and `--skip` are provided at the same time.
 
-## spritesheet
+## `spritesheet`
 
 Bundles a folder of existing SVG files into a single SVG sprite sheet. Use it when your icons
 already live in your repo as SVG files rather than in Figma. (To build a sprite directly from Figma

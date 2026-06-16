@@ -5,6 +5,8 @@ sidebar:
   order: 3
 ---
 
+import { Steps, Aside } from "@astrojs/starlight/components";
+
 Figmage talks to the Figma REST API on your behalf, so it needs two pieces of information:
 
 1. A **personal access token** that authorizes API requests.
@@ -34,16 +36,27 @@ npm install -g figmage
 
 A personal access token lets Figmage read your file through the REST API.
 
-1. Sign in to Figma and open **Settings** (click your avatar in the top-left, then **Settings**).
-2. Go to the **Security** tab.
-3. Under **Personal access tokens**, click **Generate new token**.
-4. Give the token a descriptive name (for example `figmage`).
-5. Set the **File content** scope to at least **Read-only**. This is the scope Figmage needs to
-   read styles, components, and images.
-6. Click **Generate token** and **copy the token immediately** — Figma only shows it once.
+<Steps>
+    
+    1. Sign in to Figma and open **Settings** (click your avatar in the top-left, then **Settings**).
+    
+    2. Go to the **Security** tab.
+    
+    3. Under **Personal access tokens**, click **Generate new token**.
+    
+    4. Give the token a descriptive name (for example `figmage`).
+    
+    5. Set the **File content** scope to at least **Read-only**. This is the scope Figmage needs to
+      read styles, components, and images.
+    
+    6. Click **Generate token** and **copy the token immediately** — Figma only shows it once.
 
-> Treat the token like a password. Anyone with it can read your Figma files. Never commit it to
-> source control.
+</Steps>
+
+<Aside type="caution">
+  Treat the token like a password. Anyone with it can read your Figma files. Never commit it to
+  source control.
+</Aside>
 
 For reference, see Figma's docs on
 [access tokens](https://www.figma.com/developers/api#access-tokens).
@@ -59,9 +72,11 @@ https://www.figma.com/design/<fileId>/<file-name>?node-id=...
 The `<fileId>` segment (a long alphanumeric string right after `/design/` or `/file/`) is the value
 Figmage needs.
 
-> The file must be **published as a library** so its styles and components are available through the
-> REST API. See the designer guide on
-> [publishing a library](/designers/publish-and-share/) for details.
+<Aside>
+  The file must be **published as a library** so its styles and components are available through the
+  REST API. See the designer guide on [publishing a library](/designers/publish-and-share/) for
+  details.
+</Aside>
 
 ## Store credentials with dotenv
 
@@ -95,10 +110,10 @@ export default defineConfig({
 `accessToken` and `fileId` are both required. If either is missing, `figmage sync` exits with an
 error before making any requests.
 
-## In CI
-
-Don't commit `.env`. Instead, store `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` as secrets in your CI
-provider and expose them as environment variables for the job that runs `figmage sync`.
+<Aside type="tip" title="CI/CD">
+  Don't commit `.env`. Instead, store `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` as secrets in your CI
+  provider and expose them as environment variables for the job that runs `figmage sync`.
+</Aside>
 
 ## Custom config path
 
