@@ -21,6 +21,11 @@ export default defineConfig({
       logo: {
         src: "./src/assets/figmage.png",
       },
+      customCss: [
+        "@fontsource/geist/400.css",
+        "@fontsource/geist/600.css",
+        "./src/styles/custom.css",
+      ],
       social: [
         {
           icon: "github",

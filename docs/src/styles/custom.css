@@ -1,0 +1,32 @@
+/* Dark mode colors. */
+:root {
+  --sl-font:
+    "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans",
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --sl-color-accent-low: #2b1648;
+  --sl-color-accent: #8713e9;
+  --sl-color-accent-high: #d1bcfb;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #f1ecf2;
+  --sl-color-gray-2: #c6bfc7;
+  --sl-color-gray-3: #938794;
+  --sl-color-gray-4: #5f5460;
+  --sl-color-gray-5: #3e3440;
+  --sl-color-gray-6: #2c232e;
+  --sl-color-black: #1b161b;
+}
+/* Light mode colors. */
+:root[data-theme="light"] {
+  --sl-color-accent-low: #ddcdfe;
+  --sl-color-accent: #8919eb;
+  --sl-color-accent-high: #3f186b;
+  --sl-color-white: #1b161b;
+  --sl-color-gray-1: #2c232e;
+  --sl-color-gray-2: #3e3440;
+  --sl-color-gray-3: #5f5460;
+  --sl-color-gray-4: #938794;
+  --sl-color-gray-5: #c6bfc7;
+  --sl-color-gray-6: #f1ecf2;
+  --sl-color-gray-7: #f8f5f8;
+  --sl-color-black: #ffffff;
+}
