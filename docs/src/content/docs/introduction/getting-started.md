@@ -11,6 +11,11 @@ files that stay in sync with the design source of truth.
 
 The docs are split into two tracks. Pick the one that matches your role — most teams will use both.
 
+| If you... | Start here | You will learn |
+| --------- | ---------- | -------------- |
+| Design or maintain the Figma library | [Designers](/designers/) | How to prepare styles, components, names, publishing, and handoff notes |
+| Install or run the CLI | [Developers](/developers/) | How to configure Figmage, sync tokens, shape output, and automate the CLI |
+
 ## 👨‍💻 I'm a developer
 
 If you are a developer who uses Figmage to pull design tokens from Figma, you can start with the introduction to the [developer docs](/developers/) to get started, or jump right in with:

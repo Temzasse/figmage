@@ -17,7 +17,7 @@ Figmage talks to the Figma REST API on your behalf, so it needs two pieces of in
 Install it as a dev dependency in your project:
 
 ```bash
-npm install --save-dev figmage
+npm install --save-dev figmage dotenv
 ```
 
 Or run it on demand without installing:
@@ -90,6 +90,9 @@ FIGMA_FILE_ID="xxxxxxxxxxxxxxxxxxxxxx"
 
 Add `.env` to your `.gitignore` so it is never committed.
 
+The examples below use `dotenv`, so install it alongside Figmage if your project does not already
+include it.
+
 ## Wire credentials into the config
 
 Figmage reads its configuration from `figmage.config.js`. Load the env file at the top and pass the
@@ -114,6 +117,8 @@ error before making any requests.
   Don't commit `.env`. Instead, store `FIGMA_ACCESS_TOKEN` and `FIGMA_FILE_ID` as secrets in your CI
   provider and expose them as environment variables for the job that runs `figmage sync`.
 </Aside>
+
+For a complete automation workflow, see [CI](/developers/ci/).
 
 ## Custom config path
 

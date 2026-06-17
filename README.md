@@ -25,7 +25,11 @@ Full documentation lives on the **[Figmage docs website](https://temzasse.github
 - [Install and Auth](https://temzasse.github.io/figmage/developers/install-and-auth/)
 - [Configuration](https://temzasse.github.io/figmage/developers/configuration/)
 - [Token Types](https://temzasse.github.io/figmage/developers/token-types/)
+- [Spritesheets](https://temzasse.github.io/figmage/developers/spritesheets/)
 - [CLI Reference](https://temzasse.github.io/figmage/developers/cli/)
+- [Troubleshooting](https://temzasse.github.io/figmage/developers/troubleshooting/)
+- [CI](https://temzasse.github.io/figmage/developers/ci/)
+- [Recipes](https://temzasse.github.io/figmage/developers/recipes/)
 
 ### For designers
 

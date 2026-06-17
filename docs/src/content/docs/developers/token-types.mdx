@@ -37,6 +37,21 @@ Every token also accepts an optional [`transform`](/developers/configuration/#pe
 and [`output`](/developers/configuration/#per-token-overrides), plus a `filter` predicate to drop
 individual tokens (covered at the end).
 
+## Which type should I use?
+
+| Goal | Use this type | Ask the designer for |
+| ---- | ------------- | -------------------- |
+| Sync reusable colors | `color` | Published color styles |
+| Sync typography roles | `text` | Published text styles |
+| Sync elevation shadows | `dropShadow` | Published drop-shadow effect styles |
+| Sync spacing, sizing, or radii | `property` | Component set or frame, plus which property to measure |
+| Export one SVG file per icon | `imageVector` | Icon components in a source frame or component set |
+| Build an SVG icon sprite | `imageSprite` | Single-color icon components, ideally separate from multicolor icons |
+| Export illustrations, logos, or photos | `imageRaster` | Asset components and desired raster scale |
+
+If the value is a Figma **style**, start with a style-based token. If it is a reusable object or
+measured value, model it as a **component** and use a source-based token.
+
 ---
 
 ## Style-based tokens
@@ -305,6 +320,8 @@ tokens: [
 
 - Shape the output with [Configuration](/developers/configuration/).
 - Run a sync with the [CLI](/developers/cli/).
+- Copy common setups from [Recipes](/developers/recipes/).
+- Fix common failures with [Troubleshooting](/developers/troubleshooting/).
 - Designers: prepare the Figma side with
   [Styles & Variables](/designers/styles-and-variables/) and
   [Components](/designers/components/).

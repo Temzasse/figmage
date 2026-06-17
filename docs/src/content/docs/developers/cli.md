@@ -18,9 +18,11 @@ figmage <command> [options]
 
 These flags work with any command:
 
-- `-h, --help` Show help.
-- `-v, --version` Show the installed Figmage version.
-- `-V, --verbose` Enable verbose logging (useful for debugging API or config issues).
+| Flag | Description |
+| ---- | ----------- |
+| `-h, --help` | Show help. |
+| `-v, --version` | Show the installed Figmage version. |
+| `-V, --verbose` | Enable verbose logging for API, config, and filtering issues. |
 
 ## `sync`
 
@@ -32,11 +34,11 @@ figmage sync [options]
 
 ### Options
 
-- `-c, --config <path>` Path to the config file. Default: `figmage.config.js`.
-- `--only <names>` Comma-separated token names to sync, e.g. `colors,typography`. Everything else is
-  skipped.
-- `--skip <names>` Comma-separated token names to exclude, e.g. `icons,assets`. Everything else is
-  synced.
+| Flag | Default | Description |
+| ---- | ------- | ----------- |
+| `-c, --config <path>` | `figmage.config.js` | Path to the config file. |
+| `--only <names>` | none | Comma-separated token names to sync, e.g. `colors,typography`. Everything else is skipped. |
+| `--skip <names>` | none | Comma-separated token names to exclude, e.g. `icons,assets`. Everything else is synced. |
 
 `--only` and `--skip` are mutually exclusive — pass at most one of them.
 
@@ -84,6 +86,8 @@ Good practices:
 - Fails if `--only` or `--skip` is provided but contains no valid names.
 - Fails if both `--only` and `--skip` are provided at the same time.
 
+For setup and sync failures, see [Troubleshooting](/developers/troubleshooting/).
+
 ## `spritesheet`
 
 Bundles a folder of existing SVG files into a single SVG sprite sheet. Use it when your icons
@@ -96,18 +100,22 @@ figmage spritesheet [options]
 
 ### Required options
 
-- `--sprite-input <path>` Directory containing source SVG files.
-- `--sprite-output <path>` Directory where the generated sprite SVG is written.
-- `--sprite-filename <name>` Output file name without extension.
+| Flag | Description |
+| ---- | ----------- |
+| `--sprite-input <path>` | Directory containing source SVG files. |
+| `--sprite-output <path>` | Directory where the generated sprite SVG is written. |
+| `--sprite-filename <name>` | Output file name without extension. |
 
 ### Optional options
 
-- `--sprite-case <case>` Symbol ID casing: `camel | kebab | snake | lower | pascal` (default: `kebab`).
-- `--sprite-convert-colors` Convert hard-coded SVG colors to `currentColor` (default: `true`).
-- `--sprite-ids-enabled` Also generate a file containing the icon IDs (useful for type safety).
-- `--sprite-ids-output <path>` Directory for the IDs file.
-- `--sprite-ids-filename <name>` IDs file name without extension.
-- `--sprite-ids-filetype <type>` IDs file type: `ts | js | json` (default: `ts`).
+| Flag | Default | Description |
+| ---- | ------- | ----------- |
+| `--sprite-case <case>` | `kebab` | Symbol ID casing: `camel | kebab | snake | lower | pascal`. |
+| `--sprite-convert-colors` | `true` | Convert hard-coded SVG colors to `currentColor`. |
+| `--sprite-ids-enabled` | `false` | Also generate a file containing the icon IDs. |
+| `--sprite-ids-output <path>` | sprite output directory | Directory for the IDs file. |
+| `--sprite-ids-filename <name>` | `<sprite-filename>-ids` | IDs file name without extension. |
+| `--sprite-ids-filetype <type>` | `ts` | IDs file type: `ts | js | json`. |
 
 ### Example
 

@@ -9,6 +9,21 @@ Everything Figmage does is driven by a single file: `figmage.config.js`. It answ
 **where** to read from (your Figma file), **what** to generate (the tokens), and **how** to shape the
 output (formats, casing, file types). This page is the complete reference.
 
+## Start with these decisions
+
+Before filling in every field, decide the shape of your sync:
+
+| Decision | Usually choose |
+| -------- | -------------- |
+| Where should generated files go? | `output.directory`, often `./tokens` or `./src/tokens` |
+| Which file type should code tokens use? | `ts` for application code, `json` for tool pipelines |
+| Which Figma values should sync? | One entry per token set in `tokens` |
+| Do names need a codebase convention? | Set `transform.defaultCasing` once |
+| Do units need normalization? | Set text/property formats globally, override exceptions per token |
+
+The reference below is organized from required connection fields, to token definitions, to formatting
+defaults, to per-token overrides.
+
 ## The config file
 
 Figmage looks for `figmage.config.js` in the current working directory by default. The file should
@@ -163,6 +178,9 @@ transform: {
 > **About `baseFontSize`:** when a text or property value is emitted as `rem`, Figmage divides the
 > pixel value by this number. With the default of `16`, a `24px` value becomes `1.5rem`.
 
+These defaults should stay in sync with the values exported from Figmage's source constants. When a
+default changes in code, update this table and the matching token-type examples in the same change.
+
 ## Per-token overrides
 
 Every token accepts its own `transform`, and code-based tokens accept their own `output`. The
@@ -297,3 +315,5 @@ export default defineConfig({
 - Learn the available [token types](/developers/token-types/).
 - Generate scales and assets with [source-based tokens](/developers/token-types/#source-based-tokens).
 - Run it all with the [CLI](/developers/cli/).
+- Copy common patterns from [Recipes](/developers/recipes/).
+- Debug setup issues with [Troubleshooting](/developers/troubleshooting/).

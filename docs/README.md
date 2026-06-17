@@ -1,49 +1,30 @@
-# Starlight Starter Kit: Basics
+# Figmage Docs
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+This is the Astro Starlight documentation site for Figmage.
 
-```
-npm create astro@latest -- --template starlight
-```
+## Local development
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+```bash
+npm install
+npm run dev
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+The site runs at `http://localhost:4321/figmage/` because the production site is deployed under the
+`/figmage` base path.
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+## Build
 
-Static assets, like favicons, can be placed in the `public/` directory.
+```bash
+npm run build
+npm run preview
+```
 
-## 🧞 Commands
+## Content structure
 
-All commands are run from the root of the project, from a terminal:
+- `src/content/docs/introduction/` explains what Figmage is and routes readers to the right track.
+- `src/content/docs/designers/` is for non-technical designers preparing the Figma source library.
+- `src/content/docs/developers/` is for developers configuring and running the CLI.
+- `src/components/Flow.astro` is the custom Figmage flow diagram component used on overview pages.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+Keep designer pages free of implementation-heavy CLI details. Keep developer pages precise enough to
+copy into a working project.

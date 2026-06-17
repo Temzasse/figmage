@@ -64,6 +64,12 @@ which property to measure:
   Keep each scale in its own frame. That lets developers sync, say, spacing without touching radii.
 </Aside>
 
+| Good | Avoid |
+| ---- | ----- |
+| Frame `Spacing` containing components named `Spacing/Xsmall`, `Spacing/Small`, `Spacing/Medium` | A group of rectangles that are not components |
+| Component width equals the spacing value it represents | A 100px-wide component labeled `16` |
+| Separate frame `Radii` for corner radius components | Mixing spacing, radii, and icon components in one source frame |
+
 ## Icons and images
 
 Figmage can export the real graphics from your file — icons as crisp SVGs, artwork as images — so
@@ -89,6 +95,11 @@ color from code, so one icon can appear in any color the app needs. If you also 
 icons that must keep their exact colors, put them in a **separate frame** — that lets developers
 export them as their own group with color conversion turned off. Mixing the two in one frame leads to
 icons that lose their colors unexpectedly.
+
+| Good | Avoid |
+| ---- | ----- |
+| Frame `Icons` with 24x24 single-color components named `arrow-left`, `check-circle` | Icons named `Icon 23`, `Vector 5`, or mixed with helper layers |
+| Separate frame `Icons Multicolor` for fixed-color artwork | Mixing single-color and multicolor icons in the same export frame |
 
 ### Raster images
 
@@ -120,3 +131,6 @@ Before you publish, give your components a quick once-over:
 
 Next, lock in the names that tie all of this to code in
 [Naming & Grouping](/designers/naming-and-grouping/).
+
+Before a developer syncs, run the full
+[handoff checklist](/designers/handoff-and-limitations/#pre-handoff-checklist).

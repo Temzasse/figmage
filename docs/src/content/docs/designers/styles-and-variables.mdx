@@ -9,7 +9,7 @@ import { Aside, Steps } from "@astrojs/starlight/components";
 
 Every design system starts with a handful of reusable decisions: _this_ is our brand color, _this_
 is our body text, _this_ is our card shadow. In Figma you capture those decisions as **styles** (and,
-on supported plans, **variables**). Figmage reads them directly and turns each one into a named token
+on supported plans, **variables**). Figmage reads **styles** today and turns them into named tokens
 that developers import.
 
 <Aside type="note" title="Golden rule:">
@@ -39,6 +39,10 @@ Each color style becomes a `color` token. Want light and dark variants grouped s
 Prefix the names with a folder, like `Light/Surface` and `Dark/Surface` — see
 [Naming & Grouping](/designers/naming-and-grouping/).
 
+| Good | Avoid |
+| ---- | ----- |
+| `Light/Surface`, `Dark/Surface`, `Brand/Primary` | `New Color`, `#F8F8F8`, `Gray 3 maybe` |
+
 ## 🔤 Typography
 
 Create a **text style** for each _role_ in your type system — not for each individual size, but for
@@ -57,6 +61,10 @@ the jobs text does: titles, subtitles, body, captions, overlines.
 Each text style becomes a `text` token carrying the full recipe: font family, size, weight, line
 height, letter spacing, and text transform.
 
+| Good | Avoid |
+| ---- | ----- |
+| `Web/Body`, `Web/Title`, `Marketing/Hero` | `Bold 24`, `Inter 16`, `Text Style 7` |
+
 ## 🌑 Effects (shadows)
 
 Create an **effect style** for each elevation level in your system.
@@ -74,6 +82,10 @@ Create an **effect style** for each elevation level in your system.
 </Steps>
 
 Each one becomes a `dropShadow` token.
+
+| Good | Avoid |
+| ---- | ----- |
+| `Elevation/Small`, `Elevation/Medium`, `Overlay/Popover` | `Shadow copy`, `Blur 1`, unnamed layer effects |
 
 <Aside type="note" title="Good to know">
   Figmage currently extracts **drop shadows** only. Inner shadows and layer/ background blurs are
@@ -113,6 +125,7 @@ the values are **reusable**, **clearly named**, and part of a **published** libr
 - Use stable, semantic names — avoid `New Color` or `Untitled Style`.
 - Keep one consistent naming pattern within each family.
 - Use top-level folders (`Light/`, `Dark/`, `Web/`, `Native/`) to control how tokens are grouped.
+- Before publishing, run the [handoff checklist](/designers/handoff-and-limitations/#pre-handoff-checklist).
 
 Next: model the values Figma has no style for — spacing, sizing, icons — over in
 [Components](/designers/components/).
