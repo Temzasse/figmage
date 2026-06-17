@@ -51,7 +51,7 @@ See: [Configuration → Transform](/developers/configuration/#transform)
 Refresh only part of your design system with `--only` and `--skip`, so CI jobs can re-export a
 single token group on demand.
 
-See: [CLI → Filtering](/developers/cli/#filtering-with-only-and-skip)
+See: [CLI → Filtering](/developers/cli/#filtering-with---only-and---skip)
 
 ## SVG sprite sheets
 

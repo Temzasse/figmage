@@ -8,6 +8,9 @@ sidebar:
 You're almost there. This page has two jobs: a **checklist** to run before developers sync, and an
 honest look at Figmage's **limitations** so there are no surprises.
 
+Use this page before every meaningful library release. It is the shared "are we ready to sync?"
+check between design and development.
+
 ## Pre-handoff checklist
 
 Run through this before each handoff or sync to make sure Figmage gets clean, complete data.
@@ -17,6 +20,7 @@ Run through this before each handoff or sync to make sure Figmage gets clean, co
 - [ ] Developers know how they'll get an [access token](/designers/publish-and-share/#the-access-token).
 - [ ] The **file ID** has been shared.
 - [ ] The file is **[published](/designers/publish-and-share/)** with your latest changes.
+- [ ] The latest publish was reviewed for added, changed, and removed assets.
 
 **Styles**
 
@@ -27,12 +31,15 @@ Run through this before each handoff or sync to make sure Figmage gets clean, co
 **Components**
 
 - [ ] Spacing / sizing / radii scales exist as **components** with one value each.
+- [ ] Developers know the source frame or component set for each scale.
 - [ ] Icon and image components are complete and consistently named.
 - [ ] Single-color and multicolor icons are in separate frames.
 
 **Communication**
 
 - [ ] Any pending renames or structural changes are flagged to developers in advance.
+- [ ] Developers know which token groups should be synced for this release.
+- [ ] Any work-in-progress styles or components are hidden from publishing or clearly excluded.
 
 When every box is checked, developers can run `figmage sync` with confidence. 🎉
 
@@ -54,6 +61,8 @@ boundaries worth knowing as you prepare your file.
 - **Only drop shadows are extracted** from effects. Inner shadows and blurs are skipped.
 - **Unstable names create unstable code.** Renaming in Figma renames or removes tokens in code.
 - **Nothing reaches developers until you publish.** Always re-publish after changes.
+- **Variables can support your Figma workflow, but Figmage does not read them directly yet.** Make
+  values available as styles or measurable/exportable components when they need to sync.
 
 ### A handy mental model
 

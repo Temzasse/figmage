@@ -15,9 +15,18 @@ that's a joy to build on. Random or shifting names produce confusion, bugs, and 
 
 ## Naming rules
 
-- **Describe purpose, not appearance.** `Surface`, not `Light Gray 3`. The color might change to
-  off-white next quarter — but it's still the surface.
-- **Keep names stable.** Renaming in Figma renames (or removes) the token in code, which can break a
+| Good | Avoid | Why |
+| ---- | ----- | --- |
+| `Surface` | `Light Gray 3` | Purpose survives visual changes. |
+| `Body`, `Caption`, `Title` | `Inter 16`, `Bold 24` | Roles are easier to use in products. |
+| `Spacing/Small` | `Rectangle 12` | The name tells developers what the value means. |
+| `arrow-left` | `Icon 23` | Code-facing names should be readable and searchable. |
+
+Use these rules as your baseline:
+
+- **Describe purpose, not appearance.** The color might change to off-white next quarter, but it's
+  still the surface.
+- **Keep names stable.** Renaming in Figma renames or removes the token in code, which can break a
   developer's work. Rename deliberately, not casually.
 - **One pattern per family.** Pick a convention for colors, another for text styles, and stick to it.
 - **Avoid tool defaults.** `New Color`, `Style 2`, and `Untitled` are red flags that a value isn't
@@ -49,6 +58,19 @@ simple, powerful way to shape how tokens are organized in code — and it works 
 So the folder structure you give your names *is* the structure developers get in code. A little care
 here pays off across the entire system.
 
+## From Figma name to code name
+
+Developers can choose casing in Figmage, but the structure still comes from your Figma names:
+
+| Figma name | With camel casing | What developers import |
+| ---------- | ----------------- | ---------------------- |
+| `Light/Surface` | group `light`, token `surface` | `colors.light.surface` |
+| `Web/Body Large` | group `web`, token `bodyLarge` | `typography.web.bodyLarge` |
+| `Spacing/Small` | group `spacing`, token `small` | a grouped spacing token, depending on the developer's source config |
+
+The exact import path depends on the developer's config, but stable Figma names are what keep the
+generated code stable.
+
 ## A healthy review cadence
 
 Names are a contract, so manage changes to them like one:
@@ -60,3 +82,7 @@ Names are a contract, so manage changes to them like one:
 
 With your names solid, you're ready to make everything official in
 [Publish & Share](/designers/publish-and-share/).
+
+Before publishing a rename-heavy update, run the
+[handoff checklist](/designers/handoff-and-limitations/#pre-handoff-checklist) and call out the
+planned breaking changes.

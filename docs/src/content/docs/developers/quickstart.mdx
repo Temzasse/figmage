@@ -5,21 +5,64 @@ sidebar:
   order: 2
 ---
 
-import { Steps } from "@astrojs/starlight/components";
+import { Aside, FileTree, Steps, TabItem, Tabs } from "@astrojs/starlight/components";
 
 This is the fastest path from an empty project to real design tokens in your codebase. In about five
 minutes you'll install Figmage, connect it to Figma, and run your first sync. Each step links to a
 deeper page if you want the full story.
 
+## Before you start
+
+You need:
+
+- **Node.js 22 or newer.**
+- A project where you can install dev dependencies.
+- A **published Figma library** that contains at least one color, text, or effect style.
+- View access to that Figma file.
+- A Figma **access token** and the file's **file ID**.
+
+<Aside type="tip" title="Designer handoff">
+  If someone else owns the Figma library, ask them for the file ID, confirmation that the latest
+  changes are published, and which token groups they expect you to sync.
+</Aside>
+
 <Steps>
 
 1. **Install Figmage**
 
-   Add it as a dev dependency:
+   Add Figmage and `dotenv` as dev dependencies. The Quickstart config below uses `dotenv` to load
+   secrets from a local `.env` file.
 
-   ```bash
-   npm install --save-dev figmage
-   ```
+   <Tabs syncKey="package-manager">
+     <TabItem label="npm">
+
+     ```bash
+     npm install --save-dev figmage dotenv
+     ```
+
+     </TabItem>
+     <TabItem label="pnpm">
+
+     ```bash
+     pnpm add --save-dev figmage dotenv
+     ```
+
+     </TabItem>
+     <TabItem label="Yarn">
+
+     ```bash
+     yarn add --dev figmage dotenv
+     ```
+
+     </TabItem>
+     <TabItem label="Bun">
+
+     ```bash
+     bun add --dev figmage dotenv
+     ```
+
+     </TabItem>
+   </Tabs>
 
    Prefer not to install? Every command also works through `npx figmage …`.
 
@@ -86,6 +129,17 @@ deeper page if you want the full story.
 
 5. **Use the tokens**
 
+   A successful first sync should leave you with files like this:
+
+   <FileTree>
+
+   - tokens
+     - colors.ts
+     - typography.ts
+     - shadows.ts
+
+   </FileTree>
+
    Import the generated files anywhere in your app:
 
    ```ts
@@ -112,7 +166,7 @@ figmage sync --only=colors,typography
 figmage sync --skip=shadows
 ```
 
-> More on selective syncing in the [CLI reference](/developers/cli/#filtering-with-only-and-skip).
+> More on selective syncing in the [CLI reference](/developers/cli/#filtering-with---only-and---skip).
 
 ## Where to go next
 
@@ -122,4 +176,5 @@ You now have a working sync. From here you can go deeper:
   [Token Types](/developers/token-types/#source-based-tokens).
 - **Shape the output** — color formats, units, casing, and file types. See
   [Configuration](/developers/configuration/).
-- **Automate it** — wire `figmage sync` into CI. See [Install and Auth](/developers/install-and-auth/#in-ci).
+- **Automate it** — wire `figmage sync` into CI. See [CI](/developers/ci/).
+- **Fix a failed sync** — see [Troubleshooting](/developers/troubleshooting/) for common errors.

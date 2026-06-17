@@ -5,7 +5,10 @@ sidebar:
   order: 1
 ---
 
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 import Flow from "../../../components/Flow.astro";
+
+export const withBase = (path) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}${path}`;
 
 Welcome! This section is for designers and design system maintainers. Your job here isn't to write
 code — it's to organize your Figma file so a tool called **Figmage** can read it and hand developers
@@ -36,13 +39,57 @@ Three habits make this work beautifully, and they're the thread through every pa
 - **Name things like an API.** Your names become the names developers type in code.
 - **Publish when it's ready.** Nothing reaches developers until you publish.
 
+## Your part, their part
+
+| Designers handle | Developers handle |
+| ---------------- | ----------------- |
+| Create reusable Figma styles and components | Configure which token groups Figmage should sync |
+| Keep names stable and easy to understand | Choose output formats, folders, and casing |
+| Publish the library after approved changes | Run `figmage sync` and use the generated files |
+| Share handoff notes before renames | Update app code when token names intentionally change |
+
+You do not need to write code or understand `figmage.config.js`. Your job is to make the source
+library clear, published, and predictable.
+
+## Useful words
+
+| Term | Plain-language meaning |
+| ---- | ---------------------- |
+| **Token** | A named design decision developers can use in code, like `primary` or `spacing.small`. |
+| **Published library** | The official version of your Figma file that other files, developers, and Figmage can read. |
+| **Component set** | A family of related Figma components, such as spacing steps or icon variants. |
+| **File ID** | The long ID in the Figma file URL that tells Figmage which file to read. |
+| **Access token** | A private key that lets Figmage read Figma through the API. Developers usually manage this. |
+
 New to the idea? Read [Why Figmage](/introduction/why-figmage/) for the bigger picture, or
 [Getting Started](/introduction/getting-started/) for a quick orientation.
 
 ## Reading path
 
-1. [Styles & Variables](/designers/styles-and-variables/) — colors, type, and shadows.
-2. [Components](/designers/components/) — spacing/sizing scales, icons, and images.
-3. [Naming & Grouping](/designers/naming-and-grouping/) — your contract with developers.
-4. [Publish & Share](/designers/publish-and-share/) — make your work available to Figmage.
-5. [Handoff & Limitations](/designers/handoff-and-limitations/) — a final checklist and what to know.
+<CardGrid>
+  <LinkCard
+    title="Styles & Variables"
+    href={withBase("/designers/styles-and-variables/")}
+    description="Prepare colors, typography, and shadows as reusable Figma styles."
+  />
+  <LinkCard
+    title="Components"
+    href={withBase("/designers/components/")}
+    description="Model spacing, sizing, radii, icons, and images as components Figmage can measure or export."
+  />
+  <LinkCard
+    title="Naming & Grouping"
+    href={withBase("/designers/naming-and-grouping/")}
+    description="Name things like a shared API so developers get stable, predictable token names."
+  />
+  <LinkCard
+    title="Publish & Share"
+    href={withBase("/designers/publish-and-share/")}
+    description="Publish the library and hand developers the details they need to connect."
+  />
+  <LinkCard
+    title="Handoff & Limitations"
+    href={withBase("/designers/handoff-and-limitations/")}
+    description="Run the final checklist and understand what Figmage can and cannot extract."
+  />
+</CardGrid>
