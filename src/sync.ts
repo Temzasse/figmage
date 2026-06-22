@@ -1,7 +1,12 @@
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import assert from "node:assert";
-import type { ComponentNode, DropShadowEffect, StyleType } from "@figma/rest-api-spec";
+import type {
+  ComponentNode,
+  DropShadowEffect,
+  InstanceNode,
+  StyleType,
+} from "@figma/rest-api-spec";
 import type { ConsolaInstance } from "consola";
 import { FigmaAPI } from "./api";
 import { convertColor } from "./color";
@@ -433,7 +438,7 @@ export class Sync {
     const { name, source, transform } = config;
     const tokens: VectorImageSyncResult["tokens"] = [];
 
-    let data: { url: string; component: ComponentNode }[] = [];
+    let data: { url: string; component: ComponentNode | InstanceNode }[] = [];
 
     if ("componentSet" in source) {
       const components = await this.api.fetchComponentSets(source.componentSet);
@@ -757,7 +762,7 @@ export class Sync {
     this.progressCompleted = Math.min(this.progressCompleted + 1, this.progressTotal);
   }
 
-  private readComponentProperty(component: ComponentNode, propertyPath: string) {
+  private readComponentProperty(component: ComponentNode | InstanceNode, propertyPath: string) {
     const propertyValue = get(component, propertyPath);
 
     if (propertyValue === undefined || propertyValue === null) {
