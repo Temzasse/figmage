@@ -139,9 +139,9 @@ export class FigmaAPI {
       return flattened;
     }
 
-    const nodes = flattenChildren(res.nodes[id].document).filter(
-      (n: Node) => n.type === "COMPONENT",
-    );
+    const nodes = flattenChildren(res.nodes[id].document).filter((n: Node) => {
+      return n.type === "COMPONENT" || n.type === "INSTANCE";
+    });
 
     return nodes;
   }
