@@ -9,22 +9,19 @@ const ignoreCommentMap = {
   biome: "// biome-ignore-all lint: generated file",
 } satisfies Record<IgnoreComment, string>;
 
-type RenderTSOptions = {
-  name: string;
-  tokens: SyncResult["tokens"];
-  ignoreComments?: readonly IgnoreComment[];
-};
-
-type RenderJSOptions = {
-  tokens: SyncResult["tokens"];
-  ignoreComments?: readonly IgnoreComment[];
-};
-
 export function renderIgnoreComments(ignoreComments: readonly IgnoreComment[] = []) {
   return ignoreComments.map((comment) => `${ignoreCommentMap[comment]}\n`).join("");
 }
 
-export function renderTS({ name, tokens, ignoreComments }: RenderTSOptions) {
+export function renderTS({
+  name,
+  tokens,
+  ignoreComments,
+}: {
+  name: string;
+  tokens: SyncResult["tokens"];
+  ignoreComments?: readonly IgnoreComment[];
+}) {
   const { sortedTokens, templateTokens } = prepareTemplateTokens(tokens);
   const renderedIgnoreComments = renderIgnoreComments(ignoreComments);
 
@@ -40,7 +37,13 @@ export function renderTS({ name, tokens, ignoreComments }: RenderTSOptions) {
   return `${renderedIgnoreComments}${exports}\n\nexport type ${typeName} = ${tokenNames};\n`;
 }
 
-export function renderJS({ tokens, ignoreComments }: RenderJSOptions) {
+export function renderJS({
+  tokens,
+  ignoreComments,
+}: {
+  tokens: SyncResult["tokens"];
+  ignoreComments?: readonly IgnoreComment[];
+}) {
   const { templateTokens } = prepareTemplateTokens(tokens);
   const renderedIgnoreComments = renderIgnoreComments(ignoreComments);
 
