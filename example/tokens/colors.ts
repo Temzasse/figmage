@@ -1,5 +1,8 @@
 /* eslint-disable */
 /* prettier-ignore */
+/* oxlint-disable */
+/* oxfmt-ignore */
+// biome-ignore-all lint: generated file
 export const brand = {
   "brand": "hsl(148, 100%, 30%)",
   "brandContrast": "hsl(147, 89%, 21%)",
