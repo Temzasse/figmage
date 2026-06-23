@@ -61,6 +61,7 @@ type Config = {
   output?: {
     directory?: string; // default: "./tokens"
     fileType?: "ts" | "js" | "json"; // default: "ts"
+    ignoreComments?: ("eslint" | "prettier" | "oxlint" | "oxfmt" | "biome")[];
   };
 
   transform?: {
@@ -143,13 +144,18 @@ Controls where files go and their default type.
 output: {
   directory: "./tokens", // where token files are written
   fileType: "ts",        // ts | js | json
+  ignoreComments: ["eslint", "prettier", "oxlint", "oxfmt", "biome"],
 }
 ```
 
-| Field       | Values           | Default    |
-| ----------- | ---------------- | ---------- |
-| `directory` | any path         | `./tokens` |
-| `fileType`  | `ts` `js` `json` | `ts`       |
+| Field            | Values                                        | Default    |
+| ---------------- | --------------------------------------------- | ---------- |
+| `directory`      | any path                                      | `./tokens` |
+| `fileType`       | `ts` `js` `json`                              | `ts`       |
+| `ignoreComments` | `eslint` `prettier` `oxlint` `oxfmt` `biome` | `[]`       |
+
+`ignoreComments` controls the ignore comments added to generated TS/JS token files and sprite ID
+files. When omitted, Figmage emits no ignore comments.
 
 ### `transform`
 

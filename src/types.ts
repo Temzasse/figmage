@@ -15,6 +15,8 @@ export type ImageRasterFormat = "png" | "jpg";
 
 export type ImageVectorFormat = "ts" | "js" | "json" | "svg";
 
+export type IgnoreComment = "eslint" | "prettier" | "oxlint" | "oxfmt" | "biome";
+
 export interface CodeOutput {
   /**
    * Directory where the generated files will be saved.
@@ -36,6 +38,17 @@ export interface CodeOutput {
    * If not specified, the file name will be derived from the token name.
    */
   fileName?: string;
+}
+
+export interface GlobalOutput extends Omit<CodeOutput, "fileName"> {
+  /**
+   * Ignore comments to add to generated TS/JS files.
+   *
+   * Supported values: `"eslint"`, `"prettier"`, `"oxlint"`, `"oxfmt"`, `"biome"`.
+   *
+   * If not specified, no ignore comments will be added.
+   */
+  ignoreComments?: readonly IgnoreComment[];
 }
 
 export type VectorImageOutput =
@@ -418,7 +431,7 @@ export type Config = {
    *
    * @default { directory: "./tokens", fileType: "ts", casing: "camel" }
    */
-  output?: Omit<CodeOutput, "fileName">;
+  output?: GlobalOutput;
   /**
    * Default transformation options for all tokens. These can be overridden by
    * individual token configurations.

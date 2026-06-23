@@ -1,10 +1,29 @@
-import type { SyncResult } from "./types";
+import type { IgnoreComment, SyncResult } from "./types";
 import { pascalCase } from "./utils";
 
-const ignoreComments = "/* eslint-disable */\n" + "/* prettier-ignore */\n";
+const ignoreCommentMap = {
+  eslint: "/* eslint-disable */",
+  prettier: "/* prettier-ignore */",
+  oxlint: "/* oxlint-disable */",
+  oxfmt: "/* oxfmt-ignore */",
+  biome: "// biome-ignore-all lint: generated file",
+} satisfies Record<IgnoreComment, string>;
 
-export function renderTS(name: string, tokens: SyncResult["tokens"]) {
+export function renderIgnoreComments(ignoreComments: readonly IgnoreComment[] = []) {
+  return ignoreComments.map((comment) => `${ignoreCommentMap[comment]}\n`).join("");
+}
+
+export function renderTS({
+  name,
+  tokens,
+  ignoreComments,
+}: {
+  name: string;
+  tokens: SyncResult["tokens"];
+  ignoreComments?: readonly IgnoreComment[];
+}) {
   const { sortedTokens, templateTokens } = prepareTemplateTokens(tokens);
+  const renderedIgnoreComments = renderIgnoreComments(ignoreComments);
 
   const exports = templateTokens
     .map(([tokenName, value]) => {
@@ -15,11 +34,18 @@ export function renderTS(name: string, tokens: SyncResult["tokens"]) {
   const typeName = `${pascalCase(name)}Token`;
   const tokenNames = sortedTokens.map((t) => JSON.stringify(t.name)).join(" | ");
 
-  return `${ignoreComments}${exports}\n\nexport type ${typeName} = ${tokenNames};\n`;
+  return `${renderedIgnoreComments}${exports}\n\nexport type ${typeName} = ${tokenNames};\n`;
 }
 
-export function renderJS(tokens: SyncResult["tokens"]) {
+export function renderJS({
+  tokens,
+  ignoreComments,
+}: {
+  tokens: SyncResult["tokens"];
+  ignoreComments?: readonly IgnoreComment[];
+}) {
   const { templateTokens } = prepareTemplateTokens(tokens);
+  const renderedIgnoreComments = renderIgnoreComments(ignoreComments);
 
   const exports = templateTokens
     .map(([tokenName, value]) => {
@@ -27,7 +53,7 @@ export function renderJS(tokens: SyncResult["tokens"]) {
     })
     .join("\n");
 
-  return `${ignoreComments}${exports}\n`;
+  return `${renderedIgnoreComments}${exports}\n`;
 }
 
 export function renderJSON(tokens: SyncResult["tokens"]) {

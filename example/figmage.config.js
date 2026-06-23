@@ -16,6 +16,7 @@ export default defineConfig({
   output: {
     directory: "./tokens",
     fileType: "ts",
+    ignoreComments: ["eslint", "prettier", "oxlint", "oxfmt", "biome"],
   },
   transform: {
     defaultCasing: "camel",
