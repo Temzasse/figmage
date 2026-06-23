@@ -39,6 +39,7 @@ figmage sync [options]
 | `-c, --config <path>` | `figmage.config.js` | Path to the config file. |
 | `--only <names>` | none | Comma-separated token names to sync, e.g. `colors,typography`. Everything else is skipped. |
 | `--skip <names>` | none | Comma-separated token names to exclude, e.g. `icons,assets`. Everything else is synced. |
+| `--on-success <command>` | none | Shell command to run after sync completes successfully. |
 
 `--only` and `--skip` are mutually exclusive — pass at most one of them.
 
@@ -57,9 +58,24 @@ figmage sync --only=colors,icons
 # Sync everything except a subset
 figmage sync --skip=assets
 
+# Run another command after a successful sync
+figmage sync --on-success "npm run build"
+
 # Verbose output for debugging
 figmage sync --verbose
 ```
+
+### Running a command after sync
+
+Use `--on-success` when another local step should run only after Figmage has successfully finished
+syncing, such as formatting generated files, building your package, or running tests.
+
+```bash
+figmage sync --on-success "npm run format:fix"
+```
+
+The command runs through your shell from the current working directory and inherits terminal output.
+If the command exits with a non-zero status, `figmage sync` exits as failed.
 
 ### Filtering with `--only` and `--skip`
 

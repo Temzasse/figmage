@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { createConsola } from "consola";
 import { parseCliArgs } from "./args";
 import { loadConfig } from "./config";
@@ -39,6 +40,7 @@ export async function cli(args: string[]) {
 
       const onlyArg = values.only;
       const skipArg = values.skip;
+      const onSuccess = values["on-success"];
       const only = getCommaSeparatedValues(onlyArg);
       const skip = getCommaSeparatedValues(skipArg);
 
@@ -53,6 +55,11 @@ export async function cli(args: string[]) {
         log.error(
           "Invalid value for --skip. Use comma-separated token names, e.g. --skip=colors,typography",
         );
+        process.exit(1);
+      }
+
+      if (onSuccess !== undefined && onSuccess.trim().length === 0) {
+        log.error("Invalid value for --on-success. Provide a command to execute.");
         process.exit(1);
       }
 
@@ -80,6 +87,9 @@ export async function cli(args: string[]) {
       await sync.write(result);
 
       log.success("Design tokens synced successfully.");
+      if (onSuccess) {
+        await runOnSuccess(onSuccess);
+      }
       break;
     }
     case "spritesheet": {
@@ -166,6 +176,28 @@ function getCommaSeparatedValues(value: string | undefined): string[] | undefine
   ];
 }
 
+function runOnSuccess(command: string) {
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn(command, {
+      cwd: process.cwd(),
+      env: process.env,
+      shell: true,
+      stdio: "inherit",
+    });
+
+    child.on("error", reject);
+    child.on("close", (code, signal) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+
+      const reason = signal ? `signal ${signal}` : `exit code ${code}`;
+      reject(new Error(`--on-success command failed with ${reason}: ${command}`));
+    });
+  });
+}
+
 function buildHelpText() {
   return `figmage - Sync Figma design tokens and generate spritesheets
 
@@ -185,6 +217,7 @@ Sync Options:
   -c, --config <path>       Path to config file (default: figmage.config.js)
   --only <names>            Comma-separated token names to sync (e.g. colors,typography)
   --skip <names>            Comma-separated token names to skip (e.g. colors,typography)
+  --on-success <command>    Shell command to run after sync completes successfully
 
 Spritesheet Options:
   --sprite-input <path>           Input SVG directory (required)
@@ -201,5 +234,6 @@ Examples:
   figmage sync
   figmage sync --only=colors,typography
   figmage sync --skip=colors,typography
+  figmage sync --on-success "npm run build"
   figmage spritesheet --sprite-input ./icons --sprite-output ./static --sprite-filename icon-sprite`;
 }

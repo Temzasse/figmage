@@ -8,6 +8,7 @@ export async function parseCliArgs(rawArgs: string[]) {
       config: { type: "string", short: "c" },
       only: { type: "string" },
       skip: { type: "string" },
+      "on-success": { type: "string" },
       help: { type: "boolean", short: "h" },
       version: { type: "boolean", short: "v" },
       verbose: { type: "boolean", short: "V" },
