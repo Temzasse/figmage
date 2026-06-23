@@ -671,7 +671,11 @@ export class Sync {
         return true;
       });
 
-      const content = fileType === "ts" ? renderTS(name, filteredTokens) : renderJS(filteredTokens);
+      const ignoreComments = this.config.output?.ignoreComments;
+      const content =
+        fileType === "ts"
+          ? renderTS({ name, tokens: filteredTokens, ignoreComments })
+          : renderJS({ tokens: filteredTokens, ignoreComments });
 
       await fs.writeFile(filePath, content, "utf-8");
     } else if (fileType === "json") {
@@ -731,6 +735,7 @@ export class Sync {
       idsFilename,
       idsFileType,
       idsDir,
+      idsIgnoreComments: this.config.output?.ignoreComments,
     });
   }
 

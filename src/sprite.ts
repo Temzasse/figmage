@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
-import type { OptimizeSvgOptions, SyncResult } from "./types";
+import { renderIgnoreComments } from "./render";
+import type { IgnoreComment, OptimizeSvgOptions, SyncResult } from "./types";
 import { optimizeSvg } from "./svgo";
 import { toCase } from "./utils";
 
@@ -42,6 +43,7 @@ export async function generateSpritesheet({
   idsFilename,
   idsFileType = "ts",
   idsDir,
+  idsIgnoreComments,
 }: {
   tokens: SyncResult["tokens"][0][];
   spriteDir: string;
@@ -50,6 +52,7 @@ export async function generateSpritesheet({
   idsFilename: string;
   idsFileType?: "ts" | "js" | "json";
   idsDir: string;
+  idsIgnoreComments?: readonly IgnoreComment[];
 }) {
   const svgs: [string, string][] = [];
 
@@ -80,11 +83,7 @@ export async function generateSpritesheet({
 
   const ids = svgs.map(([name]) => JSON.stringify(name)).join(",");
 
-  const ignoreComments =
-    "/* eslint-disable */\n" +
-    "/* prettier-ignore */\n" +
-    "/* oxlint-disable */\n" +
-    "/* oxfmt-ignore */\n";
+  const ignoreComments = renderIgnoreComments(idsIgnoreComments);
 
   let idsFileContent = "";
 
