@@ -119,11 +119,11 @@ export class FigmaAPI {
       throw new Error(`Component set with name "${name}" not found`);
     }
 
-    const nodes = await this.fetchNodeChildren(set.node_id);
+    const nodes = await this.fetchFrameComponents(set.node_id);
     return nodes;
   }
 
-  async fetchNodeChildren(id: string) {
+  async fetchFrameComponents(id: string) {
     const res = await this.fetchAPI<GetFileNodesResponse>(`files/${this.fileId}/nodes`, {
       ids: id,
     });

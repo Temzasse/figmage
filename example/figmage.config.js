@@ -80,6 +80,20 @@ export default defineConfig({
         componentSet: "Radii",
         property: "cornerRadius",
       },
+      output: {
+        fileName: "radii-component-set",
+      },
+    },
+    {
+      name: "radii",
+      type: "property",
+      source: {
+        frame: "Figmage - Radii",
+        property: "cornerRadius",
+      },
+      output: {
+        fileName: "radii-frame",
+      },
     },
     {
       name: "icons",

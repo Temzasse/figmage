@@ -380,12 +380,19 @@ export class Sync {
       frameId = await this.getFrameIdByName(source.frame);
     }
 
-    const children = await this.api.fetchNodeChildren(frameId!);
+    const children = await this.api.fetchFrameComponents(frameId!);
 
     const tokens: ComponentPropertySyncResult["tokens"] = [];
 
     children.forEach((component) => {
-      const propertyValue = this.readComponentProperty(component, source.property);
+      /**
+       * Certain properties such as `cornerRadius` are only available on the parent component, not on instances.
+       * Therefore, we need to check if the component has children and use the first child if it exists.
+       * If the component has no children, we use the component itself.
+       */
+      const children = component?.children;
+      const target = Array.isArray(children) && children.length > 0 ? children[0] : component;
+      const propertyValue = this.readComponentProperty(target, source.property);
 
       const formattedValue =
         typeof propertyValue === "number"
@@ -459,7 +466,7 @@ export class Sync {
         frameId = await this.getFrameIdByName(source.frame);
       }
 
-      const children = await this.api.fetchNodeChildren(frameId!);
+      const children = await this.api.fetchFrameComponents(frameId!);
       const filteredChildren = children.filter((child) => child.name);
 
       const images = await this.api.fetchImages({
@@ -545,7 +552,7 @@ export class Sync {
         frameId = await this.getFrameIdByName(source.frame);
       }
 
-      const children = await this.api.fetchNodeChildren(frameId!);
+      const children = await this.api.fetchFrameComponents(frameId!);
       const filteredChildren = children.filter((child) => child.name);
 
       const images = await this.api.fetchImages({
@@ -767,7 +774,7 @@ export class Sync {
     this.progressCompleted = Math.min(this.progressCompleted + 1, this.progressTotal);
   }
 
-  private readComponentProperty(component: ComponentNode | InstanceNode, propertyPath: string) {
+  private readComponentProperty<T extends { name: string }>(component: T, propertyPath: string) {
     const propertyValue = get(component, propertyPath);
 
     if (propertyValue === undefined || propertyValue === null) {
