@@ -1,17 +1,24 @@
 import type { Node } from "@figma/rest-api-spec";
 import type { TokenCasing } from "./types";
 
-export async function promiseAllInBatches<T, R>(
-  task: (item: T, index: number) => Promise<R>,
-  items: T[],
-  batchSize: number,
-): Promise<R[]> {
+export async function promiseAllInBatches<T, R>({
+  items,
+  handle,
+  batchSize,
+}: {
+  items: T[];
+  handle: (item: T, index: number) => Promise<R>;
+  batchSize: number;
+}): Promise<R[]> {
   let cursor = 0;
   let results: R[] = [];
 
   while (cursor < items.length) {
     const batch = items.slice(cursor, cursor + batchSize);
-    results = [...results, ...(await Promise.all(batch.map((item, i) => task(item, cursor + i))))];
+    results = [
+      ...results,
+      ...(await Promise.all(batch.map((item, i) => handle(item, cursor + i)))),
+    ];
     cursor += batchSize;
   }
 

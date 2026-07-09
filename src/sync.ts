@@ -44,7 +44,7 @@ import type {
   CodeSyncResult,
   SpriteImageTokenConfig,
 } from "./types";
-import { get, isObject, roundToDecimal, toCase, toFixed } from "./utils";
+import { get, isObject, promiseAllInBatches, roundToDecimal, toCase, toFixed } from "./utils";
 
 export class Sync {
   private readonly config: Config;
@@ -485,12 +485,11 @@ export class Sync {
       return { config, tokens };
     }
 
-    const imageContents = await Promise.all(
-      data
-        .map((d) => d.url)
-        .filter(Boolean)
-        .map((url) => fetch(url).then((res) => res.text())),
-    );
+    const imageContents = await promiseAllInBatches({
+      items: data.map((d) => d.url).filter(Boolean),
+      batchSize: 5,
+      handle: (url) => fetch(url).then((res) => res.text()),
+    });
 
     const svgOptimized = imageContents.map((img) => optimizeSvg(img, transform?.optimize));
 
@@ -751,8 +750,10 @@ export class Sync {
     const { transform } = config;
     const defaultFormat = this.config.transform?.defaultImageRasterFormat || "png";
 
-    await Promise.all(
-      tokens.map(async (token) => {
+    await promiseAllInBatches({
+      items: tokens,
+      batchSize: 5,
+      handle: async (token) => {
         try {
           const url = new URL(token.value);
           const format = transform?.format || defaultFormat;
@@ -760,14 +761,11 @@ export class Sync {
           const filePath = `${outputDir}/${fileName}`;
 
           await this.api.downloadFile(url, filePath);
-          // oxlint-disable-next-line no-unused-vars
-        } catch (_) {
-          this.log.error(
-            `Invalid URL for token "${token.name}": ${token.value}. Skipping download.`,
-          );
+        } catch (error) {
+          this.log.error(`Could not download URL ${token.value} for token "${token.name}":`, error);
         }
-      }),
-    );
+      },
+    });
   }
 
   private incrementProgress() {

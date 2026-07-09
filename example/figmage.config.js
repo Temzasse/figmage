@@ -15,6 +15,7 @@ export default defineConfig({
   fileId,
   output: {
     directory: "./tokens",
+    // directory: "./tokens-mobile",
     fileType: "ts",
     ignoreComments: ["eslint", "prettier", "oxlint", "oxfmt", "biome"],
   },
@@ -26,6 +27,7 @@ export default defineConfig({
     defaultPropertyFormat: "px",
     baseFontSize: 16,
   },
+  // Web design system
   tokens: [
     {
       name: "colors",
@@ -154,4 +156,14 @@ export default defineConfig({
       },
     },
   ],
+  // Mobile design system
+  // tokens: [
+  //   {
+  //     name: "assets",
+  //     type: "imageRaster",
+  //     source: { frame: "App Icon & Splash" },
+  //     transform: { format: "png", scale: 2, casing: "kebab" }, // 2x export
+  //     filter: ({ name }) => !name.includes("your"),
+  //   },
+  // ],
 });
