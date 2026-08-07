@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { optimize } from "svgo";
 import { renderIgnoreComments } from "./render";
 import type { IgnoreComment, OptimizeSvgOptions, SyncResult } from "./types";
 import { optimizeSvg } from "./svgo";
@@ -54,34 +55,28 @@ export async function generateSpritesheet({
   idsDir: string;
   idsIgnoreComments?: readonly IgnoreComment[];
 }) {
-  const svgs: [string, string][] = [];
+  const symbols: [string, string][] = [];
 
   tokens.forEach(({ name, value }) => {
     if (typeof value !== "string") return;
 
-    const rgx = /<svg.*?>([\s\S]*)<\/svg>/i;
-    const match = value.match(rgx);
-    const svgContent = match ? match[1] : "";
+    const symbol = createSpriteSymbol({ name, svg: value });
 
-    if (svgContent) {
-      svgs.push([name, svgContent]);
+    if (symbol) {
+      symbols.push([name, symbol]);
     }
   });
 
-  const symbols = svgs
-    .map(([name, svgContent]) => `<symbol viewBox="0 0 24 24" id="${name}">${svgContent}</symbol>`)
-    .join("");
-
   const spritesheet =
     '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>' +
-    symbols +
+    symbols.map(([, symbol]) => symbol).join("") +
     "</defs></svg>";
 
   await fs.writeFile(`${spriteDir}/${spriteFilename}.svg`, spritesheet, "utf-8");
 
   if (!idsEnabled) return;
 
-  const ids = svgs.map(([name]) => JSON.stringify(name)).join(",");
+  const ids = symbols.map(([name]) => JSON.stringify(name)).join(",");
 
   const ignoreComments = renderIgnoreComments(idsIgnoreComments);
 
@@ -99,11 +94,40 @@ export async function generateSpritesheet({
       `export const ids = [${ids}];\n`;
   } else if (idsFileType === "json") {
     idsFileContent = JSON.stringify(
-      svgs.map(([name]) => name),
+      symbols.map(([name]) => name),
       null,
       2,
     );
   }
 
   await fs.writeFile(`${idsDir}/${idsFilename}.${idsFileType}`, idsFileContent, "utf-8");
+}
+
+function createSpriteSymbol({ name, svg }: { name: string; svg: string }): string | undefined {
+  let isSvg = false;
+
+  const { data } = optimize(svg, {
+    plugins: [
+      "removeDoctype",
+      "removeXMLProcInst",
+      {
+        name: "convertSvgToSymbol",
+        fn: () => ({
+          element: {
+            enter: (node, parentNode) => {
+              if (parentNode.type !== "root" || node.name !== "svg") return;
+
+              isSvg = true;
+              node.name = "symbol";
+              node.attributes.id = name;
+              delete node.attributes.xmlns;
+              delete node.attributes["xmlns:xlink"];
+            },
+          },
+        }),
+      },
+    ],
+  });
+
+  return isSvg ? data : undefined;
 }

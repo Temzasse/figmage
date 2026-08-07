@@ -44,7 +44,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "test": "echo TODO",
+    "test": "npm run build && node --test",
     "dev": "tsdown --watch ./src --on-success \"npm run example:update\"",
     "build": "tsdown",
     "release": "npm run verify && npm run build && np",
