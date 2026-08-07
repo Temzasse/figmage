@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { cli } from "../dist/index.mjs";
 
-test("sprites preserve attributes from the source svg element", async (context) => {
+test("sprites preserve scalable svg attributes without fixed dimensions", async (context) => {
   const testDir = await fs.mkdtemp(path.join(os.tmpdir(), "figmage-sprite-"));
   const inputDir = path.join(testDir, "icons");
   const outputDir = path.join(testDir, "output");
@@ -32,11 +32,19 @@ test("sprites preserve attributes from the source svg element", async (context) 
   ]);
 
   const spritesheet = await fs.readFile(path.join(outputDir, "icons.svg"), "utf8");
+  const symbol = spritesheet.match(/<symbol\b[^>]*>/)?.[0];
 
-  assert.match(
-    spritesheet,
-    /<symbol[^>]*width="32"[^>]*height="20"[^>]*viewBox="0 0 32 20"[^>]*fill="none"[^>]*stroke="currentColor"[^>]*stroke-width="2"[^>]*stroke-linecap="round"[^>]*stroke-linejoin="round"[^>]*class="lucide user-round"[^>]*id="user-round">/,
-  );
+  assert.ok(symbol);
+  assert.doesNotMatch(symbol, /\swidth=/);
+  assert.doesNotMatch(symbol, /\sheight=/);
+  assert.match(symbol, /\sviewBox="0 0 32 20"/);
+  assert.match(symbol, /\sfill="none"/);
+  assert.match(symbol, /\sstroke="currentColor"/);
+  assert.match(symbol, /\sstroke-width="2"/);
+  assert.match(symbol, /\sstroke-linecap="round"/);
+  assert.match(symbol, /\sstroke-linejoin="round"/);
+  assert.match(symbol, /\sclass="lucide user-round"/);
+  assert.match(symbol, /\sid="user-round"/);
   assert.doesNotMatch(spritesheet, /id="source-id"/);
   assert.equal((spritesheet.match(/xmlns=/g) ?? []).length, 1);
 });

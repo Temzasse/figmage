@@ -120,6 +120,9 @@ function createSpriteSymbol({ name, svg }: { name: string; svg: string }): strin
               isSvg = true;
               node.name = "symbol";
               node.attributes.id = name;
+              // Sprite dimensions are controlled by the consuming svg/use element.
+              delete node.attributes.width;
+              delete node.attributes.height;
               delete node.attributes.xmlns;
               delete node.attributes["xmlns:xlink"];
             },
