@@ -32,7 +32,8 @@ export function renderTS({
     .join("\n");
 
   const typeName = `${pascalCase(name)}Token`;
-  const tokenNames = sortedTokens.map((t) => JSON.stringify(t.name)).join(" | ");
+  const uniqueTokenNames = [...new Set(sortedTokens.map((t) => t.name))];
+  const tokenNames = uniqueTokenNames.map((n) => JSON.stringify(n)).join(" | ");
 
   return `${renderedIgnoreComments}${exports}\n\nexport type ${typeName} = ${tokenNames};\n`;
 }
